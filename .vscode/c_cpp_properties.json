@@ -1,0 +1,35 @@
+{
+    "env": {
+        "myDefaultIncludePath": [
+            "${workspaceFolder}/Core/Inc",
+            "${workspaceFolder}/Drivers/STM32F4xx_HAL_Driver/Inc",
+            "${workspaceFolder}/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
+            "${workspaceFolder}/Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+            "${workspaceFolder}/Drivers/CMSIS/Include"
+        ]
+    },
+    "configurations": [
+        {
+            "name": "Win32",
+            "intelliSenseMode": "gcc-arm",
+            "includePath": [
+                "${myDefaultIncludePath}"
+            ],
+            "compilerPath": "C:\\Programy\\STM32CubeIDE_1.11.2\\STM32CubeIDE\\plugins\\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.11.3.rel1.win32_1.1.1.202309131626\\tools\\bin\\arm-none-eabi-gcc.exe",
+            "cStandard": "c11",
+            "defines": [
+                "DEBUG",
+                "STM32F401xE",
+                "USE_HAL_DRIVER"
+            ],
+            "browse": {
+                "path": [
+                    "${myDefaultIncludePath}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        }
+    ],
+    "version": 4
+}

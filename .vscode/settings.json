@@ -1,0 +1,31 @@
+{
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
+    "files.associations": {
+        "stdint.h": "c",
+        "stdint-gcc.h": "c",
+        "config.h": "c",
+        "commands.h": "c",
+        "stm32f4xx_hal_conf.h": "c",
+        "usart.h": "c",
+        "parser.h": "c",
+        "crc.h": "c",
+        "stdarg.h": "c",
+        "uart_communication.h": "c",
+        "stdlib.h": "c",
+        "string.h": "c",
+        "vl53l5cx.h": "c",
+        "main.h": "c",
+        "stdio.h": "c",
+        "rgb_display.h": "c",
+        "actions.h": "c",
+        "vl53l5cx_api.h": "c",
+        "platform.h": "c",
+        "oled_display.h": "c",
+        "keypadconfig.h": "c",
+        "display.h": "c",
+        "stm32_device.h": "c",
+        "onewire.h": "c",
+        "gpio.h": "c",
+        "stm32f4xx_hal.h": "c"
+    }
+}
