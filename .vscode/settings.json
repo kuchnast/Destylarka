@@ -26,6 +26,8 @@
         "stm32_device.h": "c",
         "onewire.h": "c",
         "gpio.h": "c",
-        "stm32f4xx_hal.h": "c"
+        "stm32f4xx_hal.h": "c",
+        "ds_sensors.h": "c",
+        "ds18b20.h": "c"
     }
 }

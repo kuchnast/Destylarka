@@ -13,6 +13,11 @@
 #include "display/stm32_device.h"
 #include "sensors/ds18b20.h"
 
+#include "config/ds_sensors.h"
+#include "config/ac_low_relays.h"
+#include "config/ac_high_relays.h"
+#include "config/dc_ac_relays.h"
+
 #include <stdio.h>
 
 DisplayView display_curr_view;
@@ -275,7 +280,7 @@ void Display_AcLowRelaysAction(Key key)
         Display_ViewAction(K_NONE);
         return;
     case K_ENTER:
-    	HAL_GPIO_TogglePin(msg[view_ac_low_relays_params.pos_y].dev->gpio, msg[view_ac_low_relays_params.pos_y].dev->pin);
+    	HAL_GPIO_TogglePin(msg[view_ac_low_relays_params.pos_y].dev->output_pin.gpio, msg[view_ac_low_relays_params.pos_y].dev->output_pin.pin);
         break;
     default:
         break;
@@ -287,7 +292,7 @@ void Display_AcLowRelaysAction(Key key)
     for(uint8_t line = 1, i = (view_ac_low_relays_params.pos_y > 3 ? view_ac_low_relays_params.pos_y - 3 : 0);
 		i < (view_ac_low_relays_params.pos_y > 3 ? view_ac_low_relays_params.pos_y + 1 : 4); ++i, ++line)
     {
-    	state = HAL_GPIO_ReadPin(msg[i].dev->gpio, msg[i].dev->pin);
+    	state = HAL_GPIO_ReadPin(msg[i].dev->output_pin.gpio, msg[i].dev->output_pin.pin);
 
     	if(view_ac_low_relays_params.pos_y == i)
     		snprintf(display_line, 21, ">%s  %s", msg[i].text, (state ? msgOff : msgOn));

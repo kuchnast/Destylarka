@@ -12,7 +12,7 @@
 #define	_DS18B20_H
 
 #include "onewire.h"
-#include "config.h"
+#include "config/ds_sensors.h"
 
 //
 //	CONFIGURATION
