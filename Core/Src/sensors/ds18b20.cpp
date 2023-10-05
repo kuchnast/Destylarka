@@ -8,7 +8,7 @@
  *      mateusz@msalamon.pl
  *
  */
-#include "sensors/ds18b20.h"
+#include <sensors/ds18b20.hpp>
 
 //
 //	VARIABLES

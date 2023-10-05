@@ -17,7 +17,10 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
+#include <display/display.hpp>
+#include <io/KeyPad.hpp>
+#include <main.hpp>
+#include <sensors/ds18b20.hpp>
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
@@ -25,10 +28,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "display/display.h"
-#include "sensors/ds18b20.h"
-#include "input/KeyPad.h"
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

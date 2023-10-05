@@ -7,17 +7,15 @@
  * 
  */
 
-#include "display/display.h"
-
-#include "display/hd44780.h"
-#include "display/stm32_device.h"
-#include "sensors/ds18b20.h"
-
-#include "config/ds_sensors.h"
-#include "config/ac_low_relays.h"
-#include "config/ac_high_relays.h"
-#include "config/dc_ac_relays.h"
-
+#include <config/ac_high_relays.hpp>
+#include <config/ac_low_relays.hpp>
+#include <config/dc_ac_relays.hpp>
+#include <config/ds_sensors.hpp>
+#include <display/display.hpp>
+#include <display/hd44780.hpp>
+#include <display/stm32_device.hpp>
+#include <sensors/ds18b20.hpp>
+#include <string>
 #include <stdio.h>
 
 DisplayView display_curr_view;
@@ -162,6 +160,7 @@ void Display_TempSensorsAction(Key key)
     char msgError[] = "BLAD";
     char msgNotFound[] = "BRAK";
 
+    std::string msg("asd");
 
     float temperature[4];
     uint8_t error[4];
@@ -191,9 +190,9 @@ void Display_TempSensorsAction(Key key)
 
     lcdClrScr();
 
-    for(int i = view_temp_sensors_params.pos_y; i < DS_SENSORS_NUM - (2 - view_temp_sensors_params.pos_y); ++i)
+    for(uint8_t i = view_temp_sensors_params.pos_y; i < DS_SENSORS_NUM - (2 - view_temp_sensors_params.pos_y); ++i)
     {
-        error[i - view_temp_sensors_params.pos_y] = DS18B20_GetTemperatureById((DsNamesId)i + 1,
+        error[i - view_temp_sensors_params.pos_y] = DS18B20_GetTemperatureById((DsNamesId)(i + 1),
             &(temperature[i - view_temp_sensors_params.pos_y]));
     }
 

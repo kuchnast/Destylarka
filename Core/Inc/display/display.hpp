@@ -10,8 +10,8 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include <io/key_defs.hpp>
 #include "stm32f4xx_hal.h"
-#include "input/key_defs.h"
 
 /**
  * @brief Typ wyliczeniowy dostępnych widoków wyświetlacza

@@ -8,9 +8,9 @@
  *      mateusz@msalamon.pl
  *
  */
+#include <sensors/ds18b20.hpp>
+#include <sensors/onewire.hpp>
 #include "tim.h"
-#include "sensors/onewire.h"
-#include "sensors/ds18b20.h"
 
 //
 //	Delay function for constant 1-Wire timings

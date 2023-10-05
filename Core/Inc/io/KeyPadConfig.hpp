@@ -1,7 +1,7 @@
 #ifndef	_KEYPADCONFIG_H
 #define	_KEYPADCONFIG_H
+#include <main.hpp>
 #include "gpio.h"
-#include "main.h"
 
 #define           _KEYPAD_DEBOUNCE_TIME_MS        20
 #define           _KEYPAD_USE_FREERTOS            0

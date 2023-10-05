@@ -1,5 +1,5 @@
-#include "input/KeyPad.h"
-#include "input/KeyPadConfig.h"
+#include <io/KeyPad.hpp>
+#include <io/KeyPadConfig.hpp>
 #include "gpio.h"
 #include <string.h>
 #include <stdio.h>

@@ -1,8 +1,7 @@
 #ifndef	_KEYPAD_H
 #define	_KEYPAD_H
 
-#include "input/key_defs.h"
-
+#include <io/key_defs.hpp>
 #include <stdint.h>
 #include <stdbool.h>
 

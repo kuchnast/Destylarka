@@ -1,7 +1,7 @@
 #ifndef DS_SENSORS_H_
 #define DS_SENSORS_H_
 
-#include "config/config.h"
+#include <config/config.hpp>
 
 #define DS_SENSORS_NUM 6
 

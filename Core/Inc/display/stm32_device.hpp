@@ -8,7 +8,7 @@
 #ifndef _STM32_DEVICE_H_
 #define _STM32_DEVICE_H_
 
-#include "main.h"
+#include <main.hpp>
 
 
 #define LCD_I2C_PORT		hi2c1
@@ -24,11 +24,11 @@ uint8_t sendInternal_stm32(uint8_t data, uint8_t flags); //Prototype of the func
 
 //Structure for work on the I2C protocol
 lcdI2C_ConfigStruct lcdConfig = {
-		.SendData = sendInternal_stm32,
-		.bl_pin = (0 << BACKLIGHT),
-		.rs_pin = PIN_RS,
 		.en_pin = PIN_EN,
-		.i2c_address = LCD_I2C_ADDRESS_8B
+		.rs_pin = PIN_RS,
+		.bl_pin = (0 << BACKLIGHT),
+		.i2c_address = LCD_I2C_ADDRESS_8B,
+		.SendData = sendInternal_stm32
 };
 
 

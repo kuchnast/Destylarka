@@ -8,7 +8,7 @@
 /*------------------------------------------------------*/
 /* Copyright (C)2021 AH All right reserved				*/
 /*------------------------------------------------------*/
-#include "display/hd44780.h"
+#include <display/hd44780.hpp>
 #include "stddef.h"
 
 /*!	\brief	Macro-definitions. */
