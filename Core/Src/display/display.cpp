@@ -7,10 +7,10 @@
  * 
  */
 
-#include <config/ac_high_relays.hpp>
-#include <config/ac_low_relays.hpp>
-#include <config/dc_ac_relays.hpp>
-#include <config/ds_sensors.hpp>
+#include <config/relays_ac_high.hpp>
+#include <config/relays_ac_low.hpp>
+#include <config/relays_dc_ac.hpp>
+#include <config/sensors_ds.hpp>
 #include <display/display.hpp>
 #include <display/hd44780.hpp>
 #include <display/stm32_device.hpp>
@@ -18,61 +18,59 @@
 #include <string>
 #include <stdio.h>
 
+namespace display
+{
+
 DisplayView display_curr_view;
 
-void imitationPrinting(char *ptr);
-
-static DisplayViewVariables view_main_menu_params = (DisplayViewVariables){0, 0};
-static DisplayViewVariables view_temp_sensors_params = (DisplayViewVariables){0, 0};
-static DisplayViewVariables view_ac_low_relays_params = (DisplayViewVariables){0, 0};
-static DisplayViewVariables view_ac_high_relays_params = (DisplayViewVariables){0, 0};
-static DisplayViewVariables view_dc_ac_relays_params = (DisplayViewVariables){0, 0};
-
-void Display_Init()
+void Init()
 {
 	lcdInit(&lcdConfig);
 	lcdBackLightOn();
-	Display_WelcomeScreen();
+	WelcomeScreen();
 }
 
-void Display_Clear()
+void Clear()
 {
   	lcdClrScr();
 }
 
-void Display_WelcomeScreen()
+void WelcomeScreen()
 {
-    display_curr_view = VIEW_EMPTY;
+    display_curr_view = DisplayView::EMPTY;
     char msg[] = "    DESTYLARKA    ";
     imitationPrinting(msg);
 }
 
-void Display_ViewAction(Key key)
+void ViewAction(Key key)
 {
     switch (display_curr_view)
     {
-    case VIEW_EMPTY:
-    case VIEW_MAIN_MENU:
-        Display_MainMenuAction(key);
+    case DisplayView::EMPTY:
+    case DisplayView::MAIN_MENU:
+        MainMenuAction(key);
         break;
-    case VIEW_TEMP_SENSORS:
-        Display_TempSensorsAction(key);
+    case DisplayView::TEMP_SENSORS:
+        TempSensorsAction(key);
         break;    
-    case VIEW_AC_LOW_RELAYS:
-        Display_AcLowRelaysAction(key);
+    case DisplayView::AC_LOW_RELAYS:
+        AcLowRelaysAction(key);
         break;
-    case VIEW_AC_HIGH_RELAYS:
-        Display_AcHighRelaysAction(key);
+    case DisplayView::AC_HIGH_RELAYS:
+        AcHighRelaysAction(key);
         break;
-    case VIEW_DC_AC_RELAYS:
-        Display_DcAcRelaysAction(key);
+    case DisplayView::DC_AC_RELAYS:
+        DcAcRelaysAction(key);
+        break;
+    case DisplayView::SET_ALARM:
+        SetAlarmAction(key);
         break;
     default:
         break;
     }
 }
 
-void Display_MainMenuAction(Key key)
+void MainMenuAction(Key key)
 {
     char msg0[] = "Odczyt temperatury";
     char msg1[] = "Przek. AC malej W";
@@ -82,19 +80,19 @@ void Display_MainMenuAction(Key key)
     switch (key)
     {
     case K_ARROW_UP:
-        if(view_main_menu_params.pos_y == 0)
-            view_main_menu_params.pos_y = 3;
+        if(menu_pos.y == 0)
+            menu_pos.y = 3;
         else
-            --view_main_menu_params.pos_y;
+            --menu_pos.y;
         break;
     case K_ARROW_DOWN:
-        if(view_main_menu_params.pos_y == 3)
-            view_main_menu_params.pos_y = 0;
+        if(menu_pos.y == 3)
+            menu_pos.y = 0;
         else
-            ++view_main_menu_params.pos_y;
+            ++menu_pos.y;
         break;
     case K_ENTER:
-        switch (view_main_menu_params.pos_y)
+        switch (menu_pos.y)
         {
         case 0:
             display_curr_view = VIEW_TEMP_SENSORS;
@@ -111,7 +109,7 @@ void Display_MainMenuAction(Key key)
         default:
             break;
         }
-        Display_ViewAction(K_NONE);
+        ViewAction(K_NONE);
         return;
     default:
         break;
@@ -128,7 +126,7 @@ void Display_MainMenuAction(Key key)
   	lcdGoto(LCD_4th_LINE,1);
     lcdPuts(msg3);
 
-    switch (view_main_menu_params.pos_y)
+    switch (menu_pos.y)
     {
     case 0:
         lcdGoto(LCD_1st_LINE,0);
@@ -148,7 +146,7 @@ void Display_MainMenuAction(Key key)
     lcdPuts(">");
 }
 
-void Display_TempSensorsAction(Key key)
+void TempSensorsAction(Key key)
 {
     char msg0[] = "Zb.pianka";
     char msg1[] = "Zb.kapil.";
@@ -169,20 +167,20 @@ void Display_TempSensorsAction(Key key)
     switch (key)
     {
     case K_ARROW_UP:
-        if(view_temp_sensors_params.pos_y == 0)
-            view_temp_sensors_params.pos_y = 2;
+        if(menu_pos.y == 0)
+            menu_pos.y = 2;
         else
-            --view_temp_sensors_params.pos_y;
+            --menu_pos.y;
         break;
     case K_ARROW_DOWN:
-        if(view_temp_sensors_params.pos_y == 2)
-            view_temp_sensors_params.pos_y = 0;
+        if(menu_pos.y == 2)
+            menu_pos.y = 0;
         else
-            ++view_temp_sensors_params.pos_y;
+            ++menu_pos.y;
         break;
     case K_ESC:
         display_curr_view = VIEW_MAIN_MENU;
-        Display_ViewAction(K_NONE);
+        ViewAction(K_NONE);
         return;
     default:
         break;
@@ -190,13 +188,13 @@ void Display_TempSensorsAction(Key key)
 
     lcdClrScr();
 
-    for(uint8_t i = view_temp_sensors_params.pos_y; i < DS_SENSORS_NUM - (2 - view_temp_sensors_params.pos_y); ++i)
+    for(uint8_t i = menu_pos.y; i < DS_SENSORS_NUM - (2 - menu_pos.y); ++i)
     {
-        error[i - view_temp_sensors_params.pos_y] = DS18B20_GetTemperatureById((DsNamesId)(i + 1),
-            &(temperature[i - view_temp_sensors_params.pos_y]));
+        error[i - menu_pos.y] = DS18B20_GetTemperatureById((DsNamesId)(i + 1),
+            &(temperature[i - menu_pos.y]));
     }
 
-    switch (view_temp_sensors_params.pos_y)
+    switch (menu_pos.y)
     {
     case 0:
     default:
@@ -242,7 +240,7 @@ void Display_TempSensorsAction(Key key)
 }
 
 
-void Display_AcLowRelaysAction(Key key)
+void AcLowRelaysAction(Key key)
 {
 	RelayACLowDisplay msg[RELAY_AC_LOW_NUM] = {
 		{"VM odbior otw", &known_ac_low_relays[7]},
@@ -263,23 +261,23 @@ void Display_AcLowRelaysAction(Key key)
     switch (key)
     {
     case K_ARROW_UP:
-        if(view_ac_low_relays_params.pos_y == 0)
-            view_ac_low_relays_params.pos_y = RELAY_AC_LOW_NUM - 1;
+        if(menu_pos.y == 0)
+            menu_pos.y = RELAY_AC_LOW_NUM - 1;
         else
-            --view_ac_low_relays_params.pos_y;
+            --menu_pos.y;
         break;
     case K_ARROW_DOWN:
-        if(view_ac_low_relays_params.pos_y == RELAY_AC_LOW_NUM - 1)
-            view_ac_low_relays_params.pos_y = 0;
+        if(menu_pos.y == RELAY_AC_LOW_NUM - 1)
+            menu_pos.y = 0;
         else
-            ++view_ac_low_relays_params.pos_y;
+            ++menu_pos.y;
         break;
     case K_ESC:
         display_curr_view = VIEW_MAIN_MENU;
-        Display_ViewAction(K_NONE);
+        ViewAction(K_NONE);
         return;
     case K_ENTER:
-    	HAL_GPIO_TogglePin(msg[view_ac_low_relays_params.pos_y].dev->output_pin.gpio, msg[view_ac_low_relays_params.pos_y].dev->output_pin.pin);
+    	HAL_GPIO_TogglePin(msg[menu_pos.y].dev->output_pin.gpio, msg[menu_pos.y].dev->output_pin.pin);
         break;
     default:
         break;
@@ -288,12 +286,12 @@ void Display_AcLowRelaysAction(Key key)
     lcdClrScr();
 
     GPIO_PinState state;
-    for(uint8_t line = 1, i = (view_ac_low_relays_params.pos_y > 3 ? view_ac_low_relays_params.pos_y - 3 : 0);
-		i < (view_ac_low_relays_params.pos_y > 3 ? view_ac_low_relays_params.pos_y + 1 : 4); ++i, ++line)
+    for(uint8_t line = 1, i = (menu_pos.y > 3 ? menu_pos.y - 3 : 0);
+		i < (menu_pos.y > 3 ? menu_pos.y + 1 : 4); ++i, ++line)
     {
     	state = HAL_GPIO_ReadPin(msg[i].dev->output_pin.gpio, msg[i].dev->output_pin.pin);
 
-    	if(view_ac_low_relays_params.pos_y == i)
+    	if(menu_pos.y == i)
     		snprintf(display_line, 21, ">%s  %s", msg[i].text, (state ? msgOff : msgOn));
     	else
     		snprintf(display_line, 21, " %s  %s", msg[i].text, (state ? msgOff : msgOn));
@@ -303,39 +301,37 @@ void Display_AcLowRelaysAction(Key key)
     }
 }
 
-void Display_AcHighRelaysAction(Key key)
+void AcHighRelaysAction(Key key)
 {
-	RelayACHighDisplay msg[RELAY_AC_HIGH_NUM] = {
-		{"Grzalka 1 ", &known_ac_high_relays[2]},
-		{"Grzalka 2 ", &known_ac_high_relays[1]},
-		{"Pompa wody", &known_ac_high_relays[0]},
-	};
+    const std::string msgOn("ON");
+    const std::string msgOff("OFF");
 
-    char msgOn[] = "ON";
-    char msgOff[] = "OFF";
+    static DisplayViewPos menu_pos(0, 0);
+    static const size_t relaysSize = config::ac_high_relays.Size();
 
-	char display_line[21];
+	std::string display_line;
 
     switch (key)
     {
     case K_ARROW_UP:
-        if(view_ac_high_relays_params.pos_y == 0)
-            view_ac_high_relays_params.pos_y = RELAY_AC_HIGH_NUM - 1;
+        if(menu_pos.y == 0)
+            menu_pos.y = relaysSize - 1;
         else
-            --view_ac_high_relays_params.pos_y;
+            --menu_pos.y;
         break;
     case K_ARROW_DOWN:
-        if(view_ac_high_relays_params.pos_y == RELAY_AC_HIGH_NUM - 1)
-            view_ac_high_relays_params.pos_y = 0;
+        if(menu_pos.y == relaysSize - 1)
+            menu_pos.y = 0;
         else
-            ++view_ac_high_relays_params.pos_y;
+            ++menu_pos.y;
         break;
     case K_ESC:
-        display_curr_view = VIEW_MAIN_MENU;
-        Display_ViewAction(K_NONE);
+        display_curr_view = DisplayView::MAIN_MENU;
+        ViewAction(K_NONE);
         return;
     case K_ENTER:
-        HAL_GPIO_TogglePin(msg[view_ac_high_relays_params.pos_y].dev->gpio, msg[view_ac_high_relays_params.pos_y].dev->pin);
+        config::ac_high_relays
+        HAL_GPIO_TogglePin(msg[menu_pos.y].dev->gpio, msg[menu_pos.y].dev->pin);
         break;
     default:
     	break;
@@ -348,7 +344,7 @@ void Display_AcHighRelaysAction(Key key)
     {
     	state = HAL_GPIO_ReadPin(msg[i].dev->gpio, msg[i].dev->pin);
 
-    	if(view_ac_high_relays_params.pos_y == i)
+    	if(view_ac_high_relays_params.y == i)
     		snprintf(display_line, 21, ">%s  %s", msg[i].text, (state ? msgOn : msgOff));
     	else
     		snprintf(display_line, 21, " %s  %s", msg[i].text, (state ? msgOn : msgOff));
@@ -358,7 +354,7 @@ void Display_AcHighRelaysAction(Key key)
     }
 }
 
-void Display_DcAcRelaysAction(Key key)
+void DcAcRelaysAction(Key key)
 {
     char msg0[] = "Pusty 1";
     char msg1[] = "Pusty 2";
@@ -371,23 +367,23 @@ void Display_DcAcRelaysAction(Key key)
     switch (key)
     {
     case K_ARROW_UP:
-        if(view_dc_ac_relays_params.pos_y == 0)
-            view_dc_ac_relays_params.pos_y = 3;
+        if(view_dc_ac_relays_params.y == 0)
+            view_dc_ac_relays_params.y = 3;
         else
-            --view_dc_ac_relays_params.pos_y;
+            --view_dc_ac_relays_params.y;
         break;
     case K_ARROW_DOWN:
-        if(view_dc_ac_relays_params.pos_y == 3)
-            view_dc_ac_relays_params.pos_y = 0;
+        if(view_dc_ac_relays_params.y == 3)
+            view_dc_ac_relays_params.y = 0;
         else
-            ++view_dc_ac_relays_params.pos_y;
+            ++view_dc_ac_relays_params.y;
         break;
     case K_ESC:
         display_curr_view = VIEW_MAIN_MENU;
-        Display_ViewAction(K_NONE);
+        ViewAction(K_NONE);
         return;
     case K_ENTER:
-        HAL_GPIO_TogglePin(known_dc_ac_relays[view_dc_ac_relays_params.pos_y].gpio, known_dc_ac_relays[view_dc_ac_relays_params.pos_y].pin);
+        HAL_GPIO_TogglePin(known_dc_ac_relays[view_dc_ac_relays_params.y].gpio, known_dc_ac_relays[view_dc_ac_relays_params.y].pin);
         break;
     default:
     	break;
@@ -395,7 +391,7 @@ void Display_DcAcRelaysAction(Key key)
 
     lcdClrScr();
 
-    lcdGoto(view_dc_ac_relays_params.pos_y, 0);
+    lcdGoto(view_dc_ac_relays_params.y, 0);
     lcdPutc('>');
 
     lcdGoto(LCD_1st_LINE, 1);
@@ -435,4 +431,6 @@ void imitationPrinting(char *ptr)
 	}
 
 	lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOff);
+}
+
 }

@@ -11,7 +11,7 @@
 #ifndef	_DS18B20_H
 #define	_DS18B20_H
 
-#include <config/ds_sensors.hpp>
+#include <config/sensors_ds.hpp>
 #include <sensors/onewire.hpp>
 
 //

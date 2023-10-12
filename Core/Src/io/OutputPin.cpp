@@ -18,7 +18,6 @@ bool OutputPin::Read()
 void OutputPin::Toggle()
 {
     HAL_GPIO_TogglePin(gpio_, pin_);
-
 }
 
 }  // namespace io

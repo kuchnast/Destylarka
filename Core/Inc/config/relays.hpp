@@ -3,8 +3,8 @@
 
 #include <io/OutputPin.hpp>
 
-#include <array>
 #include <string>
+#include <vector>
 
 namespace config
 {
@@ -21,20 +21,28 @@ struct Relay
 };
 
 template <typename T>
-struct RelayDisplay
+class RelaysCollection
 {
-    static_assert(std::is_base_of_v<Relay, T>, "T must derive from Relay");
+static_assert(std::is_enum_v<T>, "T must be enum");
 
-    const T& config;
-    const std::string display_str;
-};
+public:
+    RelaysCollection(const std::vector<T> relays) : relays(relays) {}
 
-template <typename T, std::size_t N>
-struct RelaysCollection
-{
-    static_assert(std::is_base_of_v<Relay, T>, "T must derive from Relay");
+    size_t Size() const
+    {
+        return relays.size();
+    }
 
-    static const std::array<const T, N> relays; 
+    io::OutputPin &Find(T id)
+    {
+        for(Relay<T> &relay: relays)
+        {
+            if(relay.id == id)
+                return relay.pin;
+        }
+    }
+
+    const std::vector<Relay<T>> relays;
 };
 
 } // namespace config
