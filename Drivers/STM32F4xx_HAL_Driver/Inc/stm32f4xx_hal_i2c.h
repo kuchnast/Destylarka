@@ -86,12 +86,12 @@ typedef struct
   *             11 : Error
   *          b5     Peripheral initialization status
   *             0  : Reset (Peripheral not initialized)
-  *             1  : Init done (Peripheral initialized and ready to use. HAL I2C Init function called)
+  *             1  : Init done (Peripheral initialized and ready to use. HAL I2C init function called)
   *          b4     (not used)
   *             x  : Should be set to 0
   *          b3
   *             0  : Ready or Busy (No Listen mode ongoing)
-  *             1  : Listen (Peripheral in Address Listen Mode)
+  *             1  : Listen (Peripheral in address Listen Mode)
   *          b2     Intrinsic process state
   *             0  : Ready
   *             1  : Busy (Peripheral busy with some configuration or internal operations)
@@ -110,10 +110,10 @@ typedef enum
   HAL_I2C_STATE_BUSY              = 0x24U,   /*!< An internal process is ongoing            */
   HAL_I2C_STATE_BUSY_TX           = 0x21U,   /*!< Data Transmission process is ongoing      */
   HAL_I2C_STATE_BUSY_RX           = 0x22U,   /*!< Data Reception process is ongoing         */
-  HAL_I2C_STATE_LISTEN            = 0x28U,   /*!< Address Listen Mode is ongoing            */
-  HAL_I2C_STATE_BUSY_TX_LISTEN    = 0x29U,   /*!< Address Listen Mode and Data Transmission
+  HAL_I2C_STATE_LISTEN            = 0x28U,   /*!< address Listen Mode is ongoing            */
+  HAL_I2C_STATE_BUSY_TX_LISTEN    = 0x29U,   /*!< address Listen Mode and Data Transmission
                                                  process is ongoing                         */
-  HAL_I2C_STATE_BUSY_RX_LISTEN    = 0x2AU,   /*!< Address Listen Mode and Data Reception
+  HAL_I2C_STATE_BUSY_RX_LISTEN    = 0x2AU,   /*!< address Listen Mode and Data Reception
                                                  process is ongoing                         */
   HAL_I2C_STATE_ABORT             = 0x60U,   /*!< Abort user request ongoing                */
   HAL_I2C_STATE_TIMEOUT           = 0xA0U,   /*!< Timeout state                             */
@@ -234,9 +234,9 @@ typedef struct
   void (* ErrorCallback)(struct __I2C_HandleTypeDef *hi2c);                  /*!< I2C Error callback                        */
   void (* AbortCpltCallback)(struct __I2C_HandleTypeDef *hi2c);              /*!< I2C Abort callback                        */
 
-  void (* AddrCallback)(struct __I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode);  /*!< I2C Slave Address Match callback */
+  void (* AddrCallback)(struct __I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode);  /*!< I2C Slave address Match callback */
 
-  void (* MspInitCallback)(struct __I2C_HandleTypeDef *hi2c);                /*!< I2C Msp Init callback                     */
+  void (* MspInitCallback)(struct __I2C_HandleTypeDef *hi2c);                /*!< I2C Msp init callback                     */
   void (* MspDeInitCallback)(struct __I2C_HandleTypeDef *hi2c);              /*!< I2C Msp DeInit callback                   */
 
 #endif  /* USE_HAL_I2C_REGISTER_CALLBACKS */
@@ -258,7 +258,7 @@ typedef enum
   HAL_I2C_ERROR_CB_ID                   = 0x07U,    /*!< I2C Error callback ID                         */
   HAL_I2C_ABORT_CB_ID                   = 0x08U,    /*!< I2C Abort callback ID                         */
 
-  HAL_I2C_MSPINIT_CB_ID                 = 0x09U,    /*!< I2C Msp Init callback ID                      */
+  HAL_I2C_MSPINIT_CB_ID                 = 0x09U,    /*!< I2C Msp init callback ID                      */
   HAL_I2C_MSPDEINIT_CB_ID               = 0x0AU     /*!< I2C Msp DeInit callback ID                    */
 
 } HAL_I2C_CallbackIDTypeDef;
@@ -267,7 +267,7 @@ typedef enum
   * @brief  HAL I2C Callback pointer definition
   */
 typedef  void (*pI2C_CallbackTypeDef)(I2C_HandleTypeDef *hi2c); /*!< pointer to an I2C callback function */
-typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode); /*!< pointer to an I2C Address Match callback function */
+typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, uint16_t AddrMatchCode); /*!< pointer to an I2C address Match callback function */
 
 #endif /* USE_HAL_I2C_REGISTER_CALLBACKS */
 /**
@@ -328,7 +328,7 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
   * @}
   */
 
-/** @defgroup I2C_Memory_Address_Size I2C Memory Address Size
+/** @defgroup I2C_Memory_Address_Size I2C Memory address Size
   * @{
   */
 #define I2C_MEMADD_SIZE_8BIT            0x00000001U
@@ -462,8 +462,8 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
   *            @arg I2C_FLAG_STOPF: Stop detection flag
   *            @arg I2C_FLAG_ADD10: 10-bit header sent flag
   *            @arg I2C_FLAG_BTF: Byte transfer finished flag
-  *            @arg I2C_FLAG_ADDR: Address sent flag
-  *                                Address matched flag
+  *            @arg I2C_FLAG_ADDR: address sent flag
+  *                                address matched flag
   *            @arg I2C_FLAG_SB: Start bit flag
   *            @arg I2C_FLAG_DUALF: Dual flag
   *            @arg I2C_FLAG_GENCALL: General call header flag
@@ -478,7 +478,7 @@ typedef  void (*pI2C_AddrCallbackTypeDef)(I2C_HandleTypeDef *hi2c, uint8_t Trans
 
 /** @brief  Clears the I2C pending flags which are cleared by writing 0 in a specific bit.
   * @param  __HANDLE__ specifies the I2C Handle.
-  * @param  __FLAG__ specifies the flag to clear.
+  * @param  __FLAG__ specifies the flag to clearScreen.
   *         This parameter can be any combination of the following values:
   *            @arg I2C_FLAG_OVR: Overrun/Underrun flag (Slave mode)
   *            @arg I2C_FLAG_AF: Acknowledge failure flag

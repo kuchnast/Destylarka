@@ -352,11 +352,11 @@ typedef struct
 {
   __IOM uint32_t ISER[16U];              /*!< Offset: 0x000 (R/W)  Interrupt Set Enable Register */
         uint32_t RESERVED0[16U];
-  __IOM uint32_t ICER[16U];              /*!< Offset: 0x080 (R/W)  Interrupt Clear Enable Register */
+  __IOM uint32_t ICER[16U];              /*!< Offset: 0x080 (R/W)  Interrupt clearScreen Enable Register */
         uint32_t RSERVED1[16U];
   __IOM uint32_t ISPR[16U];              /*!< Offset: 0x100 (R/W)  Interrupt Set Pending Register */
         uint32_t RESERVED2[16U];
-  __IOM uint32_t ICPR[16U];              /*!< Offset: 0x180 (R/W)  Interrupt Clear Pending Register */
+  __IOM uint32_t ICPR[16U];              /*!< Offset: 0x180 (R/W)  Interrupt clearScreen Pending Register */
         uint32_t RESERVED3[16U];
   __IOM uint32_t IABR[16U];              /*!< Offset: 0x200 (R/W)  Interrupt Active bit Register */
         uint32_t RESERVED4[16U];
@@ -744,7 +744,7 @@ typedef struct
   __IOM uint32_t ITCTRL;                 /*!< Offset: 0xF00 (R/W)  Integration Mode Control */
         uint32_t RESERVED5[39U];
   __IOM uint32_t CLAIMSET;               /*!< Offset: 0xFA0 (R/W)  Claim tag set */
-  __IOM uint32_t CLAIMCLR;               /*!< Offset: 0xFA4 (R/W)  Claim tag clear */
+  __IOM uint32_t CLAIMCLR;               /*!< Offset: 0xFA4 (R/W)  Claim tag clearScreen */
         uint32_t RESERVED7[8U];
   __IM  uint32_t DEVID;                  /*!< Offset: 0xFC8 (R/ )  Device Configuration Register */
   __IM  uint32_t DEVTYPE;                /*!< Offset: 0xFCC (R/ )  Device Type Identifier Register */
@@ -901,8 +901,8 @@ typedef struct
   __IM  uint32_t TYPE;                   /*!< Offset: 0x000 (R/ )  MPU Type Register */
   __IOM uint32_t CTRL;                   /*!< Offset: 0x004 (R/W)  MPU Control Register */
   __IOM uint32_t RNR;                    /*!< Offset: 0x008 (R/W)  MPU Region Number Register */
-  __IOM uint32_t RBAR;                   /*!< Offset: 0x00C (R/W)  MPU Region Base Address Register */
-  __IOM uint32_t RLAR;                   /*!< Offset: 0x010 (R/W)  MPU Region Limit Address Register */
+  __IOM uint32_t RBAR;                   /*!< Offset: 0x00C (R/W)  MPU Region Base address Register */
+  __IOM uint32_t RLAR;                   /*!< Offset: 0x010 (R/W)  MPU Region Limit address Register */
         uint32_t RESERVED0[7U];
   union {
   __IOM uint32_t MAIR[2];
@@ -939,7 +939,7 @@ typedef struct
 #define MPU_RNR_REGION_Pos                  0U                                            /*!< MPU RNR: REGION Position */
 #define MPU_RNR_REGION_Msk                 (0xFFUL /*<< MPU_RNR_REGION_Pos*/)             /*!< MPU RNR: REGION Mask */
 
-/* MPU Region Base Address Register Definitions */
+/* MPU Region Base address Register Definitions */
 #define MPU_RBAR_BASE_Pos                   5U                                            /*!< MPU RBAR: BASE Position */
 #define MPU_RBAR_BASE_Msk                  (0x7FFFFFFUL << MPU_RBAR_BASE_Pos)             /*!< MPU RBAR: BASE Mask */
 
@@ -952,7 +952,7 @@ typedef struct
 #define MPU_RBAR_XN_Pos                     0U                                            /*!< MPU RBAR: XN Position */
 #define MPU_RBAR_XN_Msk                    (01UL /*<< MPU_RBAR_XN_Pos*/)                  /*!< MPU RBAR: XN Mask */
 
-/* MPU Region Limit Address Register Definitions */
+/* MPU Region Limit address Register Definitions */
 #define MPU_RLAR_LIMIT_Pos                  5U                                            /*!< MPU RLAR: LIMIT Position */
 #define MPU_RLAR_LIMIT_Msk                 (0x7FFFFFFUL << MPU_RLAR_LIMIT_Pos)            /*!< MPU RLAR: LIMIT Mask */
 
@@ -1009,8 +1009,8 @@ typedef struct
   __IM  uint32_t TYPE;                   /*!< Offset: 0x004 (R/ )  SAU Type Register */
 #if defined (__SAUREGION_PRESENT) && (__SAUREGION_PRESENT == 1U)
   __IOM uint32_t RNR;                    /*!< Offset: 0x008 (R/W)  SAU Region Number Register */
-  __IOM uint32_t RBAR;                   /*!< Offset: 0x00C (R/W)  SAU Region Base Address Register */
-  __IOM uint32_t RLAR;                   /*!< Offset: 0x010 (R/W)  SAU Region Limit Address Register */
+  __IOM uint32_t RBAR;                   /*!< Offset: 0x00C (R/W)  SAU Region Base address Register */
+  __IOM uint32_t RLAR;                   /*!< Offset: 0x010 (R/W)  SAU Region Limit address Register */
 #endif
 } SAU_Type;
 
@@ -1030,11 +1030,11 @@ typedef struct
 #define SAU_RNR_REGION_Pos                  0U                                            /*!< SAU RNR: REGION Position */
 #define SAU_RNR_REGION_Msk                 (0xFFUL /*<< SAU_RNR_REGION_Pos*/)             /*!< SAU RNR: REGION Mask */
 
-/* SAU Region Base Address Register Definitions */
+/* SAU Region Base address Register Definitions */
 #define SAU_RBAR_BADDR_Pos                  5U                                            /*!< SAU RBAR: BADDR Position */
 #define SAU_RBAR_BADDR_Msk                 (0x7FFFFFFUL << SAU_RBAR_BADDR_Pos)            /*!< SAU RBAR: BADDR Mask */
 
-/* SAU Region Limit Address Register Definitions */
+/* SAU Region Limit address Register Definitions */
 #define SAU_RLAR_LADDR_Pos                  5U                                            /*!< SAU RLAR: LADDR Position */
 #define SAU_RLAR_LADDR_Msk                 (0x7FFFFFFUL << SAU_RLAR_LADDR_Pos)            /*!< SAU RLAR: LADDR Mask */
 
@@ -1185,13 +1185,13 @@ typedef struct
  */
 
 /* Memory mapping of Core Hardware */
-  #define SCS_BASE            (0xE000E000UL)                             /*!< System Control Space Base Address */
-  #define DWT_BASE            (0xE0001000UL)                             /*!< DWT Base Address */
-  #define TPI_BASE            (0xE0040000UL)                             /*!< TPI Base Address */
-  #define CoreDebug_BASE      (0xE000EDF0UL)                             /*!< Core Debug Base Address */
-  #define SysTick_BASE        (SCS_BASE +  0x0010UL)                     /*!< SysTick Base Address */
-  #define NVIC_BASE           (SCS_BASE +  0x0100UL)                     /*!< NVIC Base Address */
-  #define SCB_BASE            (SCS_BASE +  0x0D00UL)                     /*!< System Control Block Base Address */
+  #define SCS_BASE            (0xE000E000UL)                             /*!< System Control Space Base address */
+  #define DWT_BASE            (0xE0001000UL)                             /*!< DWT Base address */
+  #define TPI_BASE            (0xE0040000UL)                             /*!< TPI Base address */
+  #define CoreDebug_BASE      (0xE000EDF0UL)                             /*!< Core Debug Base address */
+  #define SysTick_BASE        (SCS_BASE +  0x0010UL)                     /*!< SysTick Base address */
+  #define NVIC_BASE           (SCS_BASE +  0x0100UL)                     /*!< NVIC Base address */
+  #define SCB_BASE            (SCS_BASE +  0x0D00UL)                     /*!< System Control Block Base address */
 
 
   #define SCB                 ((SCB_Type       *)     SCB_BASE         ) /*!< SCB configuration struct */
@@ -1212,11 +1212,11 @@ typedef struct
   #endif
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-  #define SCS_BASE_NS         (0xE002E000UL)                             /*!< System Control Space Base Address (non-secure address space) */
-  #define CoreDebug_BASE_NS   (0xE002EDF0UL)                             /*!< Core Debug Base Address           (non-secure address space) */
-  #define SysTick_BASE_NS     (SCS_BASE_NS +  0x0010UL)                  /*!< SysTick Base Address              (non-secure address space) */
-  #define NVIC_BASE_NS        (SCS_BASE_NS +  0x0100UL)                  /*!< NVIC Base Address                 (non-secure address space) */
-  #define SCB_BASE_NS         (SCS_BASE_NS +  0x0D00UL)                  /*!< System Control Block Base Address (non-secure address space) */
+  #define SCS_BASE_NS         (0xE002E000UL)                             /*!< System Control Space Base address (non-secure address space) */
+  #define CoreDebug_BASE_NS   (0xE002EDF0UL)                             /*!< Core Debug Base address           (non-secure address space) */
+  #define SysTick_BASE_NS     (SCS_BASE_NS +  0x0010UL)                  /*!< SysTick Base address              (non-secure address space) */
+  #define NVIC_BASE_NS        (SCS_BASE_NS +  0x0100UL)                  /*!< NVIC Base address                 (non-secure address space) */
+  #define SCB_BASE_NS         (SCS_BASE_NS +  0x0D00UL)                  /*!< System Control Block Base address (non-secure address space) */
 
   #define SCB_NS              ((SCB_Type       *)     SCB_BASE_NS      ) /*!< SCB configuration struct          (non-secure address space) */
   #define SysTick_NS          ((SysTick_Type   *)     SysTick_BASE_NS  ) /*!< SysTick configuration struct      (non-secure address space) */
@@ -1289,7 +1289,7 @@ typedef struct
 
 /* Special LR values for Secure/Non-Secure call handling and exception handling                                               */
 
-/* Function Return Payload (from ARMv8-M Architecture Reference Manual) LR value on entry from Secure BLXNS                   */ 
+/* Function Return Payload (from ARMv8-M Architecture Reference Manual) LR value on entry from Secure BLXNS                   */
 #define FNC_RETURN                 (0xFEFFFFFFUL)     /* bit [0] ignored when processing a branch                             */
 
 /* The following EXC_RETURN mask values are used to evaluate the LR on exception entry */
@@ -1304,11 +1304,11 @@ typedef struct
 /* Integrity Signature (from ARMv8-M Architecture Reference Manual) for exception context stacking                            */
 #if defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)  /* Value for processors with floating-point extension:                  */
 #define EXC_INTEGRITY_SIGNATURE     (0xFEFA125AUL)     /* bit [0] SFTC must match LR bit[4] EXC_RETURN_FTYPE                   */
-#else 
+#else
 #define EXC_INTEGRITY_SIGNATURE     (0xFEFA125BUL)     /* Value for processors without floating-point extension                */
 #endif
 
-	
+
 /* Interrupt Priorities are WORD accessible only under Armv6-M                  */
 /* The following MACROS handle generation of the register offset and byte masks */
 #define _BIT_SHIFT(IRQn)         (  ((((uint32_t)(int32_t)(IRQn))         )      &  0x03UL) * 8UL)
@@ -1408,7 +1408,7 @@ __STATIC_INLINE void __NVIC_SetPendingIRQ(IRQn_Type IRQn)
 
 
 /**
-  \brief   Clear Pending Interrupt
+  \brief   clearScreen Pending Interrupt
   \details Clears the pending bit of a device specific interrupt in the NVIC pending register.
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
@@ -1488,7 +1488,7 @@ __STATIC_INLINE uint32_t NVIC_SetTargetState(IRQn_Type IRQn)
 
 
 /**
-  \brief   Clear Interrupt Target State
+  \brief   clearScreen Interrupt Target State
   \details Clears the interrupt target field in the NVIC and returns the interrupt target bit for the device specific interrupt.
   \param [in]      IRQn  Device specific interrupt number.
   \return             0  if interrupt is assigned to Secure
@@ -1617,7 +1617,7 @@ __STATIC_INLINE void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGr
            VTOR must been relocated to SRAM before.
            If VTOR is not present address 0 must be mapped to SRAM.
   \param [in]   IRQn      Interrupt number
-  \param [in]   vector    Address of interrupt handler function
+  \param [in]   vector    address of interrupt handler function
  */
 __STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
 {
@@ -1636,7 +1636,7 @@ __STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
            The interrupt number can be positive to specify a device specific interrupt,
            or negative to specify a processor exception.
   \param [in]   IRQn      Interrupt number.
-  \return                 Address of interrupt handler function
+  \return                 address of interrupt handler function
  */
 __STATIC_INLINE uint32_t __NVIC_GetVector(IRQn_Type IRQn)
 {
@@ -1756,7 +1756,7 @@ __STATIC_INLINE void TZ_NVIC_SetPendingIRQ_NS(IRQn_Type IRQn)
 
 
 /**
-  \brief   Clear Pending Interrupt (non-secure)
+  \brief   clearScreen Pending Interrupt (non-secure)
   \details Clears the pending bit of a device specific interrupt in the non-secure NVIC pending register when in secure state.
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.

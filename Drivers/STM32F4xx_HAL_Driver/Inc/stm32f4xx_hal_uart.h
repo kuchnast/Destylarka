@@ -41,13 +41,13 @@ extern "C" {
   */
 
 /**
-  * @brief UART Init Structure definition
+  * @brief UART init Structure definition
   */
 typedef struct
 {
   uint32_t BaudRate;                  /*!< This member configures the UART communication baud rate.
                                            The baud rate is computed using the following formula:
-                                           - IntegerDivider = ((PCLKx) / (8 * (OVR8+1) * (huart->Init.BaudRate)))
+                                           - IntegerDivider = ((PCLKx) / (8 * (OVR8+1) * (huart->init.BaudRate)))
                                            - FractionalDivider = ((IntegerDivider - ((uint32_t) IntegerDivider)) * 8 * (OVR8+1)) + 0.5
                                            Where OVR8 is the "oversampling by 8 mode" configuration bit in the CR1 register. */
 
@@ -87,7 +87,7 @@ typedef struct
   *             11 : Error
   *          b5     Peripheral initialization status
   *             0  : Reset (Peripheral not initialized)
-  *             1  : Init done (Peripheral initialized. HAL UART Init function already called)
+  *             1  : init done (Peripheral initialized. HAL UART Init function already called)
   *          b4-b3  (not used)
   *             xx : Should be set to 00
   *          b2     Intrinsic process state
@@ -104,7 +104,7 @@ typedef struct
   *             xx : Should be set to 00
   *          b5     Peripheral initialization status
   *             0  : Reset (Peripheral not initialized)
-  *             1  : Init done (Peripheral initialized)
+  *             1  : init done (Peripheral initialized)
   *          b4-b2  (not used)
   *            xxx : Should be set to 000
   *          b1     Rx state
@@ -193,7 +193,7 @@ typedef struct __UART_HandleTypeDef
   void (* WakeupCallback)(struct __UART_HandleTypeDef *huart);            /*!< UART Wakeup Callback                  */
   void (* RxEventCallback)(struct __UART_HandleTypeDef *huart, uint16_t Pos); /*!< UART Reception Event Callback     */
 
-  void (* MspInitCallback)(struct __UART_HandleTypeDef *huart);           /*!< UART Msp Init callback                */
+  void (* MspInitCallback)(struct __UART_HandleTypeDef *huart);           /*!< UART Msp init callback                */
   void (* MspDeInitCallback)(struct __UART_HandleTypeDef *huart);         /*!< UART Msp DeInit callback              */
 #endif  /* USE_HAL_UART_REGISTER_CALLBACKS */
 
@@ -579,7 +579,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   *         without need to call HAL_UART_Init() function.
   *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
   * @note   As macro is expected to be used for modifying CTS Hw flow control feature activation, without need
-  *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
+  *         for USART instance Deinit/init, following conditions for macro call should be fulfilled :
   *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
   *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
   *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
@@ -599,7 +599,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   *         without need to call HAL_UART_Init() function.
   *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
   * @note   As macro is expected to be used for modifying CTS Hw flow control feature activation, without need
-  *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
+  *         for USART instance Deinit/init, following conditions for macro call should be fulfilled :
   *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
   *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
   *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
@@ -619,7 +619,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   *         without need to call HAL_UART_Init() function.
   *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
   * @note   As macro is expected to be used for modifying RTS Hw flow control feature activation, without need
-  *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
+  *         for USART instance Deinit/init, following conditions for macro call should be fulfilled :
   *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
   *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
   *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).
@@ -639,7 +639,7 @@ typedef  void (*pUART_RxEventCallbackTypeDef)(struct __UART_HandleTypeDef *huart
   *         without need to call HAL_UART_Init() function.
   *         As involving direct access to UART registers, usage of this macro should be fully endorsed by user.
   * @note   As macro is expected to be used for modifying RTS Hw flow control feature activation, without need
-  *         for USART instance Deinit/Init, following conditions for macro call should be fulfilled :
+  *         for USART instance Deinit/init, following conditions for macro call should be fulfilled :
   *           - UART instance should have already been initialised (through call of HAL_UART_Init() )
   *           - macro could only be called when corresponding UART instance is disabled (i.e __HAL_UART_DISABLE(__HANDLE__))
   *             and should be followed by an Enable macro (i.e __HAL_UART_ENABLE(__HANDLE__)).

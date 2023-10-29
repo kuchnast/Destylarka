@@ -58,7 +58,7 @@ extern "C" {
   */
 
 /**
-  * @brief LL GPIO Init Structure definition
+  * @brief LL GPIO init Structure definition
   */
 typedef struct
 {
@@ -203,12 +203,12 @@ typedef struct
   * @{
   */
 
-/** @defgroup GPIO_LL_EM_WRITE_READ Common Write and read registers Macros
+/** @defgroup GPIO_LL_EM_WRITE_READ Common write and read registers Macros
   * @{
   */
 
 /**
-  * @brief  Write a value in GPIO register
+  * @brief  write a value in GPIO register
   * @param  __INSTANCE__ GPIO Instance
   * @param  __REG__ Register to be written
   * @param  __VALUE__ Value to be written in the register
@@ -217,7 +217,7 @@ typedef struct
 #define LL_GPIO_WriteReg(__INSTANCE__, __REG__, __VALUE__) WRITE_REG(__INSTANCE__->__REG__, (__VALUE__))
 
 /**
-  * @brief  Read a value in GPIO register
+  * @brief  read a value in GPIO register
   * @param  __INSTANCE__ GPIO Instance
   * @param  __REG__ Register to be read
   * @retval Register value
@@ -803,7 +803,7 @@ __STATIC_INLINE uint32_t LL_GPIO_IsInputPinSet(GPIO_TypeDef *GPIOx, uint32_t Pin
 }
 
 /**
-  * @brief  Write output data register for the port.
+  * @brief  write output data register for the port.
   * @rmtoll ODR          ODy           LL_GPIO_WriteOutputPort
   * @param  GPIOx GPIO Port
   * @param  PortValue Level value for each pin of the port
@@ -913,7 +913,7 @@ __STATIC_INLINE void LL_GPIO_ResetOutputPin(GPIO_TypeDef *GPIOx, uint32_t PinMas
 }
 
 /**
-  * @brief  Toggle data value for several pin of dedicated port.
+  * @brief  toggle data value for several pin of dedicated port.
   * @rmtoll ODR          ODy           LL_GPIO_TogglePin
   * @param  GPIOx GPIO Port
   * @param  PinMask This parameter can be a combination of the following values:

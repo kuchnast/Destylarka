@@ -46,12 +46,12 @@ extern "C" {
   * @{
   */
 
-/** @defgroup PWR_LL_EC_CLEAR_FLAG Clear Flags Defines
+/** @defgroup PWR_LL_EC_CLEAR_FLAG clearScreen Flags Defines
   * @brief    Flags defines which can be used with LL_PWR_WriteReg function
   * @{
   */
-#define LL_PWR_CR_CSBF                     PWR_CR_CSBF            /*!< Clear standby flag */
-#define LL_PWR_CR_CWUF                     PWR_CR_CWUF            /*!< Clear wakeup flag */
+#define LL_PWR_CR_CSBF                     PWR_CR_CSBF            /*!< clearScreen standby flag */
+#define LL_PWR_CR_CWUF                     PWR_CR_CWUF            /*!< clearScreen wakeup flag */
 /**
   * @}
   */
@@ -169,7 +169,7 @@ extern "C" {
   */
 
 /**
-  * @brief  Write a value in PWR register
+  * @brief  write a value in PWR register
   * @param  __REG__ Register to be written
   * @param  __VALUE__ Value to be written in the register
   * @retval None
@@ -177,7 +177,7 @@ extern "C" {
 #define LL_PWR_WriteReg(__REG__, __VALUE__) WRITE_REG(PWR->__REG__, (__VALUE__))
 
 /**
-  * @brief  Read a value in PWR register
+  * @brief  read a value in PWR register
   * @param  __REG__ Register to be read
   * @retval Register value
   */
@@ -268,12 +268,12 @@ __STATIC_INLINE uint32_t LL_PWR_IsEnabledFLASHMemorySTOP(void)
   * @brief  Enable Under Drive Mode
   * @rmtoll CR    UDEN       LL_PWR_EnableUnderDriveMode
   * @note  This mode is enabled only with STOP low power mode.
-  *        In this mode, the 1.2V domain is preserved in reduced leakage mode. This 
-  *        mode is only available when the main Regulator or the low power Regulator 
-  *        is in low voltage mode.      
-  * @note  If the Under-drive mode was enabled, it is automatically disabled after 
-  *        exiting Stop mode. 
-  *        When the voltage Regulator operates in Under-drive mode, an additional  
+  *        In this mode, the 1.2V domain is preserved in reduced leakage mode. This
+  *        mode is only available when the main Regulator or the low power Regulator
+  *        is in low voltage mode.
+  * @note  If the Under-drive mode was enabled, it is automatically disabled after
+  *        exiting Stop mode.
+  *        When the voltage Regulator operates in Under-drive mode, an additional
   *        startup delay is induced when waking up from Stop mode.
   * @retval None
   */
@@ -920,7 +920,7 @@ __STATIC_INLINE uint32_t LL_PWR_IsActiveFlag_UD(void)
 }
 #endif /* PWR_CR_UDEN */
 /**
-  * @brief  Clear Standby Flag
+  * @brief  clearScreen Standby Flag
   * @rmtoll CR   CSBF       LL_PWR_ClearFlag_SB
   * @retval None
   */
@@ -930,7 +930,7 @@ __STATIC_INLINE void LL_PWR_ClearFlag_SB(void)
 }
 
 /**
-  * @brief  Clear Wake-up Flags
+  * @brief  clearScreen Wake-up Flags
   * @rmtoll CR   CWUF       LL_PWR_ClearFlag_WU
   * @retval None
   */
@@ -940,7 +940,7 @@ __STATIC_INLINE void LL_PWR_ClearFlag_WU(void)
 }
 #if defined(PWR_CSR_UDRDY)
 /**
-  * @brief  Clear Under-Drive ready Flag
+  * @brief  clearScreen Under-Drive ready Flag
   * @rmtoll CSR          UDRDY         LL_PWR_ClearFlag_UD
   * @retval None
   */

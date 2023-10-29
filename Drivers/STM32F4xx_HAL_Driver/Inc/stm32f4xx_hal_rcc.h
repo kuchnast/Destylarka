@@ -1171,9 +1171,9 @@ typedef struct
   */
 #define __HAL_RCC_DISABLE_IT(__INTERRUPT__) (*(__IO uint8_t *) RCC_CIR_BYTE1_ADDRESS &= (uint8_t)(~(__INTERRUPT__)))
 
-/** @brief  Clear the RCC's interrupt pending bits (Perform Byte access to RCC_CIR[23:16]
-  *         bits to clear the selected interrupt pending bits.
-  * @param  __INTERRUPT__ specifies the interrupt pending bit to clear.
+/** @brief  clearScreen the RCC's interrupt pending bits (Perform Byte access to RCC_CIR[23:16]
+  *         bits to clearScreen the selected interrupt pending bits.
+  * @param  __INTERRUPT__ specifies the interrupt pending bit to clearScreen.
   *         This parameter can be any combination of the following values:
   *            @arg RCC_IT_LSIRDY: LSI ready interrupt.
   *            @arg RCC_IT_LSERDY: LSE ready interrupt.
@@ -1199,7 +1199,7 @@ typedef struct
   */
 #define __HAL_RCC_GET_IT(__INTERRUPT__) ((RCC->CIR & (__INTERRUPT__)) == (__INTERRUPT__))
 
-/** @brief Set RMVF bit to clear the reset flags: RCC_FLAG_PINRST, RCC_FLAG_PORRST,
+/** @brief Set RMVF bit to clearScreen the reset flags: RCC_FLAG_PINRST, RCC_FLAG_PORRST,
   *        RCC_FLAG_SFTRST, RCC_FLAG_IWDGRST, RCC_FLAG_WWDGRST and RCC_FLAG_LPWRRST.
   */
 #define __HAL_RCC_CLEAR_RESET_FLAGS() (RCC->CSR |= RCC_CSR_RMVF)

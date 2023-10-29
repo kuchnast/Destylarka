@@ -61,7 +61,7 @@
  */
 
 #include "cmsis_version.h"
- 
+
 /*  CMSIS CM0+ definitions */
 #define __CM0PLUS_CMSIS_VERSION_MAIN (__CM_CMSIS_VERSION_MAIN)                  /*!< \deprecated [31:16] CMSIS HAL main version */
 #define __CM0PLUS_CMSIS_VERSION_SUB  (__CM_CMSIS_VERSION_SUB)                   /*!< \deprecated [15:0]  CMSIS HAL sub version */
@@ -329,11 +329,11 @@ typedef struct
 {
   __IOM uint32_t ISER[1U];               /*!< Offset: 0x000 (R/W)  Interrupt Set Enable Register */
         uint32_t RESERVED0[31U];
-  __IOM uint32_t ICER[1U];               /*!< Offset: 0x080 (R/W)  Interrupt Clear Enable Register */
+  __IOM uint32_t ICER[1U];               /*!< Offset: 0x080 (R/W)  Interrupt clearScreen Enable Register */
         uint32_t RSERVED1[31U];
   __IOM uint32_t ISPR[1U];               /*!< Offset: 0x100 (R/W)  Interrupt Set Pending Register */
         uint32_t RESERVED2[31U];
-  __IOM uint32_t ICPR[1U];               /*!< Offset: 0x180 (R/W)  Interrupt Clear Pending Register */
+  __IOM uint32_t ICPR[1U];               /*!< Offset: 0x180 (R/W)  Interrupt clearScreen Pending Register */
         uint32_t RESERVED3[31U];
         uint32_t RESERVED4[64U];
   __IOM uint32_t IP[8U];                 /*!< Offset: 0x300 (R/W)  Interrupt Priority Register */
@@ -526,7 +526,7 @@ typedef struct
   __IM  uint32_t TYPE;                   /*!< Offset: 0x000 (R/ )  MPU Type Register */
   __IOM uint32_t CTRL;                   /*!< Offset: 0x004 (R/W)  MPU Control Register */
   __IOM uint32_t RNR;                    /*!< Offset: 0x008 (R/W)  MPU Region RNRber Register */
-  __IOM uint32_t RBAR;                   /*!< Offset: 0x00C (R/W)  MPU Region Base Address Register */
+  __IOM uint32_t RBAR;                   /*!< Offset: 0x00C (R/W)  MPU Region Base address Register */
   __IOM uint32_t RASR;                   /*!< Offset: 0x010 (R/W)  MPU Region Attribute and Size Register */
 } MPU_Type;
 
@@ -556,7 +556,7 @@ typedef struct
 #define MPU_RNR_REGION_Pos                  0U                                            /*!< MPU RNR: REGION Position */
 #define MPU_RNR_REGION_Msk                 (0xFFUL /*<< MPU_RNR_REGION_Pos*/)             /*!< MPU RNR: REGION Mask */
 
-/* MPU Region Base Address Register Definitions */
+/* MPU Region Base address Register Definitions */
 #define MPU_RBAR_ADDR_Pos                   8U                                            /*!< MPU RBAR: ADDR Position */
 #define MPU_RBAR_ADDR_Msk                  (0xFFFFFFUL << MPU_RBAR_ADDR_Pos)              /*!< MPU RBAR: ADDR Mask */
 
@@ -645,10 +645,10 @@ typedef struct
  */
 
 /* Memory mapping of Core Hardware */
-#define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
-#define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base Address */
-#define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base Address */
-#define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base Address */
+#define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base address */
+#define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base address */
+#define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base address */
+#define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base address */
 
 #define SCB                 ((SCB_Type       *)     SCB_BASE      )   /*!< SCB configuration struct */
 #define SysTick             ((SysTick_Type   *)     SysTick_BASE  )   /*!< SysTick configuration struct */
@@ -822,7 +822,7 @@ __STATIC_INLINE void __NVIC_SetPendingIRQ(IRQn_Type IRQn)
 
 
 /**
-  \brief   Clear Pending Interrupt
+  \brief   clearScreen Pending Interrupt
   \details Clears the pending bit of a device specific interrupt in the NVIC pending register.
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
@@ -943,7 +943,7 @@ __STATIC_INLINE void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGr
            VTOR must been relocated to SRAM before.
            If VTOR is not present address 0 must be mapped to SRAM.
   \param [in]   IRQn      Interrupt number
-  \param [in]   vector    Address of interrupt handler function
+  \param [in]   vector    address of interrupt handler function
  */
 __STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
 {
@@ -962,7 +962,7 @@ __STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
            The interrupt number can be positive to specify a device specific interrupt,
            or negative to specify a processor exception.
   \param [in]   IRQn      Interrupt number.
-  \return                 Address of interrupt handler function
+  \return                 address of interrupt handler function
  */
 __STATIC_INLINE uint32_t __NVIC_GetVector(IRQn_Type IRQn)
 {

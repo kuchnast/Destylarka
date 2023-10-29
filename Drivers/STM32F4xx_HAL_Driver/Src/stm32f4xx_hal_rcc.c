@@ -406,7 +406,7 @@ __weak HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruc
       /* Enable write access to Backup domain */
       SET_BIT(PWR->CR, PWR_CR_DBP);
 
-      /* Wait for Backup domain Write protection disable */
+      /* Wait for Backup domain write protection disable */
       tickstart = HAL_GetTick();
 
       while(HAL_IS_BIT_CLR(PWR->CR, PWR_CR_DBP))
@@ -1087,7 +1087,7 @@ void HAL_RCC_NMI_IRQHandler(void)
     /* RCC Clock Security System interrupt user callback */
     HAL_RCC_CSSCallback();
 
-    /* Clear RCC CSS pending bit */
+    /* clearScreen RCC CSS pending bit */
     __HAL_RCC_CLEAR_IT(RCC_IT_CSS);
   }
 }

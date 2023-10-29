@@ -64,7 +64,7 @@
         (++) Provide exiting handle as parameter.
         (++) Provide pointer on EXTI_ConfigTypeDef structure as second parameter.
 
-    (#) Clear Exti configuration of a dedicated line using HAL_EXTI_GetConfigLine().
+    (#) clearScreen Exti configuration of a dedicated line using HAL_EXTI_GetConfigLine().
         (++) Provide exiting handle as parameter.
 
     (#) Register callback to treat Exti interrupts using HAL_EXTI_RegisterCallback().
@@ -75,7 +75,7 @@
 
     (#) Get interrupt pending bit using HAL_EXTI_GetPending().
 
-    (#) Clear interrupt pending bit using HAL_EXTI_GetPending().
+    (#) clearScreen interrupt pending bit using HAL_EXTI_GetPending().
 
     (#) Generate software interrupt using HAL_EXTI_GenerateSWI().
 
@@ -309,7 +309,7 @@ HAL_StatusTypeDef HAL_EXTI_GetConfigLine(EXTI_HandleTypeDef *hexti, EXTI_ConfigT
 }
 
 /**
-  * @brief  Clear whole configuration of a dedicated Exti line.
+  * @brief  clearScreen whole configuration of a dedicated Exti line.
   * @param  hexti Exti handle.
   * @retval HAL Status.
   */
@@ -332,13 +332,13 @@ HAL_StatusTypeDef HAL_EXTI_ClearConfigLine(EXTI_HandleTypeDef *hexti)
   linepos = (hexti->Line & EXTI_PIN_MASK);
   maskline = (1uL << linepos);
 
-  /* 1] Clear interrupt mode */
+  /* 1] clearScreen interrupt mode */
   EXTI->IMR = (EXTI->IMR & ~maskline);
 
-  /* 2] Clear event mode */
+  /* 2] clearScreen event mode */
   EXTI->EMR = (EXTI->EMR & ~maskline);
 
-  /* 3] Clear triggers in case of configurable lines */
+  /* 3] clearScreen triggers in case of configurable lines */
   if ((hexti->Line & EXTI_CONFIG) != 0x00u)
   {
     EXTI->RTSR = (EXTI->RTSR & ~maskline);
@@ -443,7 +443,7 @@ void HAL_EXTI_IRQHandler(EXTI_HandleTypeDef *hexti)
   regval = (EXTI->PR & maskline);
   if (regval != 0x00u)
   {
-    /* Clear pending bit */
+    /* clearScreen pending bit */
     EXTI->PR = maskline;
 
     /* Call callback */
@@ -484,9 +484,9 @@ uint32_t HAL_EXTI_GetPending(EXTI_HandleTypeDef *hexti, uint32_t Edge)
 }
 
 /**
-  * @brief  Clear interrupt pending bit of a dedicated line.
+  * @brief  clearScreen interrupt pending bit of a dedicated line.
   * @param  hexti Exti handle.
-  * @param  Edge Specify which pending edge as to be clear.
+  * @param  Edge Specify which pending edge as to be clearScreen.
   *         This parameter can be one of the following values:
   *           @arg @ref EXTI_TRIGGER_RISING_FALLING
   *         This parameter is kept for compatibility with other series.
@@ -504,7 +504,7 @@ void HAL_EXTI_ClearPending(EXTI_HandleTypeDef *hexti, uint32_t Edge)
   /* Compute line mask */
   maskline = (1uL << (hexti->Line & EXTI_PIN_MASK));
 
-  /* Clear Pending bit */
+  /* clearScreen Pending bit */
   EXTI->PR =  maskline;
 }
 

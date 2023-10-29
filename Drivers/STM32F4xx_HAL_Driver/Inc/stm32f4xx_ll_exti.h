@@ -51,7 +51,7 @@ extern "C" {
 #endif /*USE_FULL_LL_DRIVER*/
 /* Exported types ------------------------------------------------------------*/
 #if defined(USE_FULL_LL_DRIVER)
-/** @defgroup EXTI_LL_ES_INIT EXTI Exported Init structure
+/** @defgroup EXTI_LL_ES_INIT EXTI Exported init structure
   * @{
   */
 typedef struct
@@ -192,12 +192,12 @@ typedef struct
   * @{
   */
 
-/** @defgroup EXTI_LL_EM_WRITE_READ Common Write and read registers Macros
+/** @defgroup EXTI_LL_EM_WRITE_READ Common write and read registers Macros
   * @{
   */
 
 /**
-  * @brief  Write a value in EXTI register
+  * @brief  write a value in EXTI register
   * @param  __REG__ Register to be written
   * @param  __VALUE__ Value to be written in the register
   * @retval None
@@ -205,7 +205,7 @@ typedef struct
 #define LL_EXTI_WriteReg(__REG__, __VALUE__) WRITE_REG(EXTI->__REG__, (__VALUE__))
 
 /**
-  * @brief  Read a value in EXTI register
+  * @brief  read a value in EXTI register
   * @param  __REG__ Register to be read
   * @retval Register value
   */
@@ -838,7 +838,7 @@ __STATIC_INLINE uint32_t LL_EXTI_IsActiveFlag_0_31(uint32_t ExtiLine)
 
 
 /**
-  * @brief  Read ExtLine Combination Flag for Lines in range 0 to 31
+  * @brief  read ExtLine Combination Flag for Lines in range 0 to 31
   * @note This bit is set when the selected edge event arrives on the interrupt
   *       line. This bit is cleared by writing a 1 to the bit.
   * @rmtoll PR          PIFx           LL_EXTI_ReadFlag_0_31
@@ -876,7 +876,7 @@ __STATIC_INLINE uint32_t LL_EXTI_ReadFlag_0_31(uint32_t ExtiLine)
 
 
 /**
-  * @brief  Clear ExtLine Flags  for Lines in range 0 to 31
+  * @brief  clearScreen ExtLine Flags  for Lines in range 0 to 31
   * @note This bit is set when the selected edge event arrives on the interrupt
   *       line. This bit is cleared by writing a 1 to the bit.
   * @rmtoll PR          PIFx           LL_EXTI_ClearFlag_0_31

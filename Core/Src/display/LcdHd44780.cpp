@@ -8,8 +8,8 @@
 /*------------------------------------------------------*/
 /* Copyright (C)2021 AH All right reserved				*/
 /*------------------------------------------------------*/
-#include <display/hd44780.hpp>
 #include "stddef.h"
+#include <display/LcdHd44780.hpp>
 
 /*!	\brief	Macro-definitions. */
 #if (USE_PROGRESS_BAR)
@@ -56,7 +56,7 @@ static void lcdConfig(uint8_t param)
 							/*         LCDlib API          */
 							//-----------------------------//
 
-/*!	\details	Clear display writes space code 20H into all DDRAM addresses.
+/*!	\details	clearScreen display writes space code 20H into all DDRAM addresses.
  * 				It then sets DDRAM address 0 into the address counter,
  * 				and returns the display to its original status if it was shifted.
  * 				In other words, the display disappears and the cursor
@@ -157,7 +157,7 @@ void lcdSetMode(uint8_t param)
 	sendInternal(param, 0);
 }
 
-/*!	\details	Write a single char to the current memory space (DDRAM/CGRAM). */
+/*!	\details	write a single char to the current memory space (DDRAM/CGRAM). */
 void lcdPutc(uint8_t data)
 {
 	/* Send data to LCD. */
@@ -338,7 +338,7 @@ static void lcdInitBar(void)
 		}
 	}
 
-	/* Clear the entire bar and initialize all variables. */
+	/* clearScreen the entire bar and initialize all variables. */
 	lcdClrBar();
 }
 
@@ -412,7 +412,7 @@ void lcdDrawBar(uint8_t next_bar_pixel)
 	lcdGoto(LCD_1st_LINE, 0u);
 }
 
-/*!	\brief	Clear the entire progress bar. */
+/*!	\brief	clearScreen the entire progress bar. */
 void lcdClrBar(void)
 {
 	uint8_t i;
@@ -422,7 +422,7 @@ void lcdClrBar(void)
 	lcdSetMode(ENTRY_MODE_DEC_NO_SHIFT);
 
 	for(i = 0u; i < PROGRESS_BAR_WIDTH; i++)
-	{/* Display the "empty cell" symbol (i.e. clear the LCD cell). */
+	{/* Display the "empty cell" symbol (i.e. clearScreen the LCD cell). */
 		lcdPutc(EMPTY_LOAD);
 	}
 

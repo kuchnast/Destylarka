@@ -1,23 +1,22 @@
 #ifndef RELAYS_HPP_
 #define RELAYS_HPP_
 
-#include <io/OutputPin.hpp>
+#include "GpioPin.hpp"
 
 #include <string>
 #include <vector>
 
-namespace config
-{
+namespace io {
 
 template <typename T>
 struct Relay
 {
     static_assert(std::is_enum_v<T>, "T must be enum");
 
-    Relay(T id, io::OutputPin pin) : id(id), pin(pin) {}
+    Relay(T id, io::gpio_pin pin) : id(id), pin(pin) {}
 
     T id;
-    io::OutputPin pin;
+    io::gpio_pin pin;
 };
 
 template <typename T>
@@ -26,23 +25,24 @@ class RelaysCollection
 static_assert(std::is_enum_v<T>, "T must be enum");
 
 public:
-    RelaysCollection(const std::vector<T> relays) : relays(relays) {}
+    explicit RelaysCollection(const std::vector<Relay<T>> &relays) : relays_(relays) {}
 
-    size_t Size() const
+    [[nodiscard]] size_t Size() const
     {
-        return relays.size();
+        return relays_.size();
     }
 
-    io::OutputPin &Find(T id)
+    io::gpio_pin &Find(T id)
     {
-        for(Relay<T> &relay: relays)
+        for(Relay<T> &relay: relays_)
         {
             if(relay.id == id)
                 return relay.pin;
         }
     }
 
-    const std::vector<Relay<T>> relays;
+private:
+    std::vector<Relay<T>> relays_;
 };
 
 } // namespace config

@@ -1,10 +1,8 @@
 #ifndef CONFIG_RELAYS_DC_AC_HPP_
 #define CONFIG_RELAYS_DC_AC_HPP_
 
-#include <io/OutputPin.hpp>
-
-#include <array>
-#include <string>
+#include "io/Relays.hpp"
+#include <main.hpp>
 
 namespace config
 {
@@ -17,14 +15,11 @@ enum class RelayDCACId
     PUSTY_4,
 };
 
-using RelayDCAC = Relay<RelayDCACId>;
-using RelayDCACCollection = RelaysCollection<RelayDCAC>;
-
-static const RelayDCACCollection dc_ac_relays({
-    {RelayDCACId::PUSTY_1, io::OutputPin(O_DC_1_GPIO_Port, O_DC_1_Pin)},
-    {RelayDCACId::PUSTY_2, io::OutputPin(O_DC_2_GPIO_Port, O_DC_2_Pin)},
-    {RelayDCACId::PUSTY_3, io::OutputPin(O_DC_3_GPIO_Port, O_DC_3_Pin)},
-    {RelayDCACId::PUSTY_4, io::OutputPin(O_DC_4_GPIO_Port, O_DC_4_Pin)},
+static RelaysCollection<RelayDCACId> dc_ac_relays({
+    {RelayDCACId::PUSTY_1, io::gpio_pin(O_DC_1_GPIO_Port, O_DC_1_Pin)},
+    {RelayDCACId::PUSTY_2, io::gpio_pin(O_DC_2_GPIO_Port, O_DC_2_Pin)},
+    {RelayDCACId::PUSTY_3, io::gpio_pin(O_DC_3_GPIO_Port, O_DC_3_Pin)},
+    {RelayDCACId::PUSTY_4, io::gpio_pin(O_DC_4_GPIO_Port, O_DC_4_Pin)},
 });
 
 std::string toString(RelayDCACId id)

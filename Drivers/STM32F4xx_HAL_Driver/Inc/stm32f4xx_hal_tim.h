@@ -208,20 +208,20 @@ typedef struct
 } TIM_ClockConfigTypeDef;
 
 /**
-  * @brief  TIM Clear Input Configuration Handle Structure definition
+  * @brief  TIM clearScreen Input Configuration Handle Structure definition
   */
 typedef struct
 {
-  uint32_t ClearInputState;      /*!< TIM clear Input state
+  uint32_t ClearInputState;      /*!< TIM clearScreen Input state
                                       This parameter can be ENABLE or DISABLE */
-  uint32_t ClearInputSource;     /*!< TIM clear Input sources
+  uint32_t ClearInputSource;     /*!< TIM clearScreen Input sources
                                       This parameter can be a value of @ref TIM_ClearInput_Source */
-  uint32_t ClearInputPolarity;   /*!< TIM Clear Input polarity
+  uint32_t ClearInputPolarity;   /*!< TIM clearScreen Input polarity
                                       This parameter can be a value of @ref TIM_ClearInput_Polarity */
-  uint32_t ClearInputPrescaler;  /*!< TIM Clear Input prescaler
-                                      This parameter must be 0: When OCRef clear feature is used with ETR source,
+  uint32_t ClearInputPrescaler;  /*!< TIM clearScreen Input prescaler
+                                      This parameter must be 0: When OCRef clearScreen feature is used with ETR source,
                                       ETR prescaler must be off */
-  uint32_t ClearInputFilter;     /*!< TIM Clear Input filter
+  uint32_t ClearInputFilter;     /*!< TIM clearScreen Input filter
                                       This parameter can be a number between Min_Data = 0x0 and Max_Data = 0xF */
 } TIM_ClearInputConfigTypeDef;
 
@@ -353,7 +353,7 @@ typedef struct
   void (* Base_MspDeInitCallback)(struct __TIM_HandleTypeDef *htim);            /*!< TIM Base Msp DeInit Callback                            */
   void (* IC_MspInitCallback)(struct __TIM_HandleTypeDef *htim);                /*!< TIM IC Msp Init Callback                                */
   void (* IC_MspDeInitCallback)(struct __TIM_HandleTypeDef *htim);              /*!< TIM IC Msp DeInit Callback                              */
-  void (* OC_MspInitCallback)(struct __TIM_HandleTypeDef *htim);                /*!< TIM OC Msp Init Callback                                */
+  void (* OC_MspInitCallback)(struct __TIM_HandleTypeDef *htim);                /*!< TIM OC Msp init Callback                                */
   void (* OC_MspDeInitCallback)(struct __TIM_HandleTypeDef *htim);              /*!< TIM OC Msp DeInit Callback                              */
   void (* PWM_MspInitCallback)(struct __TIM_HandleTypeDef *htim);               /*!< TIM PWM Msp Init Callback                               */
   void (* PWM_MspDeInitCallback)(struct __TIM_HandleTypeDef *htim);             /*!< TIM PWM Msp DeInit Callback                             */
@@ -432,7 +432,7 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
   * @{
   */
 
-/** @defgroup TIM_ClearInput_Source TIM Clear Input Source
+/** @defgroup TIM_ClearInput_Source TIM clearScreen Input Source
   * @{
   */
 #define TIM_CLEARINPUTSOURCE_NONE           0x00000000U   /*!< OCREF_CLR is disabled */
@@ -441,7 +441,7 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
   * @}
   */
 
-/** @defgroup TIM_DMA_Base_address TIM DMA Base Address
+/** @defgroup TIM_DMA_Base_address TIM DMA Base address
   * @{
   */
 #define TIM_DMABASE_CR1                    0x00000000U
@@ -785,7 +785,7 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
   * @}
   */
 
-/** @defgroup TIM_ClearInput_Polarity TIM Clear Input Polarity
+/** @defgroup TIM_ClearInput_Polarity TIM clearScreen Input Polarity
   * @{
   */
 #define TIM_CLEARINPUTPOLARITY_INVERTED           TIM_ETRPOLARITY_INVERTED      /*!< Polarity for ETRx pin */
@@ -794,7 +794,7 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
   * @}
   */
 
-/** @defgroup TIM_ClearInput_Prescaler TIM Clear Input Prescaler
+/** @defgroup TIM_ClearInput_Prescaler TIM clearScreen Input Prescaler
   * @{
   */
 #define TIM_CLEARINPUTPRESCALER_DIV1              TIM_ETRPRESCALER_DIV1         /*!< No prescaler is used                                                   */
@@ -902,7 +902,7 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
 #define TIM_OCMODE_TIMING                   0x00000000U                                              /*!< Frozen                                 */
 #define TIM_OCMODE_ACTIVE                   TIM_CCMR1_OC1M_0                                         /*!< Set channel to active level on match   */
 #define TIM_OCMODE_INACTIVE                 TIM_CCMR1_OC1M_1                                         /*!< Set channel to inactive level on match */
-#define TIM_OCMODE_TOGGLE                   (TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_0)                    /*!< Toggle                                 */
+#define TIM_OCMODE_TOGGLE                   (TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_0)                    /*!< toggle                                 */
 #define TIM_OCMODE_PWM1                     (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1)                    /*!< PWM mode 1                             */
 #define TIM_OCMODE_PWM2                     (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_0) /*!< PWM mode 2                             */
 #define TIM_OCMODE_FORCED_ACTIVE            (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_0)                    /*!< Force active level                     */
@@ -1203,9 +1203,9 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
   */
 #define __HAL_TIM_GET_FLAG(__HANDLE__, __FLAG__)          (((__HANDLE__)->Instance->SR &(__FLAG__)) == (__FLAG__))
 
-/** @brief  Clear the specified TIM interrupt flag.
+/** @brief  clearScreen the specified TIM interrupt flag.
   * @param  __HANDLE__ specifies the TIM Handle.
-  * @param  __FLAG__ specifies the TIM interrupt flag to clear.
+  * @param  __FLAG__ specifies the TIM interrupt flag to clearScreen.
   *        This parameter can be one of the following values:
   *            @arg TIM_FLAG_UPDATE: Update interrupt flag
   *            @arg TIM_FLAG_CC1: Capture/Compare 1 interrupt flag
@@ -1241,9 +1241,9 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
 #define __HAL_TIM_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((((__HANDLE__)->Instance->DIER & (__INTERRUPT__)) \
                                                              == (__INTERRUPT__)) ? SET : RESET)
 
-/** @brief Clear the TIM interrupt pending bits.
+/** @brief clearScreen the TIM interrupt pending bits.
   * @param  __HANDLE__ TIM handle
-  * @param  __INTERRUPT__ specifies the interrupt pending bit to clear.
+  * @param  __INTERRUPT__ specifies the interrupt pending bit to clearScreen.
   *          This parameter can be one of the following values:
   *            @arg TIM_IT_UPDATE: Update interrupt
   *            @arg TIM_IT_CC1:   Capture/Compare 1 interrupt
@@ -1290,7 +1290,7 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
 #define __HAL_TIM_GET_COUNTER(__HANDLE__)  ((__HANDLE__)->Instance->CNT)
 
 /**
-  * @brief  Set the TIM Autoreload Register value on runtime without calling another time any Init function.
+  * @brief  Set the TIM Autoreload Register value on runtime without calling another time any init function.
   * @param  __HANDLE__ TIM handle.
   * @param  __AUTORELOAD__ specifies the Counter register new value.
   * @retval None
@@ -1309,7 +1309,7 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
 #define __HAL_TIM_GET_AUTORELOAD(__HANDLE__)  ((__HANDLE__)->Instance->ARR)
 
 /**
-  * @brief  Set the TIM Clock Division value on runtime without calling another time any Init function.
+  * @brief  Set the TIM Clock Division value on runtime without calling another time any init function.
   * @param  __HANDLE__ TIM handle.
   * @param  __CKD__ specifies the clock division value.
   *          This parameter can be one of the following value:

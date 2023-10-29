@@ -150,7 +150,7 @@ extern "C" {
   */
 #define LL_MPU_REGION_NO_ACCESS            (0x00U << MPU_RASR_AP_Pos) /*!< No access*/
 #define LL_MPU_REGION_PRIV_RW              (0x01U << MPU_RASR_AP_Pos) /*!< RW privileged (privileged access only)*/
-#define LL_MPU_REGION_PRIV_RW_URO          (0x02U << MPU_RASR_AP_Pos) /*!< RW privileged - RO user (Write in a user program generates a fault) */
+#define LL_MPU_REGION_PRIV_RW_URO          (0x02U << MPU_RASR_AP_Pos) /*!< RW privileged - RO user (write in a user program generates a fault) */
 #define LL_MPU_REGION_FULL_ACCESS          (0x03U << MPU_RASR_AP_Pos) /*!< RW privileged & user (Full access) */
 #define LL_MPU_REGION_PRIV_RO              (0x05U << MPU_RASR_AP_Pos) /*!< RO privileged (privileged read only)*/
 #define LL_MPU_REGION_PRIV_RO_URO          (0x06U << MPU_RASR_AP_Pos) /*!< RO privileged & user (read only) */
@@ -308,7 +308,7 @@ __STATIC_INLINE uint32_t LL_SYSTICK_IsEnabledIT(void)
   */
 __STATIC_INLINE void LL_LPM_EnableSleep(void)
 {
-  /* Clear SLEEPDEEP bit of Cortex System Control Register */
+  /* clearScreen SLEEPDEEP bit of Cortex System Control Register */
   CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk));
 }
 
@@ -343,7 +343,7 @@ __STATIC_INLINE void LL_LPM_EnableSleepOnExit(void)
   */
 __STATIC_INLINE void LL_LPM_DisableSleepOnExit(void)
 {
-  /* Clear SLEEPONEXIT bit of Cortex System Control Register */
+  /* clearScreen SLEEPONEXIT bit of Cortex System Control Register */
   CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPONEXIT_Msk));
 }
 
@@ -367,7 +367,7 @@ __STATIC_INLINE void LL_LPM_EnableEventOnPend(void)
   */
 __STATIC_INLINE void LL_LPM_DisableEventOnPend(void)
 {
-  /* Clear SEVEONPEND bit of Cortex System Control Register */
+  /* clearScreen SEVEONPEND bit of Cortex System Control Register */
   CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
 }
 

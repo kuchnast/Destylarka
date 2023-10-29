@@ -454,7 +454,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     {
       /* check for Parameters */
       assert_param(IS_RCC_PLLSAIP_VALUE(PeriphClkInit->PLLSAI.PLLSAIP));
-      /* Read PLLSAIQ value from PLLI2SCFGR register (this value is not need for SAI configuration) */
+      /* read PLLSAIQ value from PLLI2SCFGR register (this value is not need for SAI configuration) */
       pllsaiq = ((RCC->PLLSAICFGR & RCC_PLLSAICFGR_PLLSAIQ) >> RCC_PLLSAICFGR_PLLSAIQ_Pos);
       /* Configure the PLLSAI division factors */
       /* PLLSAI_VCO = f(VCO clock) = f(PLLSAI clock input) * (PLLI2SN/PLLSAIM) */
@@ -1052,7 +1052,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     {
       assert_param(IS_RCC_PLLSAIP_VALUE(PeriphClkInit->PLLSAI.PLLSAIP));
 
-      /* Read PLLSAIQ value from PLLSAICFGR register (this value is not need for SAI configuration) */
+      /* read PLLSAIQ value from PLLSAICFGR register (this value is not need for SAI configuration) */
       pllsaiq = ((RCC->PLLSAICFGR & RCC_PLLSAICFGR_PLLSAIQ) >> RCC_PLLSAICFGR_PLLSAIQ_Pos);
       /* Read PLLSAIR value from PLLSAICFGR register (this value is not need for SAI configuration) */
       pllsair = ((RCC->PLLSAICFGR & RCC_PLLSAICFGR_PLLSAIR) >> RCC_PLLSAICFGR_PLLSAIR_Pos);
@@ -1522,7 +1522,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       /* Check for PLLI2S/DIVR parameters */
       assert_param(IS_RCC_PLLI2S_DIVR_VALUE(PeriphClkInit->PLLI2SDivR));
 
-      /* Read PLLI2SQ value from PLLI2SCFGR register (this value is not needed for SAI configuration) */
+      /* read PLLI2SQ value from PLLI2SCFGR register (this value is not needed for SAI configuration) */
       plli2sq = ((RCC->PLLI2SCFGR & RCC_PLLI2SCFGR_PLLI2SQ) >> RCC_PLLI2SCFGR_PLLI2SQ_Pos);
       /* Configure the PLLI2S division factors */
       /* PLLI2S_VCO Input  = PLL_SOURCE/PLLI2SM */
@@ -2301,7 +2301,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       assert_param(IS_RCC_PLLSAIR_VALUE(PeriphClkInit->PLLSAI.PLLSAIR));
       assert_param(IS_RCC_PLLSAI_DIVR_VALUE(PeriphClkInit->PLLSAIDivR));
 
-      /* Read PLLSAIR value from PLLSAICFGR register (this value is not need for SAI configuration) */
+      /* read PLLSAIR value from PLLSAICFGR register (this value is not need for SAI configuration) */
       tmpreg1 = ((RCC->PLLSAICFGR & RCC_PLLSAICFGR_PLLSAIQ) >> RCC_PLLSAICFGR_PLLSAIQ_Pos);
       /* PLLSAI_VCO Input  = PLL_SOURCE/PLLM */
       /* PLLSAI_VCO Output = PLLSAI_VCO Input * PLLSAIN */
@@ -2782,12 +2782,12 @@ void HAL_RCCEx_SelectLSEMode(uint8_t Mode)
 /** @defgroup RCCEx_Exported_Functions_Group2 Extended Clock management functions
  *  @brief  Extended Clock management functions
  *
-@verbatim   
+@verbatim
  ===============================================================================
                 ##### Extended clock management functions  #####
  ===============================================================================
     [..]
-    This subsection provides a set of functions allowing to control the 
+    This subsection provides a set of functions allowing to control the
     activation or deactivation of PLLI2S, PLLSAI.
 @endverbatim
   * @{
@@ -3180,7 +3180,7 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   /* Get Start Tick */
   tickstart = HAL_GetTick();
 
-  /* Clear HSEON, HSEBYP and CSSON bits */
+  /* clearScreen HSEON, HSEBYP and CSSON bits */
   CLEAR_BIT(RCC->CR, RCC_CR_HSEON | RCC_CR_HSEBYP | RCC_CR_CSSON);
 
   /* Wait till HSE is disabled */
@@ -3195,7 +3195,7 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   /* Get Start Tick */
   tickstart = HAL_GetTick();
 
-  /* Clear PLLON bit */
+  /* clearScreen PLLON bit */
   CLEAR_BIT(RCC->CR, RCC_CR_PLLON);
 
   /* Wait till PLL is disabled */
@@ -3281,7 +3281,7 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   CLEAR_BIT(RCC->CIR, RCC_CIR_PLLSAIRDYIE);
 #endif /* RCC_CIR_PLLSAIRDYIE */
 
-  /* Clear all interrupt flags */
+  /* clearScreen all interrupt flags */
   SET_BIT(RCC->CIR, RCC_CIR_LSIRDYC | RCC_CIR_LSERDYC | RCC_CIR_HSIRDYC | RCC_CIR_HSERDYC | RCC_CIR_PLLRDYC | RCC_CIR_CSSC);
 
 #if defined(RCC_CIR_PLLI2SRDYC)
@@ -3292,7 +3292,7 @@ HAL_StatusTypeDef HAL_RCC_DeInit(void)
   SET_BIT(RCC->CIR, RCC_CIR_PLLSAIRDYC);
 #endif /* RCC_CIR_PLLSAIRDYC */
 
-  /* Clear LSION bit */
+  /* clearScreen LSION bit */
   CLEAR_BIT(RCC->CSR, RCC_CSR_LSION);
 
   /* Reset all CSR flags */
@@ -3532,7 +3532,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       /* Enable write access to Backup domain */
       SET_BIT(PWR->CR, PWR_CR_DBP);
 
-      /* Wait for Backup domain Write protection disable */
+      /* Wait for Backup domain write protection disable */
       tickstart = HAL_GetTick();
 
       while(HAL_IS_BIT_CLR(PWR->CR, PWR_CR_DBP))

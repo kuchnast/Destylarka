@@ -109,7 +109,7 @@ typedef struct
 } LL_USART_InitTypeDef;
 
 /**
-  * @brief LL USART Clock Init Structure definition
+  * @brief LL USART Clock init Structure definition
   */
 typedef struct
 {
@@ -160,7 +160,7 @@ typedef struct
 #define LL_USART_SR_NE                          USART_SR_NE                   /*!< Noise detected flag */
 #define LL_USART_SR_ORE                         USART_SR_ORE                  /*!< Overrun error flag */
 #define LL_USART_SR_IDLE                        USART_SR_IDLE                 /*!< Idle line detected flag */
-#define LL_USART_SR_RXNE                        USART_SR_RXNE                 /*!< Read data register not empty flag */
+#define LL_USART_SR_RXNE                        USART_SR_RXNE                 /*!< read data register not empty flag */
 #define LL_USART_SR_TC                          USART_SR_TC                   /*!< Transmission complete flag */
 #define LL_USART_SR_TXE                         USART_SR_TXE                  /*!< Transmit data register empty flag */
 #define LL_USART_SR_LBD                         USART_SR_LBD                  /*!< LIN break detection flag */
@@ -174,7 +174,7 @@ typedef struct
   * @{
   */
 #define LL_USART_CR1_IDLEIE                     USART_CR1_IDLEIE              /*!< IDLE interrupt enable */
-#define LL_USART_CR1_RXNEIE                     USART_CR1_RXNEIE              /*!< Read data register not empty interrupt enable */
+#define LL_USART_CR1_RXNEIE                     USART_CR1_RXNEIE              /*!< read data register not empty interrupt enable */
 #define LL_USART_CR1_TCIE                       USART_CR1_TCIE                /*!< Transmission complete interrupt enable */
 #define LL_USART_CR1_TXEIE                      USART_CR1_TXEIE               /*!< Transmit data register empty interrupt enable */
 #define LL_USART_CR1_PEIE                       USART_CR1_PEIE                /*!< Parity error */
@@ -210,7 +210,7 @@ typedef struct
   * @{
   */
 #define LL_USART_WAKEUP_IDLELINE                0x00000000U           /*!<  USART wake up from Mute mode on Idle Line */
-#define LL_USART_WAKEUP_ADDRESSMARK             USART_CR1_WAKE        /*!<  USART wake up from Mute mode on Address Mark */
+#define LL_USART_WAKEUP_ADDRESSMARK             USART_CR1_WAKE        /*!<  USART wake up from Mute mode on address Mark */
 /**
   * @}
   */
@@ -321,12 +321,12 @@ typedef struct
   * @{
   */
 
-/** @defgroup USART_LL_EM_WRITE_READ Common Write and read registers Macros
+/** @defgroup USART_LL_EM_WRITE_READ Common write and read registers Macros
   * @{
   */
 
 /**
-  * @brief  Write a value in USART register
+  * @brief  write a value in USART register
   * @param  __INSTANCE__ USART Instance
   * @param  __REG__ Register to be written
   * @param  __VALUE__ Value to be written in the register
@@ -335,7 +335,7 @@ typedef struct
 #define LL_USART_WriteReg(__INSTANCE__, __REG__, __VALUE__) WRITE_REG(__INSTANCE__->__REG__, (__VALUE__))
 
 /**
-  * @brief  Read a value in USART register
+  * @brief  read a value in USART register
   * @param  __INSTANCE__ USART Instance
   * @param  __REG__ Register to be read
   * @retval Register value
@@ -855,12 +855,12 @@ __STATIC_INLINE void LL_USART_ConfigCharacter(USART_TypeDef *USARTx, uint32_t Da
 }
 
 /**
-  * @brief  Set Address of the USART node.
+  * @brief  Set address of the USART node.
   * @note   This is used in multiprocessor communication during Mute mode or Stop mode,
   *         for wake up with address mark detection.
   * @rmtoll CR2          ADD           LL_USART_SetNodeAddress
   * @param  USARTx USART Instance
-  * @param  NodeAddress 4 bit Address of the USART node.
+  * @param  NodeAddress 4 bit address of the USART node.
   * @retval None
   */
 __STATIC_INLINE void LL_USART_SetNodeAddress(USART_TypeDef *USARTx, uint32_t NodeAddress)
@@ -869,11 +869,11 @@ __STATIC_INLINE void LL_USART_SetNodeAddress(USART_TypeDef *USARTx, uint32_t Nod
 }
 
 /**
-  * @brief  Return 4 bit Address of the USART node as set in ADD field of CR2.
+  * @brief  Return 4 bit address of the USART node as set in ADD field of CR2.
   * @note   only 4bits (b3-b0) of returned value are relevant (b31-b4 are not relevant)
   * @rmtoll CR2          ADD           LL_USART_GetNodeAddress
   * @param  USARTx USART Instance
-  * @retval Address of the USART node (Value between Min_Data=0 and Max_Data=255)
+  * @retval address of the USART node (Value between Min_Data=0 and Max_Data=255)
   */
 __STATIC_INLINE uint32_t LL_USART_GetNodeAddress(USART_TypeDef *USARTx)
 {
@@ -1460,11 +1460,11 @@ __STATIC_INLINE uint32_t LL_USART_IsEnabledLIN(USART_TypeDef *USARTx)
   *           - IREN bit in the USART_CR3 register,
   *           - HDSEL bit in the USART_CR3 register.
   * @note   Call of this function is equivalent to following function call sequence :
-  *         - Clear LINEN in CR2 using @ref LL_USART_DisableLIN() function
-  *         - Clear CLKEN in CR2 using @ref LL_USART_DisableSCLKOutput() function
-  *         - Clear SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
-  *         - Clear IREN in CR3 using @ref LL_USART_DisableIrda() function
-  *         - Clear HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
+  *         - clearScreen LINEN in CR2 using @ref LL_USART_DisableLIN() function
+  *         - clearScreen CLKEN in CR2 using @ref LL_USART_DisableSCLKOutput() function
+  *         - clearScreen SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
+  *         - clearScreen IREN in CR3 using @ref LL_USART_DisableIrda() function
+  *         - clearScreen HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
   * @note   Other remaining configurations items related to Asynchronous Mode
   *         (as Baud Rate, Word length, Parity, ...) should be set using
   *         dedicated functions
@@ -1496,10 +1496,10 @@ __STATIC_INLINE void LL_USART_ConfigAsyncMode(USART_TypeDef *USARTx)
   * @note   Macro @ref IS_USART_INSTANCE(USARTx) can be used to check whether or not
   *         Synchronous mode is supported by the USARTx instance.
   * @note   Call of this function is equivalent to following function call sequence :
-  *         - Clear LINEN in CR2 using @ref LL_USART_DisableLIN() function
-  *         - Clear IREN in CR3 using @ref LL_USART_DisableIrda() function
-  *         - Clear SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
-  *         - Clear HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
+  *         - clearScreen LINEN in CR2 using @ref LL_USART_DisableLIN() function
+  *         - clearScreen IREN in CR3 using @ref LL_USART_DisableIrda() function
+  *         - clearScreen SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
+  *         - clearScreen HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
   *         - Set CLKEN in CR2 using @ref LL_USART_EnableSCLKOutput() function
   * @note   Other remaining configurations items related to Synchronous Mode
   *         (as Baud Rate, Word length, Parity, Clock Polarity, ...) should be set using
@@ -1534,11 +1534,11 @@ __STATIC_INLINE void LL_USART_ConfigSyncMode(USART_TypeDef *USARTx)
   * @note   Macro @ref IS_UART_LIN_INSTANCE(USARTx) can be used to check whether or not
   *         LIN feature is supported by the USARTx instance.
   * @note   Call of this function is equivalent to following function call sequence :
-  *         - Clear CLKEN in CR2 using @ref LL_USART_DisableSCLKOutput() function
-  *         - Clear STOP in CR2 using @ref LL_USART_SetStopBitsLength() function
-  *         - Clear SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
-  *         - Clear IREN in CR3 using @ref LL_USART_DisableIrda() function
-  *         - Clear HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
+  *         - clearScreen CLKEN in CR2 using @ref LL_USART_DisableSCLKOutput() function
+  *         - clearScreen STOP in CR2 using @ref LL_USART_SetStopBitsLength() function
+  *         - clearScreen SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
+  *         - clearScreen IREN in CR3 using @ref LL_USART_DisableIrda() function
+  *         - clearScreen HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
   *         - Set LINEN in CR2 using @ref LL_USART_EnableLIN() function
   * @note   Other remaining configurations items related to LIN Mode
   *         (as Baud Rate, Word length, LIN Break Detection Length, ...) should be set using
@@ -1574,10 +1574,10 @@ __STATIC_INLINE void LL_USART_ConfigLINMode(USART_TypeDef *USARTx)
   * @note   Macro @ref IS_UART_HALFDUPLEX_INSTANCE(USARTx) can be used to check whether or not
   *         Half-Duplex mode is supported by the USARTx instance.
   * @note   Call of this function is equivalent to following function call sequence :
-  *         - Clear LINEN in CR2 using @ref LL_USART_DisableLIN() function
-  *         - Clear CLKEN in CR2 using @ref LL_USART_DisableSCLKOutput() function
-  *         - Clear SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
-  *         - Clear IREN in CR3 using @ref LL_USART_DisableIrda() function
+  *         - clearScreen LINEN in CR2 using @ref LL_USART_DisableLIN() function
+  *         - clearScreen CLKEN in CR2 using @ref LL_USART_DisableSCLKOutput() function
+  *         - clearScreen SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
+  *         - clearScreen IREN in CR3 using @ref LL_USART_DisableIrda() function
   *         - Set HDSEL in CR3 using @ref LL_USART_EnableHalfDuplex() function
   * @note   Other remaining configurations items related to Half Duplex Mode
   *         (as Baud Rate, Word length, Parity, ...) should be set using
@@ -1613,9 +1613,9 @@ __STATIC_INLINE void LL_USART_ConfigHalfDuplexMode(USART_TypeDef *USARTx)
   * @note   Macro @ref IS_SMARTCARD_INSTANCE(USARTx) can be used to check whether or not
   *         Smartcard feature is supported by the USARTx instance.
   * @note   Call of this function is equivalent to following function call sequence :
-  *         - Clear LINEN in CR2 using @ref LL_USART_DisableLIN() function
-  *         - Clear IREN in CR3 using @ref LL_USART_DisableIrda() function
-  *         - Clear HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
+  *         - clearScreen LINEN in CR2 using @ref LL_USART_DisableLIN() function
+  *         - clearScreen IREN in CR3 using @ref LL_USART_DisableIrda() function
+  *         - clearScreen HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
   *         - Configure STOP in CR2 using @ref LL_USART_SetStopBitsLength() function
   *         - Set CLKEN in CR2 using @ref LL_USART_EnableSCLKOutput() function
   *         - Set SCEN in CR3 using @ref LL_USART_EnableSmartcard() function
@@ -1655,10 +1655,10 @@ __STATIC_INLINE void LL_USART_ConfigSmartcardMode(USART_TypeDef *USARTx)
   * @note   Macro @ref IS_IRDA_INSTANCE(USARTx) can be used to check whether or not
   *         IrDA feature is supported by the USARTx instance.
   * @note   Call of this function is equivalent to following function call sequence :
-  *         - Clear LINEN in CR2 using @ref LL_USART_DisableLIN() function
-  *         - Clear CLKEN in CR2 using @ref LL_USART_DisableSCLKOutput() function
-  *         - Clear SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
-  *         - Clear HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
+  *         - clearScreen LINEN in CR2 using @ref LL_USART_DisableLIN() function
+  *         - clearScreen CLKEN in CR2 using @ref LL_USART_DisableSCLKOutput() function
+  *         - clearScreen SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
+  *         - clearScreen HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
   *         - Configure STOP in CR2 using @ref LL_USART_SetStopBitsLength() function
   *         - Set IREN in CR3 using @ref LL_USART_EnableIrda() function
   * @note   Other remaining configurations items related to Irda Mode
@@ -1695,11 +1695,11 @@ __STATIC_INLINE void LL_USART_ConfigIrdaMode(USART_TypeDef *USARTx)
   *           - IREN bit in the USART_CR3 register,
   *           - HDSEL bit in the USART_CR3 register.
   * @note   Call of this function is equivalent to following function call sequence :
-  *         - Clear LINEN in CR2 using @ref LL_USART_DisableLIN() function
-  *         - Clear CLKEN in CR2 using @ref LL_USART_DisableSCLKOutput() function
-  *         - Clear SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
-  *         - Clear IREN in CR3 using @ref LL_USART_DisableIrda() function
-  *         - Clear HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
+  *         - clearScreen LINEN in CR2 using @ref LL_USART_DisableLIN() function
+  *         - clearScreen CLKEN in CR2 using @ref LL_USART_DisableSCLKOutput() function
+  *         - clearScreen SCEN in CR3 using @ref LL_USART_DisableSmartcard() function
+  *         - clearScreen IREN in CR3 using @ref LL_USART_DisableIrda() function
+  *         - clearScreen HDSEL in CR3 using @ref LL_USART_DisableHalfDuplex() function
   * @note   Other remaining configurations items related to Multi processor Mode
   *         (as Baud Rate, Wake Up Method, Node address, ...) should be set using
   *         dedicated functions
@@ -1784,7 +1784,7 @@ __STATIC_INLINE uint32_t LL_USART_IsActiveFlag_IDLE(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Check if the USART Read Data Register Not Empty Flag is set or not
+  * @brief  Check if the USART read Data Register Not Empty Flag is set or not
   * @rmtoll SR           RXNE          LL_USART_IsActiveFlag_RXNE
   * @param  USARTx USART Instance
   * @retval State of bit (1 or 0).
@@ -1865,7 +1865,7 @@ __STATIC_INLINE uint32_t LL_USART_IsActiveFlag_RWU(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Clear Parity Error Flag
+  * @brief  clearScreen Parity Error Flag
   * @note   Clearing this flag is done by a read access to the USARTx_SR
   *         register followed by a read access to the USARTx_DR register.
   * @note   Please also consider that when clearing this flag, other flags as
@@ -1884,7 +1884,7 @@ __STATIC_INLINE void LL_USART_ClearFlag_PE(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Clear Framing Error Flag
+  * @brief  clearScreen Framing Error Flag
   * @note   Clearing this flag is done by a read access to the USARTx_SR
   *         register followed by a read access to the USARTx_DR register.
   * @note   Please also consider that when clearing this flag, other flags as
@@ -1903,7 +1903,7 @@ __STATIC_INLINE void LL_USART_ClearFlag_FE(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Clear Noise detected Flag
+  * @brief  clearScreen Noise detected Flag
   * @note   Clearing this flag is done by a read access to the USARTx_SR
   *         register followed by a read access to the USARTx_DR register.
   * @note   Please also consider that when clearing this flag, other flags as
@@ -1922,7 +1922,7 @@ __STATIC_INLINE void LL_USART_ClearFlag_NE(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Clear OverRun Error Flag
+  * @brief  clearScreen OverRun Error Flag
   * @note   Clearing this flag is done by a read access to the USARTx_SR
   *         register followed by a read access to the USARTx_DR register.
   * @note   Please also consider that when clearing this flag, other flags as
@@ -1941,7 +1941,7 @@ __STATIC_INLINE void LL_USART_ClearFlag_ORE(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Clear IDLE line detected Flag
+  * @brief  clearScreen IDLE line detected Flag
   * @note   Clearing this flag is done by a read access to the USARTx_SR
   *         register followed by a read access to the USARTx_DR register.
   * @note   Please also consider that when clearing this flag, other flags as
@@ -1960,7 +1960,7 @@ __STATIC_INLINE void LL_USART_ClearFlag_IDLE(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Clear Transmission Complete Flag
+  * @brief  clearScreen Transmission Complete Flag
   * @rmtoll SR           TC            LL_USART_ClearFlag_TC
   * @param  USARTx USART Instance
   * @retval None
@@ -1971,7 +1971,7 @@ __STATIC_INLINE void LL_USART_ClearFlag_TC(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Clear RX Not Empty Flag
+  * @brief  clearScreen RX Not Empty Flag
   * @rmtoll SR           RXNE          LL_USART_ClearFlag_RXNE
   * @param  USARTx USART Instance
   * @retval None
@@ -1982,7 +1982,7 @@ __STATIC_INLINE void LL_USART_ClearFlag_RXNE(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Clear LIN Break Detection Flag
+  * @brief  clearScreen LIN Break Detection Flag
   * @note   Macro @ref IS_UART_LIN_INSTANCE(USARTx) can be used to check whether or not
   *         LIN feature is supported by the USARTx instance.
   * @rmtoll SR           LBD           LL_USART_ClearFlag_LBD
@@ -1995,7 +1995,7 @@ __STATIC_INLINE void LL_USART_ClearFlag_LBD(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Clear CTS Interrupt Flag
+  * @brief  clearScreen CTS Interrupt Flag
   * @note   Macro @ref IS_UART_HWFLOW_INSTANCE(USARTx) can be used to check whether or not
   *         Hardware Flow control feature is supported by the USARTx instance.
   * @rmtoll SR           CTS           LL_USART_ClearFlag_nCTS
@@ -2376,9 +2376,9 @@ __STATIC_INLINE uint32_t LL_USART_IsEnabledDMAReq_TX(USART_TypeDef *USARTx)
 /**
   * @brief  Get the data register address used for DMA transfer
   * @rmtoll DR           DR            LL_USART_DMA_GetRegAddr
-  * @note   Address of Data Register is valid for both Transmit and Receive transfers.
+  * @note   address of Data Register is valid for both Transmit and Receive transfers.
   * @param  USARTx USART Instance
-  * @retval Address of data register
+  * @retval address of data register
   */
 __STATIC_INLINE uint32_t LL_USART_DMA_GetRegAddr(USART_TypeDef *USARTx)
 {
@@ -2395,7 +2395,7 @@ __STATIC_INLINE uint32_t LL_USART_DMA_GetRegAddr(USART_TypeDef *USARTx)
   */
 
 /**
-  * @brief  Read Receiver Data register (Receive Data value, 8 bits)
+  * @brief  read Receiver Data register (Receive Data value, 8 bits)
   * @rmtoll DR           DR            LL_USART_ReceiveData8
   * @param  USARTx USART Instance
   * @retval Value between Min_Data=0x00 and Max_Data=0xFF
@@ -2406,7 +2406,7 @@ __STATIC_INLINE uint8_t LL_USART_ReceiveData8(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Read Receiver Data register (Receive Data value, 9 bits)
+  * @brief  read Receiver Data register (Receive Data value, 9 bits)
   * @rmtoll DR           DR            LL_USART_ReceiveData9
   * @param  USARTx USART Instance
   * @retval Value between Min_Data=0x00 and Max_Data=0x1FF
@@ -2417,7 +2417,7 @@ __STATIC_INLINE uint16_t LL_USART_ReceiveData9(USART_TypeDef *USARTx)
 }
 
 /**
-  * @brief  Write in Transmitter Data Register (Transmit Data value, 8 bits)
+  * @brief  write in Transmitter Data Register (Transmit Data value, 8 bits)
   * @rmtoll DR           DR            LL_USART_TransmitData8
   * @param  USARTx USART Instance
   * @param  Value between Min_Data=0x00 and Max_Data=0xFF
@@ -2429,7 +2429,7 @@ __STATIC_INLINE void LL_USART_TransmitData8(USART_TypeDef *USARTx, uint8_t Value
 }
 
 /**
-  * @brief  Write in Transmitter Data Register (Transmit Data value, 9 bits)
+  * @brief  write in Transmitter Data Register (Transmit Data value, 9 bits)
   * @rmtoll DR           DR            LL_USART_TransmitData9
   * @param  USARTx USART Instance
   * @param  Value between Min_Data=0x00 and Max_Data=0x1FF
