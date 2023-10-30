@@ -13,10 +13,10 @@ struct Relay
 {
     static_assert(std::is_enum_v<T>, "T must be enum");
 
-    Relay(T id, io::gpio_pin pin) : id(id), pin(pin) {}
+    Relay(T id, io::GpioPin pin) : id(id), pin(pin) {}
 
     T id;
-    io::gpio_pin pin;
+    io::GpioPin pin;
 };
 
 template <typename T>
@@ -32,7 +32,7 @@ public:
         return relays_.size();
     }
 
-    io::gpio_pin &Find(T id)
+    io::GpioPin &Find(T id)
     {
         for(Relay<T> &relay: relays_)
         {
@@ -45,6 +45,6 @@ private:
     std::vector<Relay<T>> relays_;
 };
 
-} // namespace config
+} // namespace io
 
 #endif

@@ -16,10 +16,10 @@ enum class RelayDCACId
 };
 
 static RelaysCollection<RelayDCACId> dc_ac_relays({
-    {RelayDCACId::PUSTY_1, io::gpio_pin(O_DC_1_GPIO_Port, O_DC_1_Pin)},
-    {RelayDCACId::PUSTY_2, io::gpio_pin(O_DC_2_GPIO_Port, O_DC_2_Pin)},
-    {RelayDCACId::PUSTY_3, io::gpio_pin(O_DC_3_GPIO_Port, O_DC_3_Pin)},
-    {RelayDCACId::PUSTY_4, io::gpio_pin(O_DC_4_GPIO_Port, O_DC_4_Pin)},
+    {RelayDCACId::PUSTY_1, io::GpioPin(O_DC_1_GPIO_Port, O_DC_1_Pin)},
+    {RelayDCACId::PUSTY_2, io::GpioPin(O_DC_2_GPIO_Port, O_DC_2_Pin)},
+    {RelayDCACId::PUSTY_3, io::GpioPin(O_DC_3_GPIO_Port, O_DC_3_Pin)},
+    {RelayDCACId::PUSTY_4, io::GpioPin(O_DC_4_GPIO_Port, O_DC_4_Pin)},
 });
 
 std::string toString(RelayDCACId id)

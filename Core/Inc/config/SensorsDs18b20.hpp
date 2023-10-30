@@ -5,12 +5,9 @@
 #include <cstdint>
 #include <vector>
 
-namespace io {
+namespace config {
 
 #define	DS18B20_TIMER htim1 // Remember to configure a timer on CubeMX 1us per tick
-#define	DS18B20_GPIO DS18B20_GPIO_Port
-#define	DS18B20_PIN DS18B20_Pin
-#define DS18B20_USE_CRC
 
     enum class Ds18b20NameId {
         UNKNOWN = 0,

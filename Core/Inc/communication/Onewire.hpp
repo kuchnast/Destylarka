@@ -1,52 +1,62 @@
 #ifndef COMMUNICATION_ONEWIRE_H
 #define COMMUNICATION_ONEWIRE_H
 
-#include "gpio.h"
+#include <io/GpioPin.hpp>
+
+#include <tim.h>
+
+#include <map>
 
 namespace communication {
 
-    enum class OneWireCommands
+    using OneWireAddress = std::array<uint8_t, 8>;
+
+    enum class OneWireCommand
     {
-        R_SCRATCHPAD = 0xBE,
-        W_SCRATCHPAD = 0x4E,
-        CPY_SCRATCHPAD = 0x48,
-        REC_EEPROM = 0xB8,
-        R_PWR_SUPPLY = 0xB4,
-        SEARCH_ROM = 0xF0,
-        READ_ROM = 0x33,
-        MATCH_ROM = 0x55,
-        SKIP_ROM = 0xCC
+        R_SCRATCHPAD,
+        W_SCRATCHPAD,
+        CPY_SCRATCHPAD,
+        REC_EEPROM,
+        R_PWR_SUPPLY,
+        SEARCH_ROM,
+        READ_ROM,
+        MATCH_ROM,
+        SKIP_ROM
     };
 
     class OneWire {
     public:
-        void init(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, );
+        OneWire(io::GpioPin & pin, TIM_HandleTypeDef &tim);
 
-        uint8_t reset();
+        bool resetBus();
 
-        void resetSearch();
-        uint8_t first();
-        uint8_t next();
-        uint8_t search(uint8_t command);
-
-        void writeBit(uint8_t bit);
-        uint8_t readBit();
+        void writeBit(bool bit);
         void writeByte(uint8_t byte);
+        bool readBit();
         uint8_t readByte();
 
-        void getFullROM(uint8_t *firstIndex);
-        void select(uint8_t *addr);
-        void selectWithPointer(uint8_t *ROM);
+        void resetSearch();
+        bool findDevice(bool is_first = false);
+        uint8_t search(OneWireCommand commandId);
 
-        uint8_t calculateCRC8(uint8_t *addr, uint8_t len);
+        OneWireAddress getDeviceAddress();
+        void selectDevice(OneWireAddress& addr);
+
+        uint8_t calculateCrc8(uint8_t *addr, uint8_t len);
 
     private:
-        GPIO_TypeDef *gpio_;             // Bus GPIO Port
-        uint16_t pin_;                   // Bus GPIO Pin
-        uint8_t last_discrepancy_;       // For searching purpose
-        uint8_t last_family_discrepancy_;// For searching purpose
-        uint8_t last_device_flag_;       // For searching purpose
-        uint8_t address_[8];             // 8-byte ROM addres last found device
+        void delay(uint16_t us) const;
+        void setBusInputDirection();
+        void setBusOutputDirection();
+
+        static std::map<OneWireCommand, uint8_t> commands_;
+
+        TIM_HandleTypeDef &tim_;             // OneWire timer
+        io::GpioPin & pin_;                  // Bus GPIO Pin
+        uint8_t last_discrepancy_;           // For searching purpose
+        uint8_t last_family_discrepancy_;    // For searching purpose
+        uint8_t last_device_flag_;           // For searching purpose
+        OneWireAddress rom_address_;         // 8-byte ROM addres last found device
     };
 }
 

@@ -6,157 +6,76 @@
 
 namespace sensors {
 
-    struct Ds18b20 {
-        io::Ds18b20Sensor sensor;
-        float temperature;
-        bool validDataFlag;
-    };
+struct Ds18b20 {
+    communication::OneWireAddress address;
+    float temperature;
+    bool is_valid;
+};
 
-    enum class Ds18b20Resolution {
-        R9bits = 9,
-        R10bits = 10,
-        R11bits = 11,
-        R12bits = 12
-    };
+enum class Ds18b20Resolution {
+    R9bits = 9,
+    R10bits = 10,
+    R11bits = 11,
+    R12bits = 12
+};
 
-    class SensorsCollectionDs18b20 {
-    public:
+class Ds18b20Collection {
+public:
 
-        /**
-         *
-         * @param gpio
-         * @param pin
-         * @param resolution
-         * @param use_crc
-         */
-        void init(GPIO_TypeDef * gpio, uint16_t pin, Ds18b20Resolution resolution, bool use_crc = false);
+    explicit Ds18b20Collection(communication::OneWire & onewire, bool use_crc = false);
 
-        /**
-         * Get the sensor resolution
-         *
-         * @param number
-         * @return
-         */
-        uint8_t getResolution(uint8_t number);
+    bool checkFamilyCode(communication::OneWireAddress &address);
 
-        /**
-         * Set the sensor resolution
-         *
-         * @param number
-         * @param resolution
-         * @return
-         */
-        uint8_t setResolution(uint8_t number, Ds18b20Resolution resolution);
+    void startRanging(config::Ds18b20NameId id);
 
-        /**
-         * Start conversion of one sensor
-         *
-         * @param number
-         * @return
-         */
-        uint8_t start(uint8_t number);
+    void init(GPIO_TypeDef * gpio, uint16_t pin, Ds18b20Resolution resolution, bool use_crc = false);
 
-        /**
-         * Start conversion for all sensors
-         */
-        void startAll();
+    uint8_t getResolution(uint8_t number);
 
-        /**
-         * Read one sensor
-         *
-         * @param number
-         * @param destination
-         * @return
-         */
-        uint8_t read(uint8_t number, float *destination);
+    uint8_t setResolution(uint8_t number, Ds18b20Resolution resolution);
 
-        /**
-         * Read all connected sensors
-         */
-        void readAll(void);
 
-        /**
-         * Check if ROM address is DS18B20 family
-         *
-         * @param ROM
-         * @return
-         */
-        uint8_t is(uint8_t *ROM);
+    void startAll();
 
-        /**
-         * Check if all sensor's conversion is done
-         *
-         * @return
-         */
-        uint8_t allDone(void);
+    uint8_t read(uint8_t number, float *destination);
 
-        /**
-         * Get sensor's ROM from 'number' position
-         *
-         * @param number
-         * @param ROM
-         */
-        void getROM(uint8_t number, uint8_t *ROM);
+    void readAll(void);
 
-        /**
-         * Write a ROM to 'number' position in sensors table
-         *
-         * @param number
-         * @param ROM
-         */
-        void writeROM(uint8_t number, uint8_t *ROM);
 
-        /**
-         * Returns quantity of connected sensors
-         *
-         * @return
-         */
-        uint8_t quantity(void);
+    uint8_t allDone(void);
 
-        /**
-         * Returns not 0 if read data is invalid
-         *
-         * @param number
-         * @param destination
-         * @return
-         */
-        uint8_t getTemperatureByNumber(uint8_t number, float *destination);
+    void getROM(uint8_t number, uint8_t *ROM);
 
-        /**
-         * Returns not 0 if read data is invalid
-         *
-         * @param id
-         * @param destination
-         * @return
-         */
-        uint8_t getTemperatureById(io::Ds18b20NameId id, float *destination);
+    void writeROM(uint8_t number, uint8_t *ROM);
 
-        /**
-         *
-         * @param rom1
-         * @param rom2
-         * @return
-         */
-        uint8_t compareROMs(uint8_t *rom1, uint8_t *rom2);
+    uint8_t quantity(void);
 
-    private:
-        static constexpr uint8_t DS18B20_FAMILY_CODE = 0x28;
-        static constexpr uint8_t DS18B20_CMD_ALARMSEARCH = 0xEC;
-        static constexpr uint8_t DS18B20_CMD_CONVERTTEMP = 0x44;
+    uint8_t getTemperatureByNumber(uint8_t number, float *destination);
 
-        static constexpr float DS18B20_STEP_12BIT = 0.0625;
-        static constexpr float DS18B20_STEP_11BIT = 0.125;
-        static constexpr float DS18B20_STEP_10BIT = 0.25;
-        static constexpr float DS18B20_STEP_9BIT = 0.5;
+    uint8_t getTemperatureById(io::Ds18b20NameId id, float *destination);
 
-        static constexpr uint8_t DS18B20_RESOLUTION_R1	= 6; // Resolution bit R1
-        static constexpr uint8_t DS18B20_RESOLUTION_R0	= 5; // Resolution bit R0
+    uint8_t compareROMs(uint8_t *rom1, uint8_t *rom2);
 
-        static constexpr uint8_t DS18B20_DATA_LEN_WITH_CRC	= 9;
-        static constexpr uint8_t DS18B20_DATA_LEN_WITHOUT_CRC = 5;
+private:
+    static constexpr uint8_t DS18B20_FAMILY_CODE = 0x28;
+    static constexpr uint8_t DS18B20_CMD_ALARMSEARCH = 0xEC;
+    static constexpr uint8_t DS18B20_CMD_CONVERTTEMP = 0x44;
 
-        std::vector<Ds18b20> sensors_;
-    };
+    static constexpr float DS18B20_STEP_12BIT = 0.0625;
+    static constexpr float DS18B20_STEP_11BIT = 0.125;
+    static constexpr float DS18B20_STEP_10BIT = 0.25;
+    static constexpr float DS18B20_STEP_9BIT = 0.5;
+
+    static constexpr uint8_t DS18B20_RESOLUTION_R1	= 6; // Resolution bit R1
+    static constexpr uint8_t DS18B20_RESOLUTION_R0	= 5; // Resolution bit R0
+
+    static constexpr uint8_t DS18B20_DATA_LEN_WITH_CRC	= 9;
+    static constexpr uint8_t DS18B20_DATA_LEN_WITHOUT_CRC = 5;
+
+    std::map<config::Ds18b20NameId, Ds18b20> sensors_;
+    communication::OneWire & onewire_;
+    bool use_crc_;
+};
 
 }
 #endif

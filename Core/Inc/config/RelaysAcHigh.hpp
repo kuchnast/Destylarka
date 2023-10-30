@@ -4,7 +4,7 @@
 #include "io/Relays.hpp"
 #include <main.hpp>
 
-namespace io {
+namespace config {
 
 enum class RelayACHighId
 {
@@ -14,9 +14,9 @@ enum class RelayACHighId
 };
 
 static RelaysCollection<RelayACHighId> ac_high_relays({
-    {RelayACHighId::POMPA_WODY, io::gpio_pin(O_H_1_GPIO_Port, O_H_1_Pin)},
-    {RelayACHighId::GRZALKA_2, io::gpio_pin(O_H_2_GPIO_Port, O_H_2_Pin)},
-    {RelayACHighId::GRZALKA_1, io::gpio_pin(O_H_3_GPIO_Port, O_H_3_Pin)}
+    {RelayACHighId::POMPA_WODY, io::GpioPin(O_H_1_GPIO_Port, O_H_1_Pin)},
+    {RelayACHighId::GRZALKA_2, io::GpioPin(O_H_2_GPIO_Port, O_H_2_Pin)},
+    {RelayACHighId::GRZALKA_1, io::GpioPin(O_H_3_GPIO_Port, O_H_3_Pin)}
 });
 
 std::string toString(RelayACHighId id)

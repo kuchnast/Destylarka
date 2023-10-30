@@ -5,6 +5,12 @@
 namespace io
 {
 
+void GpioPin::init(GPIO_InitTypeDef &gpio_init)
+{
+    gpio_init.Pin = pin_;
+    HAL_GPIO_Init(gpio_, &gpio_init);
+}
+
 void GpioPin::write(PinState state)
 {
     HAL_GPIO_WritePin(gpio_, pin_, state == PinState::SET ? GPIO_PIN_SET : GPIO_PIN_RESET);
@@ -29,5 +35,6 @@ void GpioPin::toggle()
 {
     HAL_GPIO_TogglePin(gpio_, pin_);
 }
+
 
 }  // namespace io

@@ -2,6 +2,7 @@
 #define IO_OUTPUTPIN_HPP_
 
 #include "stm32f401xe.h"
+#include "stm32f4xx_hal_gpio.h"
 
 namespace io
 {
@@ -14,6 +15,8 @@ namespace io
     class GpioPin {
     public:
         GpioPin(GPIO_TypeDef * gpio, uint16_t pin) : gpio_(gpio), pin_(pin) {}
+
+        void init(GPIO_InitTypeDef &gpio_init);
 
         void write(PinState state);
 

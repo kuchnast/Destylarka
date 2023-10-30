@@ -23,7 +23,7 @@ namespace display
         lcdClrScr();
     }
 
-    void Display::viewAction(Key key)
+    void Display::viewAction(const config::Key& key)
     {
         switch (current_view_)
         {
@@ -129,7 +129,7 @@ namespace display
         imitationPrinting("....DESTYLARKA....");
     }
 
-    void Display::mainMenuAction(Key key)
+    void Display::mainMenuAction(const config::Key& key)
     {
         static DisplayViewPos pos(0, 0);
         static const std::vector<std::pair<DisplayView, std::string>> msgs =
@@ -141,21 +141,21 @@ namespace display
 
         switch (key)
         {
-            case K_ARROW_UP:
+            case config::Key::ARROW_UP:
                 if(pos.y == 0)
                     pos.y = msgs.size() - 1;
                 else
                     --pos.y;
                 break;
-            case K_ARROW_DOWN:
+            case config::Key::ARROW_DOWN:
                 if(pos.y == (msgs.size() - 1))
                     pos.y = 0;
                 else
                     ++pos.y;
                 break;
-            case K_ENTER:
+            case config::Key::ENTER:
                 setCurrentView(msgs[pos.y].first);
-                viewAction(K_NONE);
+                viewAction(config::Key::NONE);
                 return;
             default:
                 break;
@@ -170,7 +170,7 @@ namespace display
         printMenu(names, pos.y);
     }
 
-    void Display::tempSensorsAction(Key key)
+    void Display::tempSensorsAction(const config::Key& key)
     {
         static DisplayViewPos pos(0, 0);
 
@@ -190,21 +190,21 @@ namespace display
 
         switch (key)
         {
-            case K_ARROW_UP:
+            case config::Key::ARROW_UP:
                 if(pos.y == 0)
                     pos.y = msgs.size() - 1;
                 else
                     --pos.y;
                 break;
-            case K_ARROW_DOWN:
+            case config::Key::ARROW_DOWN:
                 if(pos.y == (msgs.size() - 1))
                     pos.y = 0;
                 else
                     ++pos.y;
                 break;
-            case K_ESC:
+            case config::Key::ESC:
                 setCurrentView(DisplayView::MAIN_MENU);
-                viewAction(K_NONE);
+                viewAction(config::Key::NONE);
                 return;
             default:
                 break;
@@ -233,19 +233,19 @@ namespace display
         printMenu(names, pos.y, temperature);
     }
 
-    void Display::acLowRelaysAction(Key key)
+    void Display::acLowRelaysAction(const config::Key& key)
     {
         static DisplayViewPos pos(0, 0);
 
-        static const std::vector<std::pair<io::RelayACLowId, std::string>> msgs =
-                {{io::RelayACLowId::ZAWOR_VM_ODBIORU_OTWARCIE, "VM odbior otw"},
-                 {io::RelayACLowId::ZAWOR_VM_ODBIORU_ZAMKNIECIE, "VM odbior zam"},
-                 {io::RelayACLowId::ZAWOR_LM_PLUS_PRECYZYJNY_OTWARCIE, "LM + prec otw"},
-                 {io::RelayACLowId::ZAWOR_LM_PLUS_PRECYZYJNY_ZAMKNIECIE, "LM + prec zam"},
-                 {io::RelayACLowId::ZAWOR_LM_SAM_OTWARCIE, "LM sam otw"},
-                 {io::RelayACLowId::ZAWOR_LM_SAM_ZAMKNIECIE, "LM sam zam"},
-                 {io::RelayACLowId::LAMPA, "Lampa"},
-                 {io::RelayACLowId::WOLNY, "Wolne"}};
+        static const std::vector<std::pair<config::RelayACLowId, std::string>> msgs =
+                {{config::RelayACLowId::ZAWOR_VM_ODBIORU_OTWARCIE, "VM odbior otw"},
+                 {config::RelayACLowId::ZAWOR_VM_ODBIORU_ZAMKNIECIE, "VM odbior zam"},
+                 {config::RelayACLowId::ZAWOR_LM_PLUS_PRECYZYJNY_OTWARCIE, "LM + prec otw"},
+                 {config::RelayACLowId::ZAWOR_LM_PLUS_PRECYZYJNY_ZAMKNIECIE, "LM + prec zam"},
+                 {config::RelayACLowId::ZAWOR_LM_SAM_OTWARCIE, "LM sam otw"},
+                 {config::RelayACLowId::ZAWOR_LM_SAM_ZAMKNIECIE, "LM sam zam"},
+                 {config::RelayACLowId::LAMPA, "Lampa"},
+                 {config::RelayACLowId::WOLNY, "Wolne"}};
 
         constexpr std::string_view msgOn("ON");
         constexpr std::string_view msgOff("OFF");
@@ -255,49 +255,49 @@ namespace display
 
         switch (key)
         {
-            case K_ARROW_UP:
+            case config::Key::ARROW_UP:
                 if(pos.y == 0)
                     pos.y = msgs.size() - 1;
                 else
                     --pos.y;
                 break;
-            case K_ARROW_DOWN:
+            case config::Key::ARROW_DOWN:
                 if(pos.y == (msgs.size() - 1))
                     pos.y = 0;
                 else
                     ++pos.y;
                 break;
-            case K_ESC:
+            case config::Key::ESC:
                 setCurrentView(DisplayView::MAIN_MENU);
-                viewAction(K_NONE);
+                viewAction(config::Key::NONE);
                 return;
-            case K_ENTER:
-                io::ac_low_relays.Find(msgs[pos.y].first).toggle();
+            case config::Key::ENTER:
+                config::ac_low_relays.Find(msgs[pos.y].first).toggle();
                 break;
             default:
                 break;
         }
 
         for(const auto& el : msgs)
-            states.emplace_back(io::ac_low_relays.Find(el.first).read() ? msgOn : msgOff);
+            states.emplace_back(config::ac_low_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
 
         std::vector<std::string> names;
         names.reserve(msgs.size());
         std::transform(msgs.cbegin(), msgs.cend(), std::back_inserter(names),
-                       [](const std::pair<io::RelayACLowId, std::string>& el) { return el.second; });
+                       [](const std::pair<config::RelayACLowId, std::string>& el) { return el.second; });
 
         clearScreen();
         printMenu(names, pos.y, states);
     }
 
-    void Display::acHighRelaysAction(Key key)
+    void Display::acHighRelaysAction(const config::Key& key)
     {
         static DisplayViewPos pos(0, 0);
 
-        static const std::vector<std::pair<io::RelayACHighId, std::string>> msgs =
-                {{io::RelayACHighId::GRZALKA_1, "Grzalka 1"},
-                 {io::RelayACHighId::GRZALKA_2, "Grzalka 2"},
-                 {io::RelayACHighId::POMPA_WODY, "Pompa wody"}};
+        static const std::vector<std::pair<config::RelayACHighId, std::string>> msgs =
+                {{config::RelayACHighId::GRZALKA_1, "Grzalka 1"},
+                 {config::RelayACHighId::GRZALKA_2, "Grzalka 2"},
+                 {config::RelayACHighId::POMPA_WODY, "Pompa wody"}};
 
         constexpr std::string_view msgOn("ON");
         constexpr std::string_view msgOff("OFF");
@@ -306,50 +306,50 @@ namespace display
 
         switch (key)
         {
-            case K_ARROW_UP:
+            case config::Key::ARROW_UP:
                 if(pos.y == 0)
                     pos.y = msgs.size() - 1;
                 else
                     --pos.y;
                 break;
-            case K_ARROW_DOWN:
+            case config::Key::ARROW_DOWN:
                 if(pos.y == (msgs.size() - 1))
                     pos.y = 0;
                 else
                     ++pos.y;
                 break;
-            case K_ESC:
+            case config::Key::ESC:
                 setCurrentView(DisplayView::MAIN_MENU);
-                viewAction(K_NONE);
+                viewAction(config::Key::NONE);
                 return;
-            case K_ENTER:
-                io::ac_high_relays.Find(msgs[pos.y].first).toggle();
+            case config::Key::ENTER:
+                config::ac_high_relays.Find(msgs[pos.y].first).toggle();
                 break;
             default:
                 break;
         }
 
         for(auto & el : msgs)
-            states.emplace_back(io::ac_high_relays.Find(el.first).read() ? msgOn : msgOff);
+            states.emplace_back(config::ac_high_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
 
         std::vector<std::string> names;
         names.reserve(msgs.size());
         std::transform(msgs.cbegin(), msgs.cend(), std::back_inserter(names),
-                       [](const std::pair<io::RelayACHighId, std::string>& el) { return el.second; });
+                       [](const std::pair<config::RelayACHighId, std::string>& el) { return el.second; });
 
         clearScreen();
         printMenu(names, pos.y, states);
     }
 
-    void Display::dcAcRelaysAction(Key key)
+    void Display::dcAcRelaysAction(const config::Key& key)
     {
         static DisplayViewPos pos(0, 0);
 
-        static const std::vector<std::pair<io::RelayDCACId, std::string>> msgs =
-                {{io::RelayDCACId::PUSTY_1, "Pusty 1"},
-                 {io::RelayDCACId::PUSTY_2, "Pusty 2"},
-                 {io::RelayDCACId::PUSTY_3, "Pusty 3"},
-                 {io::RelayDCACId::PUSTY_4, "Pusty 4"}};
+        static const std::vector<std::pair<config::RelayDCACId, std::string>> msgs =
+                {{config::RelayDCACId::PUSTY_1, "Pusty 1"},
+                 {config::RelayDCACId::PUSTY_2, "Pusty 2"},
+                 {config::RelayDCACId::PUSTY_3, "Pusty 3"},
+                 {config::RelayDCACId::PUSTY_4, "Pusty 4"}};
 
         constexpr std::string_view msgOn("ON");
         constexpr std::string_view msgOff("OFF");
@@ -358,51 +358,51 @@ namespace display
 
         switch (key)
         {
-            case K_ARROW_UP:
+            case config::Key::ARROW_UP:
                 if(pos.y == 0)
                     pos.y = msgs.size() - 1;
                 else
                     --pos.y;
                 break;
-            case K_ARROW_DOWN:
+            case config::Key::ARROW_DOWN:
                 if(pos.y == (msgs.size() - 1))
                     pos.y = 0;
                 else
                     ++pos.y;
                 break;
-            case K_ESC:
+            case config::Key::ESC:
                 setCurrentView(DisplayView::MAIN_MENU);
-                viewAction(K_NONE);
+                viewAction(config::Key::NONE);
                 return;
-            case K_ENTER:
-                io::dc_ac_relays.Find(msgs[pos.y].first).toggle();
+            case config::Key::ENTER:
+                config::dc_ac_relays.Find(msgs[pos.y].first).toggle();
                 break;
             default:
                 break;
         }
 
         for(auto & el : msgs)
-            states.emplace_back(io::dc_ac_relays.Find(el.first).read() ? msgOn : msgOff);
+            states.emplace_back(config::dc_ac_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
 
         std::vector<std::string> names;
         names.reserve(msgs.size());
         std::transform(msgs.cbegin(), msgs.cend(), std::back_inserter(names),
-                       [](const std::pair<io::RelayDCACId, std::string>& el) { return el.second; });
+                       [](const std::pair<config::RelayDCACId, std::string>& el) { return el.second; });
 
         clearScreen();
         printMenu(names, pos.y, states);
     }
 
-    void Display::setAlarmAction(Key key)
+    void Display::setAlarmAction(const config::Key& key)
     {
 
         static DisplayViewPos pos(0, 0);
 
-        static const std::vector<std::pair<io::RelayDCACId, std::string>> msgs =
-                {{io::RelayDCACId::PUSTY_1, "Pusty 1"},
-                 {io::RelayDCACId::PUSTY_2, "Pusty 2"},
-                 {io::RelayDCACId::PUSTY_3, "Pusty 3"},
-                 {io::RelayDCACId::PUSTY_4, "Pusty 4"}};
+        static const std::vector<std::pair<config::RelayDCACId, std::string>> msgs =
+                {{config::RelayDCACId::PUSTY_1, "Pusty 1"},
+                 {config::RelayDCACId::PUSTY_2, "Pusty 2"},
+                 {config::RelayDCACId::PUSTY_3, "Pusty 3"},
+                 {config::RelayDCACId::PUSTY_4, "Pusty 4"}};
 
         constexpr std::string_view msgOn("ON");
         constexpr std::string_view msgOff("OFF");
@@ -411,36 +411,36 @@ namespace display
 
         switch (key)
         {
-            case K_ARROW_UP:
+            case config::Key::ARROW_UP:
                 if(pos.y == 0)
                     pos.y = msgs.size() - 1;
                 else
                     --pos.y;
                 break;
-            case K_ARROW_DOWN:
+            case config::Key::ARROW_DOWN:
                 if(pos.y == (msgs.size() - 1))
                     pos.y = 0;
                 else
                     ++pos.y;
                 break;
-            case K_ESC:
+            case config::Key::ESC:
                 setCurrentView(DisplayView::MAIN_MENU);
-                viewAction(K_NONE);
+                viewAction(config::Key::NONE);
                 return;
-            case K_ENTER:
-                io::dc_ac_relays.Find(msgs[pos.y].first).toggle();
+            case config::Key::ENTER:
+                config::dc_ac_relays.Find(msgs[pos.y].first).toggle();
                 break;
             default:
                 break;
         }
 
         for(auto & el : msgs)
-            states.emplace_back(io::dc_ac_relays.Find(el.first).read() ? msgOn : msgOff);
+            states.emplace_back(config::dc_ac_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
 
         std::vector<std::string> names;
         names.reserve(msgs.size());
         std::transform(msgs.cbegin(), msgs.cend(), std::back_inserter(names),
-                       [](const std::pair<io::RelayDCACId, std::string>& el) { return el.second; });
+                       [](const std::pair<config::RelayDCACId, std::string>& el) { return el.second; });
 
         clearScreen();
         printMenu(names, pos.y, states);
