@@ -44,12 +44,12 @@ namespace communication {
 
         uint8_t calculateCrc8(uint8_t *addr, uint8_t len);
 
+        static std::map<OneWireCommand, uint8_t> commands;
+
     private:
         void delay(uint16_t us) const;
         void setBusInputDirection();
         void setBusOutputDirection();
-
-        static std::map<OneWireCommand, uint8_t> commands_;
 
         TIM_HandleTypeDef &tim_;             // OneWire timer
         io::GpioPin & pin_;                  // Bus GPIO Pin

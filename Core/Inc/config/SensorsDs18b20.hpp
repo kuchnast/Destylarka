@@ -7,8 +7,6 @@
 
 namespace config {
 
-#define	DS18B20_TIMER htim1 // Remember to configure a timer on CubeMX 1us per tick
-
     enum class Ds18b20NameId {
         UNKNOWN = 0,
         ZBIORNIK_POD_PIANKA,

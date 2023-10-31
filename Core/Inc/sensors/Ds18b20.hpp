@@ -6,7 +6,8 @@
 
 namespace sensors {
 
-struct Ds18b20 {
+struct Ds18b20
+{
     communication::OneWireAddress address;
     float temperature;
     bool is_valid;
@@ -26,20 +27,22 @@ public:
 
     bool checkFamilyCode(communication::OneWireAddress &address);
 
-    void startRanging(config::Ds18b20NameId id);
+    void startRangingOne(config::Ds18b20NameId id);
 
-    void init(GPIO_TypeDef * gpio, uint16_t pin, Ds18b20Resolution resolution, bool use_crc = false);
+    void startRangingAll();
+
+    bool readOne(config::Ds18b20NameId id);
+
+    bool readAll();
+
+    [[nodiscard]] size_t size() const;
+
+    void init(Ds18b20Resolution resolution);
 
     uint8_t getResolution(uint8_t number);
 
     uint8_t setResolution(uint8_t number, Ds18b20Resolution resolution);
 
-
-    void startAll();
-
-    uint8_t read(uint8_t number, float *destination);
-
-    void readAll(void);
 
 
     uint8_t allDone(void);
@@ -48,7 +51,6 @@ public:
 
     void writeROM(uint8_t number, uint8_t *ROM);
 
-    uint8_t quantity(void);
 
     uint8_t getTemperatureByNumber(uint8_t number, float *destination);
 
