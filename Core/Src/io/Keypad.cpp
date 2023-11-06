@@ -7,130 +7,110 @@
 
 namespace io {
 
-    Keypad::Keypad() : column_size_(config::keypad_column.size()), row_size_(config::keypad_row.size()) {}
+    using namespace config;
+
+    Keypad::Keypad() : column_size_(keypad_column.size()), row_size_(keypad_row.size()) {}
 
     uint16_t Keypad::scanKeys()
     {
         uint16_t key = 0;
 
-        for (auto & col_pin : config::keypad_column)
+        for (uint8_t c = 0; c < keypad_column.size(); ++c)
         {
-            for (auto & pin : config::keypad_column)
+            for (auto &pin: keypad_column)
                 pin.write(PinState::SET);
 
-            col_pin.write(PinState::RESET);
+            keypad_column[c].write(PinState::RESET);
             HAL_Delay(5);
 
-            for (auto & row_pin : config::keypad_row) {
-                if (row_pin.read() == PinState::RESET) {
-                    HAL_Delay(config::keypad_debounce_time_ms);
-                    if (row_pin.read() == PinState::RESET)
-                    {
+            for (uint8_t r = 0; r < keypad_row.size(); ++r) {
+                if (keypad_row[r].read() == PinState::RESET) {
+                    HAL_Delay(keypad_debounce_time_ms);
+                    if (keypad_row[r].read() == PinState::RESET) {
                         key |= 1 << c;
                         key |= 1 << (r + 8);
-                        while (row_pin.read() == PinState::RESET)
+                        while (keypad_row[r].read() == PinState::RESET)
                             HAL_Delay(5);
                         return key;
                     }
                 }
             }
         }
+
         return key;
     }
-    //#############################################################################################
-    uint16_t KeyPad_WaitForKeyGetUint(uint32_t Timeout_ms) {
-        uint16_t keyRead;
-        while (Timeout_ms == 0) {
-            keyRead = KeyPad_Scan();
-            if (keyRead != 0) {
-                KeyPad.LastKey = keyRead;
-                return keyRead;
-            }
-            HAL_Delay(_KEYPAD_DEBOUNCE_TIME_MS);
-        }
 
-        uint32_t StartTime = HAL_GetTick();
-        while (HAL_GetTick() - StartTime < Timeout_ms) {
-            keyRead = KeyPad_Scan();
-            if (keyRead != 0) {
-                KeyPad.LastKey = keyRead;
-                return keyRead;
-            }
-            HAL_Delay(_KEYPAD_DEBOUNCE_TIME_MS);
-        }
-        KeyPad.LastKey = 0;
-        return 0;
-    }
+    Key Keypad::waitForKey(uint32_t timeout_ms)
+    {
+    	uint16_t  keyRead = 0;
 
-    config::Key Keypad::waitForKey(uint32_t timeout_ms) {
-        uint16_t i = KeyPad_WaitForKeyGetUint(Timeout_ms);
-        switch (i) {
+    	while(timeout_ms==0)
+    	{
+    		keyRead = scanKeys();
+    		if(keyRead != 0)
+    		{
+    			break;
+    		}
+    		HAL_Delay(keypad_debounce_time_ms);
+    	}
+
+    	uint32_t	StartTime = HAL_GetTick();
+    	while(HAL_GetTick()-StartTime < timeout_ms)
+    	{
+    		keyRead = scanKeys();
+    		if(keyRead != 0)
+    		{
+    			break;
+    		}
+            HAL_Delay(keypad_debounce_time_ms);
+    	}
+
+        switch (keyRead)
+        {
             case 0x0000:
-                return K_NONE;
-                break;
+                return Key::NONE;
             case 0x1001:
-                return K_F1;
-                break;
+                return Key::F1;
             case 0x1002:
-                return K_F2;
-                break;
+                return Key::F2;
             case 0x1004:
-                return K_HASH;
-                break;
+                return Key::HASH;
             case 0x1008:
-                return K_STAR;
-                break;
+                return Key::STAR;
             case 0x0801:
-                return K_1;
-                break;
+                return Key::N1;
             case 0x0802:
-                return K_2;
-                break;
+                return Key::N2;
             case 0x0804:
-                return K_3;
-                break;
+                return Key::N3;
             case 0x0808:
-                return K_ARROW_UP;
-                break;
+                return Key::ARROW_UP;
             case 0x0401:
-                return K_4;
-                break;
+                return Key::N4;
             case 0x0402:
-                return K_5;
-                break;
+                return Key::N5;
             case 0x0404:
-                return K_6;
-                break;
+                return Key::N6;
             case 0x0408:
-                return K_ARROW_DOWN;
-                break;
+                return Key::ARROW_DOWN;
             case 0x0201:
-                return K_7;
-                break;
+                return Key::N7;
             case 0x0202:
-                return K_8;
-                break;
+                return Key::N8;
             case 0x0204:
-                return K_9;
-                break;
+                return Key::N9;
             case 0x0208:
-                return K_ESC;
-                break;
+                return Key::ESC;
             case 0x0101:
-                return K_ARROW_LEFT;
-                break;
+                return Key::ARROW_LEFT;
             case 0x0102:
-                return K_0;
-                break;
+                return Key::N0;
             case 0x0104:
-                return K_ARROW_RIGHT;
-                break;
+                return Key::ARROW_RIGHT;
             case 0x0108:
-                return K_ENTER;
-                break;
+                return Key::ENTER;
             default:
-                return K_NONE;
-                break;
+                return Key::NONE;
         }
     }
 }

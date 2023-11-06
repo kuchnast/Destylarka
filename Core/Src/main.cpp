@@ -21,10 +21,12 @@
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
-#include <display/Display.hpp>
 #include <io/Keypad.hpp>
+#include <display/Display.hpp>
 #include <main.hpp>
 #include <sensors/Ds18b20.hpp>
+#include <io/FunctionTimer.hpp>
+#include <io/Valve.hpp>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -97,20 +99,22 @@ int main(void)
     MX_I2C1_Init();
     MX_TIM1_Init();
     /* USER CODE BEGIN 2 */
-    display::Display display{};
+    io::Keypad keypad{};
 
+    io::GpioPin oneWirePin(DS18B20_GPIO_Port, DS18B20_Pin);
+    communication::OneWire oneWire{oneWirePin, htim1};
+    sensors::Ds18b20Collection ds_collection(oneWire, true);
+    ds_collection.addSensors(config::ds_sensors, 12);
+
+    display::Display display{ds_collection};
     display.init();
-    KeyPad_Init();
-    DS18B20_Init(DS18B20_Resolution_12bits);
 
-    display.viewAction(K_NONE);
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
     {
-
         switch (display.getCurrentView())
         {
             case display::DisplayView::EMPTY:
@@ -118,16 +122,18 @@ int main(void)
             case display::DisplayView::AC_LOW_RELAYS:
             case display::DisplayView::AC_HIGH_RELAYS:
             case display::DisplayView::DC_AC_RELAYS:
-                display.viewAction(KeyPad_WaitForKeyGetKey(0));
+                display.viewAction(keypad.waitForKey(0));
                 break;
             case display::DisplayView::TEMP_SENSORS:
-                DS18B20_ReadAll();
-                DS18B20_StartAll();
-                display.viewAction(KeyPad_WaitForKeyGetKey(1000));
+                ds_collection.startRangingAll();
+                ds_collection.readAll();
+                display.viewAction(keypad.waitForKey(1000));
                 break;
             default:
                 break;
         }
+
+        io::FunctionTimer::handleFunctionsWithTimeout();
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */

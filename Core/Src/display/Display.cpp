@@ -174,19 +174,18 @@ namespace display
     {
         static DisplayViewPos pos(0, 0);
 
-        static const std::vector<std::pair<io::Ds18b20NameId, std::string>> msgs =
-                {{io::Ds18b20NameId::ZBIORNIK_POD_PIANKA, "Zb.pianka"},
-                 {io::Ds18b20NameId::ZBIORNIK_W_KAPILARZE, "Zb.kapil."},
-                 {io::Ds18b20NameId::KOLUMNA_GORA, "Kol.dol"},
-                 {io::Ds18b20NameId::KOLUMNA_DOL, "Kol.gora"},
-                 {io::Ds18b20NameId::CHLODNICA_ZASILANIE, "Chlod.zas"},
-                 {io::Ds18b20NameId::CHLODNICA_POWROT, "Chlod.pow"}};
+        static const std::vector<std::pair<config::Ds18b20NameId, std::string>> msgs =
+                {{config::Ds18b20NameId::ZBIORNIK_POD_PIANKA, "Zb.pianka"},
+                 {config::Ds18b20NameId::ZBIORNIK_W_KAPILARZE, "Zb.kapil."},
+                 {config::Ds18b20NameId::KOLUMNA_GORA, "Kol.dol"},
+                 {config::Ds18b20NameId::KOLUMNA_DOL, "Kol.gora"},
+                 {config::Ds18b20NameId::CHLODNICA_ZASILANIE, "Chlod.zas"},
+                 {config::Ds18b20NameId::CHLODNICA_POWROT, "Chlod.pow"}};
 
         constexpr std::string_view msgError("BLAD");
         constexpr std::string_view msgNotFound("BRAK");
 
         std::vector<std::string> temperature(msgs.size());
-        float measurement;
 
         switch (key)
         {
@@ -210,15 +209,13 @@ namespace display
                 break;
         }
 
-        for(uint8_t error, idx, i = 0; i < LINES_NUM; ++i)
+        for(uint8_t idx, i = 0; i < LINES_NUM; ++i)
         {
             idx = pos.y + i - (pos.y + i > msgs.size() ? msgs.size(): 0);
-            error = DS18B20_GetTemperatureById(msgs[idx].first, &measurement);
+            auto temp_maybe = ds_collection_.getTemperatureMaybe(msgs[idx].first);
 
-            if(!error)
-                temperature[idx] = std::to_string(measurement).substr(0, 6);
-            else if(error == 2)
-                temperature[idx] = msgNotFound;
+            if(temp_maybe.has_value())
+                temperature[idx] = std::to_string(temp_maybe.value()).substr(0, 6);
             else
                 temperature[idx] = msgError;
 
@@ -227,7 +224,7 @@ namespace display
         std::vector<std::string> names;
         names.reserve(msgs.size());
         std::transform(msgs.cbegin(), msgs.cend(), std::back_inserter(names),
-                       [](const std::pair<io::Ds18b20NameId, std::string>& el) { return el.second; });
+                       [](const std::pair<config::Ds18b20NameId, std::string>& el) { return el.second; });
 
         clearScreen();
         printMenu(names, pos.y, temperature);

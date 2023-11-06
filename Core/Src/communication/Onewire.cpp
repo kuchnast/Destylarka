@@ -4,7 +4,7 @@
 
 namespace communication {
 
-    std::map<OneWireCommand, uint8_t> OneWire::commands_{
+    std::map<OneWireCommand, uint8_t> OneWire::commands{
         {OneWireCommand::R_SCRATCHPAD, 0xBE},
         {OneWireCommand::W_SCRATCHPAD, 0x4E},
         {OneWireCommand::CPY_SCRATCHPAD, 0x48},
@@ -137,7 +137,7 @@ namespace communication {
     {
         uint8_t byte = 0;
 
-        for(uint8_t i = 7; i >= 0; ++i, byte >>= 1)
+        for(int8_t i = 7; i >= 0; --i, byte >>= 1)
             byte |= (static_cast<uint8_t>(readBit()) << 7);// LSB first
 
         return byte;
@@ -147,7 +147,6 @@ namespace communication {
     {
         last_discrepancy_ = 0;
         last_device_flag_ = 0;
-        last_family_discrepancy_ = 0;
     }
 
     uint8_t OneWire::search(OneWireCommand commandId)
@@ -171,7 +170,7 @@ namespace communication {
                 return 0;
             }
 
-            writeByte(commands_[commandId]);// Send searching command
+            writeByte(commands[commandId]);// Send searching command
 
             // Searching loop, Maxim APPLICATION NOTE 187
             do
@@ -204,11 +203,6 @@ namespace communication {
                     if (search_direction == 0) // If 0 was picked, write it to LastZero
                     {
                         last_zero = id_bit_number;
-
-                        if (last_zero < 9) // Check for last discrepancy in family
-                        {
-                            last_family_discrepancy_ = last_zero;
-                        }
                     }
                 }
 
@@ -248,7 +242,6 @@ namespace communication {
         {
             last_discrepancy_ = 0;
             last_device_flag_ = 0;
-            last_family_discrepancy_ = 0;
             search_result = 0;
         }
 
@@ -276,7 +269,7 @@ namespace communication {
      */
     void OneWire::selectDevice(OneWireAddress& addr)
     {
-        writeByte(commands_[OneWireCommand::MATCH_ROM]);// Match ROM command
+        writeByte(commands[OneWireCommand::MATCH_ROM]);// Match ROM command
 
         for (auto& ch : addr)
             writeByte( ch);
@@ -303,7 +296,7 @@ namespace communication {
      * @param len
      * @return
      */
-    uint8_t OneWire::calculateCrc8(uint8_t *addr, uint8_t len) {
+    uint8_t OneWire::calculateCrc8(const uint8_t *addr, uint8_t len) {
         uint8_t crc = 0, inbyte, i, mix;
 
         while (len--) {
@@ -319,6 +312,11 @@ namespace communication {
         }
 
         return crc;
+    }
+
+    uint8_t OneWire::calculateCrc8(const std::vector<uint8_t>& data)
+    {
+        calculateCrc8(data.data(), data.size());
     }
 
 } //  namespace communication

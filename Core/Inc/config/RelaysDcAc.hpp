@@ -15,7 +15,7 @@ enum class RelayDCACId
     PUSTY_4,
 };
 
-static RelaysCollection<RelayDCACId> dc_ac_relays({
+static io::RelaysCollection<RelayDCACId> dc_ac_relays({
     {RelayDCACId::PUSTY_1, io::GpioPin(O_DC_1_GPIO_Port, O_DC_1_Pin)},
     {RelayDCACId::PUSTY_2, io::GpioPin(O_DC_2_GPIO_Port, O_DC_2_Pin)},
     {RelayDCACId::PUSTY_3, io::GpioPin(O_DC_3_GPIO_Port, O_DC_3_Pin)},

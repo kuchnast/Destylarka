@@ -8,7 +8,6 @@
 namespace config {
 
     enum class Ds18b20NameId {
-        UNKNOWN = 0,
         ZBIORNIK_POD_PIANKA,
         ZBIORNIK_W_KAPILARZE,
         KOLUMNA_DOL,

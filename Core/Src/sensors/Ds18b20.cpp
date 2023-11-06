@@ -3,12 +3,56 @@
 
 namespace sensors {
 
-    uint8_t OneWireDevices;
-    uint8_t TempSensorCount = 0;
+    Ds18b20::Ds18b20(const OneWireAddress &address) : address(address), temperature(0.0), is_valid(false)
+    {
+    }
 
-    Ds18b20Collection::Ds18b20Collection(communication::OneWire & onewire, bool use_crc)
-        : onewire_(onewire), use_crc_(use_crc)
-    {}
+    Ds18b20Collection::Ds18b20Collection(OneWire &onewire, bool use_crc)
+        : onewire_(onewire), use_crc_(use_crc) {}
+
+    /**
+     * Find and add ds18b20 to known sensors
+     *
+     * @param id ds18b20 sensor id
+     * @param address OneWire sensor address
+     * @param resolution as number of bits with measurement read from sensor
+     * @return true - sensor not found or error, false - sensor added
+     */
+    bool Ds18b20Collection::addSensor(Ds18b20NameId id, const OneWireAddress &address, uint8_t resolution) {
+        OneWireAddress device_address;
+        bool is_added;
+
+        if (onewire_.findDevice(true)) {
+            do {
+                device_address = onewire_.getDeviceAddress();
+                if (device_address == address)
+                {
+                    if(sensors_.try_emplace(id, address).second)
+                        return setResolution(id, resolution);
+
+                    break;
+                }
+            } while (onewire_.findDevice());
+        }
+
+        return true;
+    }
+
+    /**
+     * Find and add multiple ds18b20 to known sensors
+     *
+     * @param id ds18b20 sensor id
+     * @param address OneWire sensor address
+     * @param resolution as number of bits with measurement read from sensor
+     * @return true - one or many sensors not found or error, false - all sensors added
+     */
+    bool Ds18b20Collection::addSensors(const std::vector<Ds18b20Sensor>& sensors, uint8_t resolution)
+    {
+        for(const auto& sensor : sensors)
+            addSensor(sensor.name_id, sensor.address, resolution);
+
+        return size() != sensors.size();
+    }
 
     /**
      * Check if OneWire device is DS18B20 sensor
@@ -16,8 +60,9 @@ namespace sensors {
      * @param address OneWire device address
      * @return true - DS18B20 sensor, false - something else
      */
-    bool Ds18b20Collection::checkFamilyCode(communication::OneWireAddress &address)
-    {
+    bool Ds18b20Collection::checkFamilyCode(OneWireAddress &address) {
+        static constexpr uint8_t DS18B20_FAMILY_CODE = 0x28;
+
         return address[0] == DS18B20_FAMILY_CODE;
     }
 
@@ -26,23 +71,24 @@ namespace sensors {
      *
      * @param id ds18b20 sensor id
      */
-    void Ds18b20Collection::startRangingOne(config::Ds18b20NameId id)
-    {
-        onewire_.resetBus();
-        onewire_.selectDevice(sensors_[id].address);
-        onewire_.writeByte(DS18B20_CMD_CONVERTTEMP);
+    void Ds18b20Collection::startRangingOne(Ds18b20NameId id) {
+        auto sensor = sensors_.find(id);
+
+        if(sensor != sensors_.end())
+        {
+            onewire_.resetBus();
+            onewire_.selectDevice(sensor->second.address);
+            onewire_.writeByte(DS18B20_CMD_CONVERTTEMP);
+        }
     }
 
     /**
      * Start conversion of all connected sensors
      */
-    void Ds18b20Collection::startRangingAll()
-    {
-        using namespace communication;
-
-        onewire_.resetBus(); // Reset the bus
-        onewire_.writeByte(OneWire::commands[OneWireCommand::SKIP_ROM]); // Skip ROM command
-        onewire_.writeByte(DS18B20_CMD_CONVERTTEMP); // Start conversion on all sensors
+    void Ds18b20Collection::startRangingAll() {
+        onewire_.resetBus();                                            // Reset the bus
+        onewire_.writeByte(OneWire::commands[OneWireCommand::SKIP_ROM]);// Skip ROM command
+        onewire_.writeByte(DS18B20_CMD_CONVERTTEMP);                    // Start conversion on all sensors
     }
 
     /**
@@ -50,67 +96,74 @@ namespace sensors {
      * @param id ds18b20 sensor id
      * @return true - error occurred, false - temperature read
      */
-    bool Ds18b20Collection::readOne(config::Ds18b20NameId id)
-    {
-        using namespace communication;
+    bool Ds18b20Collection::readOne(Ds18b20NameId id) {
+        static constexpr uint8_t DATA_LEN_WITH_CRC = 9;
+        static constexpr uint8_t DATA_LEN_WITHOUT_CRC = 5;
 
-        uint16_t temperature;
+        uint16_t measurement;
         uint8_t resolution;
-        float result;
-        uint8_t i = 0;
-        uint8_t data[DS18B20_DATA_LEN];
         uint8_t crc;
+        std::vector<uint8_t> data;
+        auto sensor = sensors_.find(id);
 
-        if (!onewire_.readBit()) // Check if the bus is released
-            return true; // Busy bus - conversion is not finished
+        if(sensor == sensors_.end())
+            return true;
 
-        onewire_.resetBus(); // Reset the bus
-        onewire_.selectDevice(sensors_[id].address);
-        onewire_.writeByte(OneWire::commands[OneWireCommand::R_SCRATCHPAD]); // Skip ROM command
+        if (use_crc_)
+            data.resize(DATA_LEN_WITH_CRC);
+        else
+            data.resize(DATA_LEN_WITHOUT_CRC);
 
-        for (i = 0; i < DS18B20_DATA_LEN; i++)// read scratchpad
-            data[i] = OneWire_ReadByte(&OneWire);
-
-        if(use_crc_)
+        if (!onewire_.readBit())// Check if the bus is released
         {
-            crc = OneWire_CRC8(data, 8);// CRC calculation
-
-            if (crc != data[8])
-                return 0;// CRC invalid
+            sensor->second.is_valid = false;
+            return true;// Busy bus - conversion is not finished
         }
 
-        temperature = data[0] | (data[1] << 8);// temperature is 16-bit length
+        onewire_.resetBus();// Reset the bus
+        onewire_.selectDevice(sensor->second.address);
+        onewire_.writeByte(OneWire::commands[OneWireCommand::R_SCRATCHPAD]);// Skip ROM command
+
+        for (auto &el: data)// read scratchpad
+            el = onewire_.readByte();
+
+        if (use_crc_) {
+            crc = OneWire::calculateCrc8(data);// CRC calculation
+
+            if (crc != data[8]) {
+                sensor->second.is_valid = false;
+                return true;// CRC invalid
+            }
+        }
 
         onewire_.resetBus();// Reset the bus
 
+        measurement = data[0] | (data[1] << 8);  // temperature is 16-bit length
         resolution = ((data[4] & 0x60) >> 5) + 9;// Sensor's resolution from scratchpad's byte 4
+        auto temperature = convertMeasurementToTemperatureMaybe(measurement, resolution);
 
-        switch (resolution)// Chceck the correct value dur to resolution
-        {
-            case DS18B20_Resolution_9bits:
-                result = temperature * (float) DS18B20_STEP_9BIT;
-                break;
-            case DS18B20_Resolution_10bits:
-                result = temperature * (float) DS18B20_STEP_10BIT;
-                break;
-            case DS18B20_Resolution_11bits:
-                result = temperature * (float) DS18B20_STEP_11BIT;
-                break;
-            case DS18B20_Resolution_12bits:
-                result = temperature * (float) DS18B20_STEP_12BIT;
-                break;
-            default:
-                result = 0xFF;
+        if (temperature.has_value()) {
+            sensor->second.temperature = temperature.value();
+            sensor->second.is_valid = true;
+        } else {
+            sensor->second.is_valid = false;
+            return true;
         }
 
-        *destination = result;
-
-        return 1;//temperature valid
+        return false;// temperature valid
     }
 
-    bool Ds18b20Collection::readAll()
-    {
+    /**
+     * Read temperature from all sensors
+     * @return true - error occurred in one or many reads, false - temperature read
+     */
+    bool Ds18b20Collection::readAll() {
+        bool flag = false;
 
+        for (const auto &sensor: sensors_)
+            flag |= readOne(sensor.first);
+
+        return flag;
     }
 
     /**
@@ -118,310 +171,127 @@ namespace sensors {
      *
      * @return number of sensors
      */
-    size_t Ds18b20Collection::size() const
-    {
+    size_t Ds18b20Collection::size() const {
         return sensors_.size();
     }
 
     /**
-     * Read one sensor
+     * Check if all sensor's conversion is done
      *
-     * @param number
-     * @param destination
-     * @return
+     * @return true if all sensors are ready, false if bus is busy
      */
-    uint8_t DS18B20_Read(uint8_t number, float *destination) {
-        if (number >= TempSensorCount)// If read sensor is not availible
-            return 0;
-
-        uint16_t temperature;
-        uint8_t resolution;
-        float result;
-        uint8_t i = 0;
-        uint8_t data[DS18B20_DATA_LEN];
-#ifdef _DS18B20_USE_CRC
-        uint8_t crc;
-
-#endif
-
-
-        if (!DS18B20_Is((uint8_t *) &ds18b20[number].address))// Check if sensor is DS18B20 family
-            return 0;
-
-        if (!OneWire_ReadBit(&OneWire))// Check if the bus is released
-            return 0;                  // Busy bus - conversion is not finished
-
-        onewire_.resetBus();                                                  // Reset the bus
-       onewire_.selectDevice((uint8_t *) &ds18b20[number].address);// Select the sensor by ROM
-        OneWire_WriteByte(&OneWire, ONEWIRE_CMD_RSCRATCHPAD);                     // read scratchpad command
-
-        for (i = 0; i < DS18B20_DATA_LEN; i++)// read scratchpad
-            data[i] = OneWire_ReadByte(&OneWire);
-
-#ifdef _DS18B20_USE_CRC
-        crc = OneWire_CRC8(data, 8);// CRC calculation
-
-        if (crc != data[8])
-            return 0;// CRC invalid
-#endif
-        temperature = data[0] | (data[1] << 8);// temperature is 16-bit length
-
-        onewire_.resetBus();// Reset the bus
-
-        resolution = ((data[4] & 0x60) >> 5) + 9;// Sensor's resolution from scratchpad's byte 4
-
-        switch (resolution)// Chceck the correct value dur to resolution
-        {
-            case DS18B20_Resolution_9bits:
-                result = temperature * (float) DS18B20_STEP_9BIT;
-                break;
-            case DS18B20_Resolution_10bits:
-                result = temperature * (float) DS18B20_STEP_10BIT;
-                break;
-            case DS18B20_Resolution_11bits:
-                result = temperature * (float) DS18B20_STEP_11BIT;
-                break;
-            case DS18B20_Resolution_12bits:
-                result = temperature * (float) DS18B20_STEP_12BIT;
-                break;
-            default:
-                result = 0xFF;
-        }
-
-        *destination = result;
-
-        return 1;//temperature valid
+    bool Ds18b20Collection::allDone() {
+        return onewire_.readBit();// Bus is down - busy
     }
 
     /**
-* Get the sensor resolution
-*
-* @param number
-* @return
-*/
-    uint8_t DS18B20_GetResolution(uint8_t number) {
-        if (number >= TempSensorCount)
-            return 0;
+     * Get last read temperature from sensor
+     *
+     * @param id ds18b20 sensor id
+     * @return temperature or nullopt if temperature not valid
+     */
+    std::optional<float> Ds18b20Collection::getTemperatureMaybe(Ds18b20NameId id) {
+        auto sensor = sensors_.find(id);
 
-        uint8_t conf;
+        if(sensor == sensors_.end())
+            return true;
 
-        if (!DS18B20_Is((uint8_t *) &ds18b20[number].address))
-            return 0;
+        return sensor->second.is_valid ? std::optional<float>(sensor->second.temperature) : std::nullopt;
+    }
 
-        onewire_.resetBus();                                                  // Reset the bus
-       onewire_.selectDevice((uint8_t *) &ds18b20[number].address);// Select the sensor by ROM
-        OneWire_WriteByte(&OneWire, ONEWIRE_CMD_RSCRATCHPAD);                     // read scratchpad command
+    /**
+    * Get the sensor resolution
+    *
+    * @param id ds18b20 sensor id
+    * @return resolution as number of bits with measurement read from sensor
+    */
+    uint8_t Ds18b20Collection::getResolution(Ds18b20NameId id) {
+        uint8_t resolution_raw;
+        auto sensor = sensors_.find(id);
 
-        OneWire_ReadByte(&OneWire);
-        OneWire_ReadByte(&OneWire);
-        OneWire_ReadByte(&OneWire);
-        OneWire_ReadByte(&OneWire);
+        if(sensor == sensors_.end())
+            return true;
 
-        conf = OneWire_ReadByte(&OneWire);// Register 5 is the configuration register with resolution
-        conf &= 0x60;                     // Mask two resolution bits
-        conf >>= 5;                       // Shift to left
-        conf += 9;                        // Get the result in number of resolution bits
+        onewire_.resetBus();// Reset the bus
+        onewire_.selectDevice(sensor->second.address);
+        onewire_.writeByte(OneWire::commands[OneWireCommand::R_SCRATCHPAD]);// Skip ROM command
 
-        return conf;
+        for (uint8_t i = 0; i < 4; ++i)// skip first 4 bytes
+            onewire_.readByte();
+        resolution_raw = onewire_.readByte();
+
+        return ((resolution_raw & 0x60) >> 5) + 9;// Sensor's resolution from raw scratchpad's byte
     }
 
     /**
      * Set the sensor resolution
      *
-     * @param number
-     * @param resolution
-     * @return
+     * @param id ds18b20 sensor id
+     * @param resolution as number of bits with measurement read from sensor
+     * @return true if resolution not valid, false if resolution set
      */
-    uint8_t DS18B20_SetResolution(uint8_t number, DS18B20_Resolution_t resolution) {
-        if (number >= TempSensorCount)
-            return 0;
+    bool Ds18b20Collection::setResolution(Ds18b20NameId id, uint8_t resolution) {
+        static constexpr uint8_t DS18B20_RESOLUTION_R1 = 6;// Resolution bit R1
+        static constexpr uint8_t DS18B20_RESOLUTION_R0 = 5;// Resolution bit R0
 
-        uint8_t th, tl, conf;
-        if (!DS18B20_Is((uint8_t *) &ds18b20[number].address))
-            return 0;
+        std::vector<uint8_t> data(5);
+        auto sensor = sensors_.find(id);
 
-        onewire_.resetBus();                                                  // Reset the bus
-       onewire_.selectDevice((uint8_t *) &ds18b20[number].address);// Select the sensor by ROM
-        OneWire_WriteByte(&OneWire, ONEWIRE_CMD_RSCRATCHPAD);                     // read scratchpad command
+        if(sensor == sensors_.end())
+            return true;
 
-        OneWire_ReadByte(&OneWire);
-        OneWire_ReadByte(&OneWire);
+        if (ds_resolution_step.find(resolution) == ds_resolution_step.end())
+            return true;// resolution not valid
 
-        th = OneWire_ReadByte(&OneWire);  // Writing to scratchpad begins from the temperature alarms bytes
-        tl = OneWire_ReadByte(&OneWire);  // 	so i have to store them.
-        conf = OneWire_ReadByte(&OneWire);// Config byte
+        onewire_.resetBus();// Reset the bus
+        onewire_.selectDevice(sensor->second.address);
+        onewire_.writeByte(OneWire::commands[OneWireCommand::R_SCRATCHPAD]);// Skip ROM command
 
-        if (resolution == DS18B20_Resolution_9bits)// Bits setting
+        for (auto &byte: data)
+            byte = onewire_.readByte();
+
+        if (resolution == 9)// Bits setting
         {
-            conf &= ~(1 << DS18B20_RESOLUTION_R1);
-            conf &= ~(1 << DS18B20_RESOLUTION_R0);
-        } else if (resolution == DS18B20_Resolution_10bits) {
-            conf &= ~(1 << DS18B20_RESOLUTION_R1);
-            conf |= 1 << DS18B20_RESOLUTION_R0;
-        } else if (resolution == DS18B20_Resolution_11bits) {
-            conf |= 1 << DS18B20_RESOLUTION_R1;
-            conf &= ~(1 << DS18B20_RESOLUTION_R0);
-        } else if (resolution == DS18B20_Resolution_12bits) {
-            conf |= 1 << DS18B20_RESOLUTION_R1;
-            conf |= 1 << DS18B20_RESOLUTION_R0;
+            data[4] &= ~(1 << DS18B20_RESOLUTION_R1);
+            data[4] &= ~(1 << DS18B20_RESOLUTION_R0);
+        } else if (resolution == 10) {
+            data[4] &= ~(1 << DS18B20_RESOLUTION_R1);
+            data[4] |= 1 << DS18B20_RESOLUTION_R0;
+        } else if (resolution == 11) {
+            data[4] |= 1 << DS18B20_RESOLUTION_R1;
+            data[4] &= ~(1 << DS18B20_RESOLUTION_R0);
+        } else if (resolution == 12) {
+            data[4] |= 1 << DS18B20_RESOLUTION_R1;
+            data[4] |= 1 << DS18B20_RESOLUTION_R0;
         }
 
-        onewire_.resetBus();                                                  // Reset the bus
-       onewire_.selectDevice((uint8_t *) &ds18b20[number].address);// Select the sensor by ROM
-        OneWire_WriteByte(&OneWire, ONEWIRE_CMD_WSCRATCHPAD);                     // write scratchpad command
+        onewire_.resetBus();// Reset the bus
+        onewire_.selectDevice(sensor->second.address);
+        onewire_.writeByte(OneWire::commands[OneWireCommand::W_SCRATCHPAD]);// write scratchpad command
 
-        OneWire_WriteByte(&OneWire, th);// write 3 bytes to scratchpad
-        OneWire_WriteByte(&OneWire, tl);
-        OneWire_WriteByte(&OneWire, conf);
+        for (auto it = data.begin() + 2; it != data.end(); ++it)// write 3 bytes to scratchpad
+            onewire_.writeByte(*it);
 
-        onewire_.resetBus();                                                  // Reset the bus
-       onewire_.selectDevice((uint8_t *) &ds18b20[number].address);// Select the sensor by ROM
-        OneWire_WriteByte(&OneWire, ONEWIRE_CMD_CPYSCRATCHPAD);                   // Copy scratchpad to EEPROM
+        onewire_.resetBus();// Reset the bus
+        onewire_.selectDevice(sensor->second.address);
+        onewire_.writeByte(OneWire::commands[OneWireCommand::CPY_SCRATCHPAD]);// copy scratchpad to EEPROM
 
-        return 1;
+        return false;
     }
 
-
-
     /**
-     * Check if all sensor's conversion is done
+     * Convert raw measurement and resolution to temperature
      *
-     * @return
+     * @param meas measurement from sensor
+     * @param resolution bit of resolution set on device
+     * @return temperature or nullopt if resolution not found
      */
-    uint8_t DS18B20_AllDone(void) {
-        return OneWire_ReadBit(&OneWire);// Bus is down - busy
+    std::optional<float> Ds18b20Collection::convertMeasurementToTemperatureMaybe(uint16_t meas, uint8_t resolution) {
+        auto it = ds_resolution_step.find(resolution);
+
+        if (it != ds_resolution_step.end())
+            return static_cast<float>(meas) * it->second;
+        else
+            return std::nullopt;
     }
-
-    /**
-     * Read all connected sensors
-     */
-    void DS18B20_ReadAll(void) {
-        uint8_t i;
-
-        if (DS18B20_AllDone()) {
-            for (i = 0; i < TempSensorCount; i++)// All detected sensors loop
-            {
-                ds18b20[i].validDataFlag = 0;
-
-                if (DS18B20_Is((uint8_t *) &ds18b20[i].address)) {
-                    ds18b20[i].validDataFlag = DS18B20_Read(i, &ds18b20[i].temperature);// read single sensor
-                }
-            }
-        }
-    }
-
-    /**
-     * Get sensor's ROM from 'number' position
-     *
-     * @param number
-     * @param ROM
-     */
-    void DS18B20_GetROM(uint8_t number, uint8_t *ROM) {
-        if (number >= TempSensorCount)
-            number = TempSensorCount;
-
-        uint8_t i;
-
-        for (i = 0; i < 8; i++)
-            ROM[i] = ds18b20[number].address[i];
-    }
-
-    /**
-     * Write a ROM to 'number' position in sensors table
-     *
-     * @param number
-     * @param ROM
-     */
-    void DS18B20_WriteROM(uint8_t number, uint8_t *ROM) {
-        if (number >= TempSensorCount)
-            return;
-
-        uint8_t i;
-
-        for (i = 0; i < 8; i++)
-            ds18b20[number].address[i] = ROM[i];// write ROM into sensor's structure
-    }
-
-    /**
-     * Returns quantity of connected sensors
-     *
-     * @return
-     */
-    uint8_t DS18B20_Quantity(void) {
-        return TempSensorCount;
-    }
-
-    /**
-     * Returns not 0 if read data is invalid
-     *
-     * @param number
-     * @param destination
-     * @return
-     */
-    uint8_t DS18B20_GetTemperatureByNumber(uint8_t number, float *destination) {
-        if (!ds18b20[number].validDataFlag)
-            return 1;
-
-        *destination = ds18b20[number].temperature;
-        return 0;
-    }
-
-    /**
-     * Returns not 0 if read data is invalid
-     *
-     * @param id
-     * @param destination
-     * @return
-     */
-    uint8_t DS18B20_GetTemperatureById(DsNamesId id, float *destination) {
-        for (int i = 0; i < DS_SENSORS_NUM; ++i) {
-            if (ds18b20[i].nameId == id) {
-                if (!ds18b20[i].validDataFlag)
-                    return 1;
-
-                *destination = ds18b20[i].temperature;
-                return 0;
-            }
-        }
-
-        return 2;
-    }
-
-    void DS18B20_Init(DS18B20_Resolution_t resolution) {
-        uint8_t next = 0, i = 0, j, k;
-        OneWire_Init(&OneWire, DS18B20_GPIO_Port, DS18B20_Pin);// init OneWire bus
-
-        next = OneWire_First(&OneWire);// Search first OneWire device
-        while (next) {
-            TempSensorCount++;
-            OneWire_GetFullROM(&OneWire, (uint8_t *) &ds18b20[i].address);// Get the ROM of next sensor
-
-            for (k = 0; k < DS_SENSORS_NUM; ++k) {
-                if (DS18B20_CompareROMs((uint8_t *) &known_ds_sensors[k].address, (uint8_t *) &ds18b20[i].address))
-                    ds18b20[i].nameId = known_ds_sensors[k].name_id;
-            }
-
-            ++i;
-
-            next = OneWire_Next(&OneWire);
-            if (TempSensorCount >= _DS18B20_MAX_SENSORS)// More sensors than set maximum is not allowed
-                break;
-        }
-
-        for (j = 0; j < i; j++) {
-            DS18B20_SetResolution(j, resolution);// Set the initial resolution to sensor
-
-            DS18B20_StartAll();// Start conversion on all sensors
-        }
-    }
-
-    uint8_t DS18B20_CompareROMs(uint8_t *rom1, uint8_t *rom2) {
-        for (uint8_t i = 0; i < 8; ++i) {
-            if (rom1[i] != rom2[i])
-                return 0;
-        }
-
-        return 1;
-    }
-
 }

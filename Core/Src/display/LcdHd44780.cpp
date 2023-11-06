@@ -169,7 +169,10 @@ void lcdPutc(uint8_t data)
 void lcdPuts(const char *str)
 {
 	/* Send a ANSI-C string to LCD. */
-	while ('\0' != *str)
+	//printf("Msg size(%d): %s", strlen(str))
+	uint8_t max = 20;
+
+	while ('\0' != *str && max-- > 0)
 	{
 #if ( USE_FORMATTED_OUTPUT )
 		if(('\n' == *str))

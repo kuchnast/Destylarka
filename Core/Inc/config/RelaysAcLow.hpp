@@ -19,7 +19,7 @@ enum class RelayACLowId
     WOLNY,
 };
 
-static RelaysCollection<RelayACLowId> ac_low_relays({
+static io::RelaysCollection<RelayACLowId> ac_low_relays({
     {RelayACLowId::ZAWOR_VM_ODBIORU_OTWARCIE, io::GpioPin(O_AC_1_GPIO_Port, O_AC_1_Pin)},
     {RelayACLowId::ZAWOR_VM_ODBIORU_ZAMKNIECIE, io::GpioPin(O_AC_2_GPIO_Port, O_AC_2_Pin)},
     {RelayACLowId::ZAWOR_LM_PLUS_PRECYZYJNY_OTWARCIE, io::GpioPin(O_AC_3_GPIO_Port, O_AC_3_Pin)},

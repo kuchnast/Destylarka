@@ -4,78 +4,67 @@
 #include "communication/Onewire.hpp"
 #include <config/SensorsDs18b20.hpp>
 
+#include <optional>
+
 namespace sensors {
+
+using namespace config;
+using namespace communication;
 
 struct Ds18b20
 {
-    communication::OneWireAddress address;
+    OneWireAddress address;
     float temperature;
     bool is_valid;
+
+    explicit Ds18b20(const OneWireAddress& address);
 };
 
-enum class Ds18b20Resolution {
-    R9bits = 9,
-    R10bits = 10,
-    R11bits = 11,
-    R12bits = 12
-};
-
-class Ds18b20Collection {
+class Ds18b20Collection
+{
 public:
+    Ds18b20Collection() = delete;
 
-    explicit Ds18b20Collection(communication::OneWire & onewire, bool use_crc = false);
+    explicit Ds18b20Collection(OneWire& onewire, bool use_crc = false);
 
-    bool checkFamilyCode(communication::OneWireAddress &address);
+    bool addSensor(Ds18b20NameId id, const OneWireAddress& address, uint8_t resolution);
 
-    void startRangingOne(config::Ds18b20NameId id);
+    bool addSensors(const std::vector<Ds18b20Sensor>& sensors, uint8_t resolution);
+
+    bool checkFamilyCode(OneWireAddress &address);
+
+    void startRangingOne(Ds18b20NameId id);
 
     void startRangingAll();
 
-    bool readOne(config::Ds18b20NameId id);
+    bool readOne(Ds18b20NameId id);
 
     bool readAll();
 
-    [[nodiscard]] size_t size() const;
+    size_t size() const;
 
-    void init(Ds18b20Resolution resolution);
+    bool allDone();
 
-    uint8_t getResolution(uint8_t number);
+    std::optional<float> getTemperatureMaybe(Ds18b20NameId id);
 
-    uint8_t setResolution(uint8_t number, Ds18b20Resolution resolution);
+    uint8_t getResolution(Ds18b20NameId id);
 
-
-
-    uint8_t allDone(void);
-
-    void getROM(uint8_t number, uint8_t *ROM);
-
-    void writeROM(uint8_t number, uint8_t *ROM);
-
-
-    uint8_t getTemperatureByNumber(uint8_t number, float *destination);
-
-    uint8_t getTemperatureById(io::Ds18b20NameId id, float *destination);
-
-    uint8_t compareROMs(uint8_t *rom1, uint8_t *rom2);
+    bool setResolution(Ds18b20NameId id, uint8_t resolution);
 
 private:
-    static constexpr uint8_t DS18B20_FAMILY_CODE = 0x28;
+    std::optional<float> convertMeasurementToTemperatureMaybe(uint16_t meas, uint8_t resolution);
+
     static constexpr uint8_t DS18B20_CMD_ALARMSEARCH = 0xEC;
     static constexpr uint8_t DS18B20_CMD_CONVERTTEMP = 0x44;
 
-    static constexpr float DS18B20_STEP_12BIT = 0.0625;
-    static constexpr float DS18B20_STEP_11BIT = 0.125;
-    static constexpr float DS18B20_STEP_10BIT = 0.25;
-    static constexpr float DS18B20_STEP_9BIT = 0.5;
+    const std::map<uint8_t, float> ds_resolution_step{
+        {9, 0.0625},
+        {10, 0.125},
+        {11, 0.25},
+        {12, 0.5}};
 
-    static constexpr uint8_t DS18B20_RESOLUTION_R1	= 6; // Resolution bit R1
-    static constexpr uint8_t DS18B20_RESOLUTION_R0	= 5; // Resolution bit R0
-
-    static constexpr uint8_t DS18B20_DATA_LEN_WITH_CRC	= 9;
-    static constexpr uint8_t DS18B20_DATA_LEN_WITHOUT_CRC = 5;
-
-    std::map<config::Ds18b20NameId, Ds18b20> sensors_;
-    communication::OneWire & onewire_;
+    std::map<Ds18b20NameId, Ds18b20> sensors_;
+    OneWire & onewire_;
     bool use_crc_;
 };
 

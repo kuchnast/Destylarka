@@ -1,8 +1,7 @@
 #ifndef IO_OUTPUTPIN_HPP_
 #define IO_OUTPUTPIN_HPP_
 
-#include "stm32f401xe.h"
-#include "stm32f4xx_hal_gpio.h"
+#include "main.hpp"
 
 namespace io
 {

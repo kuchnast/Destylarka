@@ -11,13 +11,13 @@ namespace config {
 
     constexpr uint32_t keypad_debounce_time_ms = 20;
 
-    std::array<io::GpioPin, 4> keypad_column{
+    static std::array<io::GpioPin, 4> keypad_column{
         io::GpioPin{K_COL_1_GPIO_Port, K_COL_1_Pin},
         io::GpioPin{K_COL_2_GPIO_Port, K_COL_2_Pin},
         io::GpioPin{K_COL_3_GPIO_Port, K_COL_3_Pin},
         io::GpioPin{K_COL_4_GPIO_Port, K_COL_4_Pin}};
 
-    std::array<io::GpioPin, 5> keypad_row{
+    static std::array<io::GpioPin, 5> keypad_row{
         io::GpioPin{K_ROW_1_GPIO_Port, K_ROW_1_Pin},
         io::GpioPin{K_ROW_2_GPIO_Port, K_ROW_2_Pin},
         io::GpioPin{K_ROW_3_GPIO_Port, K_ROW_3_Pin},
@@ -50,7 +50,7 @@ namespace config {
         N9,
     };
 
-    std::string toString(const Key &key)
+    static std::string toString(const Key &key)
     {
         switch(key)
         {
@@ -96,6 +96,8 @@ namespace config {
                 return "8";
             case Key::N9:
                 return "9";
+            default:
+                return "UNKNOWN";
         }
     }
 

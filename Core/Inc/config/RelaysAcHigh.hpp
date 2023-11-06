@@ -13,7 +13,7 @@ enum class RelayACHighId
 	POMPA_WODY,
 };
 
-static RelaysCollection<RelayACHighId> ac_high_relays({
+static io::RelaysCollection<RelayACHighId> ac_high_relays({
     {RelayACHighId::POMPA_WODY, io::GpioPin(O_H_1_GPIO_Port, O_H_1_Pin)},
     {RelayACHighId::GRZALKA_2, io::GpioPin(O_H_2_GPIO_Port, O_H_2_Pin)},
     {RelayACHighId::GRZALKA_1, io::GpioPin(O_H_3_GPIO_Port, O_H_3_Pin)}

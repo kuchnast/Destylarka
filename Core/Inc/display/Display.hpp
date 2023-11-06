@@ -1,7 +1,9 @@
 #ifndef DISPLAY_DISPLAY_HPP
 #define DISPLAY_DISPLAY_HPP
 
-#include "config/Keypad.hpp"
+#include "io/Keypad.hpp"
+
+#include <sensors/Ds18b20.hpp>
 
 #include "stm32f4xx_hal.h"
 
@@ -37,6 +39,8 @@ class Display
 {
 
 public:
+    Display(sensors::Ds18b20Collection& ds_collection) : ds_collection_(ds_collection) {}
+
     void init();
     static void clearScreen();
     void viewAction(const config::Key& key);
@@ -59,6 +63,7 @@ private:
     void setAlarmAction(const config::Key& key);
 
     DisplayView current_view_;
+    sensors::Ds18b20Collection ds_collection_;
 };
 }
 
