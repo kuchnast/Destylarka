@@ -1,481 +1,365 @@
-/*------------------------------------------------------*/
-/* File:       Library for HD44780 compatible displays  */
-/* Version:	   v4.15  						 			*/
-/* Author:     Andrii Honcharenko						*/
-/* 			   https://stm32withoutfear.blogspot.com	*/
-/* Tested on:  STM32 HAL library, PSoC4 PDL2 library	*/
-/* License:	   GNU LGPLv2.1		 		 	 			*/
-/*------------------------------------------------------*/
-/* Copyright (C)2021 AH All right reserved				*/
-/*------------------------------------------------------*/
-#include "stddef.h"
-#include <display/LcdHd44780.hpp>
 
-/*!	\brief	Macro-definitions. */
-#if (USE_PROGRESS_BAR)
-/*!	\brief	Progress bar definitions. */
-#define CGROM_PROGRESS_BAR_SIZE		6u
-#define FULL_LOAD					5u
-#define EMPTY_LOAD					0u
-#define EMPTY_ROW					0x00u /* xxx00000 */
+/*
+    Here are some cyrillic symbols that you can use in your code
 
-static const uint8_t progress_bar[CGROM_PROGRESS_BAR_SIZE] = {0x00u,0x10u,0x18u,0x1Cu,0x1Eu,0x1Fu};
-static uint8_t current_bar_pixel;
-static uint8_t current_cell_load;
-static void lcdInitBar(void);
-#endif
-
-static lcdI2C_ConfigStruct* i2cConfig;
-static uint8_t sendInternal(uint8_t data, uint8_t flags);
+    uint8_t symD[8]   = { 0x07, 0x09, 0x09, 0x09, 0x09, 0x1F, 0x11 }; // Д
+    uint8_t symZH[8]  = { 0x11, 0x15, 0x15, 0x0E, 0x15, 0x15, 0x11 }; // Ж
+    uint8_t symI[8]   = { 0x11, 0x11, 0x13, 0x15, 0x19, 0x11, 0x11 }; // И
+    uint8_t symL[8]   = { 0x0F, 0x09, 0x09, 0x09, 0x09, 0x11, 0x11 }; // Л
+    uint8_t symP[8]   = { 0x1F, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11 }; // П
+    uint8_t symSHi[8] = { 0x10, 0x15, 0x15, 0x15, 0x15, 0x1F, 0x03 }; // Щ
+    uint8_t symJU[8]  = { 0x12, 0x15, 0x15, 0x1D, 0x15, 0x15, 0x12 }; // Ю
+    uint8_t symJA[8]  = { 0x0F, 0x11, 0x11, 0x0F, 0x05, 0x09, 0x11 }; // Я
 
 
-/*!	\brief	Low-level functions. */
-static void lcdConfig(uint8_t param);
-static uint32_t lcdPow10(uint8_t n);
+ */
 
-static uint8_t sendInternal(uint8_t data, uint8_t flags)
-{
-	if(i2cConfig->SendData != NULL)
-	{
-		return i2cConfig->SendData(data, flags);
-	}
-	else
-	{
-		return 0;
-	}
+#include "display/LcdHd44780.hpp"
+
+namespace display {
+
+    uint8_t lcdCommandBuffer[6] = {0x00};
+
+    static LCDParams lcdParams;
+
+    static bool lcdWriteByte(uint8_t rsRwBits, uint8_t *data);
+
+    /**
+ * @brief  Turn display on and init it params
+ * @note   We gonna make init steps according to datasheep page 46.
+ *         There are 4 steps to turn 4-bits mode on,
+ *         then we send initial params.
+ * @param  hi2c    I2C struct to which display is connected
+ * @param  address Display I2C 7-bit address
+ * @param  lines   Number of lines of display
+ * @param  columns Number of colums
+ * @return         true if success
+ */
+    bool lcdInit(I2C_HandleTypeDef *hi2c, uint8_t address, uint8_t lines, uint8_t columns) {
+
+        uint8_t lcdData = LCD_BIT_5x8DOTS;
+
+        lcdParams.hi2c = hi2c;
+        lcdParams.address = address << 1;
+        lcdParams.lines = lines;
+        lcdParams.columns = columns;
+        lcdParams.backlight = LCD_BIT_BACKIGHT_ON;
+
+        lcdCommandBuffer[0] = LCD_BIT_E | (0x03 << 4);
+        lcdCommandBuffer[1] = lcdCommandBuffer[0];
+        lcdCommandBuffer[2] = (0x03 << 4);
+
+        /* First 3 steps of init cycles. They are the same. */
+        for (uint8_t i = 0; i < 3; ++i) {
+            if (HAL_I2C_Master_Transmit_DMA(lcdParams.hi2c, lcdParams.address, (uint8_t *) lcdCommandBuffer, 3) != HAL_OK) {
+                return false;
+            }
+
+            while (HAL_I2C_GetState(lcdParams.hi2c) != HAL_I2C_STATE_READY) {
+                HAL_Delay(1);
+            }
+
+            if (i == 2) {
+                // For the last cycle delay is less then 1 ms (100us by datasheet)
+                HAL_Delay(1);
+            } else {
+                // For first 2 cycles delay is less then 5ms (4100us by datasheet)
+                HAL_Delay(5);
+            }
+        }
+
+        /* Lets turn to 4-bit at least */
+        lcdCommandBuffer[0] = LCD_BIT_BACKIGHT_ON | LCD_BIT_E | (LCD_MODE_4BITS << 4);
+        lcdCommandBuffer[1] = lcdCommandBuffer[0];
+        lcdCommandBuffer[2] = LCD_BIT_BACKIGHT_ON | (LCD_MODE_4BITS << 4);
+
+        if (HAL_I2C_Master_Transmit_DMA(lcdParams.hi2c, lcdParams.address, (uint8_t *) lcdCommandBuffer, 3) != HAL_OK) {
+            return false;
+        }
+
+        while (HAL_I2C_GetState(lcdParams.hi2c) != HAL_I2C_STATE_READY) {
+            HAL_Delay(1);
+        }
+
+        /* Lets set display params */
+        /* First of all lets set display size */
+        lcdData |= LCD_MODE_4BITS;
+
+        if (lcdParams.lines > 1) {
+            lcdData |= LCD_BIT_2LINE;
+        }
+
+        lcdWriteByte((uint8_t) 0x00, &lcdData);// TODO: Make 5x10 dots font usable for some 1-line display
+
+        /* Now lets set display, cursor and blink all on */
+        lcdDisplayOn();
+
+        /* Set cursor moving to the right */
+        lcdCursorDirToRight();
+
+        /* Clear display and Set cursor at Home */
+        lcdDisplayClear();
+        lcdCursorHome();
+
+        return true;
+    }
+
+    /**
+ * @brief  Send command to display
+ * @param  command  One of listed in LCDCommands enum
+ * @param  action   LCD_PARAM_SET or LCD_PARAM_UNSET
+ * @return          true if success
+ */
+    bool lcdCommand(LCDCommands command, LCDParamsActions action) {
+        uint8_t lcdData = 0x00;
+
+        /* First of all lest store the command */
+        switch (action) {
+            case LCD_PARAM_SET:
+                switch (command) {
+                    case LCD_DISPLAY:
+                        lcdParams.modeBits |= LCD_BIT_DISPLAY_ON;
+                        break;
+
+                    case LCD_CURSOR:
+                        lcdParams.modeBits |= LCD_BIT_CURSOR_ON;
+                        break;
+
+                    case LCD_CURSOR_BLINK:
+                        lcdParams.modeBits |= LCD_BIT_BLINK_ON;
+                        break;
+
+                    case LCD_CLEAR:
+                        lcdData = LCD_BIT_DISP_CLEAR;
+
+                        if (!lcdWriteByte((uint8_t) 0x00, &lcdData)) {
+                            return false;
+                        } else {
+                            HAL_Delay(2);
+                            return true;
+                        }
+
+                    case LCD_CURSOR_HOME:
+                        lcdData = LCD_BIT_CURSOR_HOME;
+
+                        if (!lcdWriteByte((uint8_t) 0x00, &lcdData)) {
+                            return false;
+                        } else {
+                            HAL_Delay(2);
+                            return true;
+                        }
+
+                    case LCD_CURSOR_DIR_RIGHT:
+                        lcdParams.entryBits |= LCD_BIT_CURSOR_DIR_RIGHT;
+                        break;
+
+                    case LCD_CURSOR_DIR_LEFT:
+                        lcdParams.entryBits |= LCD_BIT_CURSOR_DIR_LEFT;
+                        break;
+
+                    case LCD_DISPLAY_SHIFT:
+                        lcdParams.entryBits |= LCD_BIT_DISPLAY_SHIFT;
+                        break;
+
+                    default:
+                        return false;
+                }
+
+                break;
+
+            case LCD_PARAM_UNSET:
+                switch (command) {
+                    case LCD_DISPLAY:
+                        lcdParams.modeBits &= ~LCD_BIT_DISPLAY_ON;
+                        break;
+
+                    case LCD_CURSOR:
+                        lcdParams.modeBits &= ~LCD_BIT_CURSOR_ON;
+                        break;
+
+                    case LCD_CURSOR_BLINK:
+                        lcdParams.modeBits &= ~LCD_BIT_BLINK_ON;
+                        break;
+
+                    case LCD_CURSOR_DIR_RIGHT:
+                        lcdParams.entryBits &= ~LCD_BIT_CURSOR_DIR_RIGHT;
+                        break;
+
+                    case LCD_CURSOR_DIR_LEFT:
+                        lcdParams.entryBits &= ~LCD_BIT_CURSOR_DIR_LEFT;
+                        break;
+
+                    case LCD_DISPLAY_SHIFT:
+                        lcdParams.entryBits &= ~LCD_BIT_DISPLAY_SHIFT;
+                        break;
+
+                    default:
+                        return false;
+                }
+
+                break;
+
+            default:
+                return false;
+        }
+
+        /* Now lets send the command */
+        switch (command) {
+            case LCD_DISPLAY:
+            case LCD_CURSOR:
+            case LCD_CURSOR_BLINK:
+                lcdData = LCD_BIT_DISPLAY_CONTROL | lcdParams.modeBits;
+                break;
+
+            case LCD_CURSOR_DIR_RIGHT:
+            case LCD_CURSOR_DIR_LEFT:
+            case LCD_DISPLAY_SHIFT:
+                lcdData = LCD_BIT_ENTRY_MODE | lcdParams.entryBits;
+                break;
+
+            default:
+                break;
+        }
+
+        return lcdWriteByte((uint8_t) 0x00, &lcdData);
+    }
+
+    /**
+ * @brief  Turn display's Backlight On or Off
+ * @param  command LCD_BIT_BACKIGHT_ON to turn display On
+ *                 LCD_BIT_BACKIGHT_OFF (or 0x00) to turn display Off
+ * @return         true if success
+ */
+    bool lcdBacklight(uint8_t command) {
+        lcdParams.backlight = command;
+
+        if (HAL_I2C_Master_Transmit_DMA(lcdParams.hi2c, lcdParams.address, &lcdParams.backlight, 1) != HAL_OK) {
+            return false;
+        }
+
+        while (HAL_I2C_GetState(lcdParams.hi2c) != HAL_I2C_STATE_READY) {
+            HAL_Delay(1);
+        }
+
+        return true;
+    }
+
+    /**
+ * @brief  Set cursor position on the display
+ * @param  column counting from 0
+ * @param  line   counting from 0
+ * @return        true if success
+ */
+    bool lcdSetCursorPosition(uint8_t column, uint8_t line) {
+        // We will setup offsets for 4 lines maximum
+        static const uint8_t lineOffsets[4] = {0x00, 0x40, 0x14, 0x54};
+
+        if (line >= lcdParams.lines) {
+            line = lcdParams.lines - 1;
+        }
+
+        uint8_t lcdCommand = LCD_BIT_SETDDRAMADDR | (column + lineOffsets[line]);
+
+        return lcdWriteByte(0x00, &lcdCommand);
+    }
+
+    /**
+ * @brief  Print string from cursor position
+ * @param  data   Pointer to string
+ * @param  length Number of symbols to print
+ * @return        true if success
+ */
+    bool lcdPrintStr(uint8_t *data, uint8_t length) {
+        for (uint8_t i = 0; i < length; ++i) {
+            if (lcdWriteByte(LCD_BIT_RS, &data[i]) == false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @brief  Print string from cursor position
+     * @param  data   Pointer to string
+     * @param  length Number of symbols to print
+     * @return        true if success
+     */
+    bool lcdPrintStr(std::string str) {
+        return lcdPrintStr(reinterpret_cast<uint8_t *>(str.data()), str.size());
+    }
+
+    /**
+ * @brief  Print single char at cursor position
+ * @param  data Symbol to print
+ * @return      true if success
+ */
+    bool lcdPrintChar(uint8_t data) {
+        return lcdWriteByte(LCD_BIT_RS, &data);
+    }
+
+
+    /**
+ * @brief Loading custom Chars to one of the 8 cells in CGRAM
+ * @note  You can create your custom chars according to
+ *        documentation page 15.
+ *        It consists of array of 8 bytes.
+ *        Each byte is line of dots. Lower bits are dots.
+ * @param  cell     Number of cell from 0 to 7 where to upload
+ * @param  charMap  Pointer to Array of dots
+ *                  Example: { 0x07, 0x09, 0x09, 0x09, 0x09, 0x1F, 0x11 }
+ * @return          true if success
+ */
+    bool lcdLoadCustomChar(uint8_t cell, uint8_t *charMap) {
+
+        // Stop, if trying to load to incorrect cell
+        if (cell > 7) {
+            return false;
+        }
+
+        uint8_t lcdCommand = LCD_BIT_SETCGRAMADDR | (cell << 3);
+
+        if (lcdWriteByte((uint8_t) 0x00, &lcdCommand) == false) {
+            return false;
+        }
+
+        for (uint8_t i = 0; i < 8; ++i) {
+            if (lcdWriteByte(LCD_BIT_RS, &charMap[i]) == false) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+ * @brief  Local function to send data to display
+ * @param  rsRwBits State of RS and R/W bits
+ * @param  data     Pointer to byte to send
+ * @return          true if success
+ */
+    static bool lcdWriteByte(uint8_t rsRwBits, uint8_t *data) {
+
+        /* Higher 4 bits*/
+        lcdCommandBuffer[0] = rsRwBits | LCD_BIT_E | lcdParams.backlight | (*data & 0xF0);// Send data and set strobe
+        lcdCommandBuffer[1] = lcdCommandBuffer[0];                                        // Strobe turned on
+        lcdCommandBuffer[2] = rsRwBits | lcdParams.backlight | (*data & 0xF0);            // Turning strobe off
+
+        /* Lower 4 bits*/
+        lcdCommandBuffer[3] = rsRwBits | LCD_BIT_E | lcdParams.backlight | ((*data << 4) & 0xF0);// Send data and set strobe
+        lcdCommandBuffer[4] = lcdCommandBuffer[3];                                               // Strobe turned on
+        lcdCommandBuffer[5] = rsRwBits | lcdParams.backlight | ((*data << 4) & 0xF0);            // Turning strobe off
+
+
+        if (HAL_I2C_Master_Transmit_DMA(lcdParams.hi2c, lcdParams.address, (uint8_t *) lcdCommandBuffer, 6) != HAL_OK) {
+            return false;
+        }
+
+        while (HAL_I2C_GetState(lcdParams.hi2c) != HAL_I2C_STATE_READY) {
+            HAL_Delay(1);
+        }
+
+        return true;
+    }
+
 }
-
-/*!	\brief	Initializing by instruction. 4-bit or i2c interface initialization. */
-static void lcdConfig(uint8_t param)
-{
-/* Low level function. */
-	sendInternal(param, 0);
-}
-
-							//-----------------------------//
-							/*         LCDlib API          */
-							//-----------------------------//
-
-/*!	\details	clearScreen display writes space code 20H into all DDRAM addresses.
- * 				It then sets DDRAM address 0 into the address counter,
- * 				and returns the display to its original status if it was shifted.
- * 				In other words, the display disappears and the cursor
- * 				or blinking goes to the left edge of the display (in the first line if 2 lines are displayed).
- * 				It also sets I/D to 1 (increment mode) in entry mode (S of entry mode does not change). */
-void lcdClrScr(void)
-{
-	/* Send a command to LCD. */
-	sendInternal(0x01u, 0);
-}
-
-/*!	\details	"Return home" sets DDRAM address 0 into the address counter,
- * 				and returns the display to its original status if it was shifted.
- * 				The DDRAM contents do not change.
- * 				The cursor or blinking go to the left edge of the display
- * 				(in the first line if 2 lines are displayed). */
-void lcdReturn(void)
-{
-	/* Send a command to LCD. */
-	sendInternal(0x02u, 0);
-}
-
-/*!	\details	lcdScroll shifts the display to the right or left without writing or reading display data.
- * 				This function is used to correct or search the display.
- *	\note		The first and second line displays will shift at the same time. */
-void lcdScroll(uint8_t direction)
-{
-	/* Send a command to LCD. */
-	switch (direction)
-	{
-	/* To left */
-		case LEFT  :
-			sendInternal(0x18u, 0);
-			break;
-
-		/* To right */
-		case RIGHT :
-			sendInternal(0x1Cu, 0);
-			break;
-
-		default:
-			/* Ignore this command */
-			break;
-	}
-}
-
-/*!	\details	"Cursor shift" shifts the cursor position to the right or left,
- * 				without writing or reading display data.
- * 				This function is used to correct or search the display.
- * 				In a 2-line display, the cursor moves to the second line
- * 				when it passes the 40th digit of the first line. */
-void cursorShift(uint8_t direction)
-{
-	/* Send a command to LCD. */
-	switch (direction)
-	{
-		/* To left */
-		case LEFT  :
-			sendInternal(0x10u, 0);
-			break;
-
-		/* To right */
-		case RIGHT :
-			sendInternal(0x14u, 0);
-			break;
-
-		default:
-			/* Ignore this command */
-			break;
-	}
-}
-
-/*!	\details	Go to the specified (DDRAM/CGRAM) memory address.*/
-void lcdGoto(uint8_t line, uint8_t address)
-{
-	/* Send a command to LCD. */
-	switch (line)
-	{
-		/* Set DDRAM address. */
-		case LCD_1st_LINE: sendInternal(0x80u | START_ADDRESS_1st_LINE | address, 0); break;
-		case LCD_2nd_LINE: sendInternal(0x80u | START_ADDRESS_2nd_LINE | address, 0); break;
-		case LCD_3rd_LINE: sendInternal(0x80u | START_ADDRESS_3rd_LINE | address, 0); break;
-		case LCD_4th_LINE: sendInternal(0x80u | START_ADDRESS_4th_LINE | address, 0); break;
-
-		/* Set CGRAM address. */
-		case CGRAM : sendInternal(0x40u | address, 0); break;
-
-		default:
-			/* Ignore this command */
-			break;
-	}
-}
-
-/*!	\details	Change LCD settings. */
-void lcdSetMode(uint8_t param)
-{
-	/* Send a command to LCD. */
-	sendInternal(param, 0);
-}
-
-/*!	\details	write a single char to the current memory space (DDRAM/CGRAM). */
-void lcdPutc(uint8_t data)
-{
-	/* Send data to LCD. */
-	sendInternal(data, i2cConfig->rs_pin);
-}
-
-/*!	\details	Writes ANSI-C string to LCD (DDRAM memory space). */
-//void lcdPuts(const uint8_t *str)
-void lcdPuts(const char *str)
-{
-	/* Send a ANSI-C string to LCD. */
-	//printf("Msg size(%d): %s", strlen(str))
-	uint8_t max = 20;
-
-	while ('\0' != *str && max-- > 0)
-	{
-#if ( USE_FORMATTED_OUTPUT )
-		if(('\n' == *str))
-		{/*New line */
-			lcdGoto(LCD_2nd_LINE, 0u);
-		}
-		else if(('\r' == *str))
-		{/* Return home */
-			lcdReturn();
-		}
-		else if(('\t' == *str))
-		{/* Tab space */
-			uint8_t i;
-
-			for(i=0u; i<TAB_SPACE; i++)
-			{/* Shift cursor to the right. */
-				cursorShift(RIGHT);
-			}
-		}
-		else
-#endif
-		{
-			/* Display a symbol. */
-			lcdPutc(*str);
-		}
-		/* Get the next symbol. */
-		str++;
-	}
-}
-
-/*!	\details	Load the user-defined symbol into the CGRAM memory. */
-void lcdLoadChar(uint8_t* vector, uint8_t position)
-{
-	uint8_t i;
-	/* Go to the CGRAM memory space: 0 to 7 */
-	lcdGoto(CGRAM, (position * FONT_HEIGHT));
-
-	for(i = 0u; i < FONT_HEIGHT; i++)
-	{/* Load one row of pixels into the CGRAM register. */
-		lcdPutc(vector[i]);
-	}
-
-	/* Return to the DDRAM memory space. */
-	lcdGoto(LCD_1st_LINE, 0u);
-}
-
-/*!	\details	Load and display the user-defined symbol. */
-void lcdDrawChar( uint8_t* vector,
-			   	  uint8_t position,
-			   	  uint8_t line,
-			   	  uint8_t address )
-{
-	/* Load the user-defined symbol into the CGRAM memory. */
-	lcdLoadChar(vector, position);
-	/* Select LCD position. */
-	lcdGoto(line, address);
-	/* Display the user-defined symbol. */
-	lcdPutc(position);
-}
-
-/*!	\details	Erase a symbol from the left of the cursor. */
-void lcdBackSpace(void)
-{
-	cursorShift(LEFT);
-	lcdPutc(' ');
-	cursorShift(LEFT);
-}
-
-/*!	\brief	Returns 10^n value. */
-static uint32_t lcdPow10(uint8_t n)
-{
-	uint32_t retval = 1u;
-
-	while (n > 0u)
-	{
-		retval *= 10u;
-		n--;
-	}
-
-	return retval;
-}
-
-/*!	\brief	Display a integer number: +/- 2147483647. */
-void lcdItos(int32_t value)
-{
-	int32_t i;
-
-	if (value < 0)
-	{
-		lcdPutc('-');
-		value = -value;
-	}
-
-	i = 1;
-	while ((value / i) > 9)
-	{
-		i *= 10;
-	}
-
-	lcdPutc(value/i + '0');	/* Display at least one symbol */
-	i /= 10;
-
-	while (i > 0)
-	{
-		lcdPutc('0' + ((value % (i*10)) / i));
-		i /= 10;
-	}
-}
-
-/*!	\brief	Display a floating point number. */
-void lcdFtos(float value, uint8_t n)
-{
-	if (value < 0.0)
-	{
-		lcdPutc('-');
-		value = -value;
-	}
-
-	lcdItos((int32_t)value);
-
-	if (n > 0u)
-	{
-		lcdPutc('.');
-
-		lcdNtos((uint32_t)(value * (float)lcdPow10(n)), n);
-	}
-}
-
-/*!	\brief	Display "n" right digits of "value". */
-void lcdNtos(uint32_t value, uint8_t n)
-{
-	if (n > 0u)
-	{
-		uint32_t i = lcdPow10(n - 1u);
-
-		while (i > 0u)	/* Display at least one symbol */
-		{
-			lcdPutc('0' + ((value/i) % 10u));
-
-			i /= 10u;
-		}
-	}
-}
-
-#if ( USE_PROGRESS_BAR )
-/*!	\brief	Initialize the progress bar
- * 			(i.e. preload elements of the progress bar into CGRAM and reset all variables). */
-static void lcdInitBar(void)
-{
-	uint8_t i, j;
-
-	for (i = 0u; i < CGROM_PROGRESS_BAR_SIZE; i++)
-	{
-		lcdGoto(CGRAM, (i * FONT_HEIGHT));
-
-		for (j = 0u; j < FONT_HEIGHT; j++)
-		{
-			if (j < PROGRESS_BAR_HEIGHT)
-			{
-				lcdPutc(progress_bar[i]);
-			}
-			else
-			{/* Load an empty row of pixels in CGRAM. */
-				lcdPutc(EMPTY_ROW);
-			}
-		}
-	}
-
-	/* clearScreen the entire bar and initialize all variables. */
-	lcdClrBar();
-}
-
-/*!	\brief	Draw progress bar. */
-void lcdDrawBar(uint8_t next_bar_pixel)
-{
-	/* Go to the current cell position in the progress bar. */
-	lcdGoto(PROGRESS_BAR_LINE, (current_bar_pixel / FONT_WIDTH));
-
-	if (next_bar_pixel > current_bar_pixel)
-	{
-		/* Increment LCD cursor */
-		lcdSetMode(ENTRY_MODE_INC_NO_SHIFT);
-
-		/* Prevent the progress bar overflow */
-		if (next_bar_pixel > PROGRESS_BAR_MAX_LOAD)
-		{
-			next_bar_pixel = PROGRESS_BAR_MAX_LOAD;
-		}
-
-		while (current_bar_pixel != next_bar_pixel)
-		{
-			/* Go to the next pixel. */
-			current_bar_pixel++;
-			current_cell_load++;
-			/* Display the load of the current cell. */
-			lcdPutc(current_cell_load);
-
-			if (current_cell_load < FULL_LOAD)
-			{/* Return the cursor to the current cell. */
-				cursorShift(LEFT);
-			}
-			else
-			{/* Go to the next cell. */
-				current_cell_load = EMPTY_LOAD;
-			}
-		}
-	 }
-#if (USE_REGRESS_BAR)
-	 else if (next_bar_pixel < current_bar_pixel)
-	 {
-		 /* Decrement LCD cursor */
-		lcdSetMode(ENTRY_MODE_DEC_NO_SHIFT);
-
-		do
-		{
-			if (EMPTY_LOAD == current_cell_load)
-			{/* Go to the next cell. */
-				cursorShift(LEFT);
-				current_cell_load = FULL_LOAD;
-			}
-			/* Go to the next pixel. */
-			current_bar_pixel--;
-			current_cell_load--;
-			/* Display the load of the current cell. */
-			lcdPutc(current_cell_load);
-			/* Return the cursor to the current cell. */
-			cursorShift(RIGHT);
-		}
-		while (current_bar_pixel != next_bar_pixel);
-	 }
-#endif /* USE_REGRESS_BAR */
-	 else
-	 {
-		 /* Nothing to do. */
-	 }
-
-	/* Restore the default entry mode. */
-	lcdSetMode(DEFAULT_ENTRY_MODE);
-	/* Return home. */
-	lcdGoto(LCD_1st_LINE, 0u);
-}
-
-/*!	\brief	clearScreen the entire progress bar. */
-void lcdClrBar(void)
-{
-	uint8_t i;
-	/* Go to the last cell in the progress bar. */
-	lcdGoto(PROGRESS_BAR_LINE, (PROGRESS_BAR_WIDTH - 1u));
-	/* Set the decrement mode. */
-	lcdSetMode(ENTRY_MODE_DEC_NO_SHIFT);
-
-	for(i = 0u; i < PROGRESS_BAR_WIDTH; i++)
-	{/* Display the "empty cell" symbol (i.e. clearScreen the LCD cell). */
-		lcdPutc(EMPTY_LOAD);
-	}
-
-	/* Reset the progress bar variables. */
-	current_bar_pixel = 0u;
-	current_cell_load = EMPTY_LOAD;
-
-	/* Restore the default entry mode. */
-	lcdSetMode(DEFAULT_ENTRY_MODE);
-	/* Return home. */
-	lcdGoto(LCD_1st_LINE, 0u);
-}
-#endif
-/*!	\brief	Initialize the LCD.
- * 	\note	This library use the I2C interface. */
-void lcdInit(void* config)
-{
-	i2cConfig = (lcdI2C_ConfigStruct*) config;
-	if(i2cConfig->InitPeriph != NULL)
-	{
-		i2cConfig->InitPeriph();
-	}
-	sendInternal(0x03, 0);
-	sendInternal(0x02, 0);
-#ifdef USE_LCD2004
-	sendInternal(0x03, 0);
-	sendInternal(0x02, 0);
-#endif /* USE_LCD2004 */
-	lcdConfig(DEFAULT_DISPLAY_CONFIG);
-	lcdSetMode(DEFAULT_VIEW_MODE);
-	lcdSetMode(DEFAULT_ENTRY_MODE);
-	lcdClrScr();
-	lcdReturn();
-	#if (USE_PROGRESS_BAR)
-		lcdInitBar();
-	#endif
-}
-
-void lcdBackLightOn(void)
-{
-	i2cConfig->bl_pin = (1 << 3);
-	sendInternal(0x0Fu, 0);
-}
-
-void lcdBackLightOff(void)
-{
-	i2cConfig->bl_pin = (0 << 3);
-	sendInternal(0x0Fu, 0);
-}
-
-//-------------------------------
-/* END OF FILE */
-//-------------------------------

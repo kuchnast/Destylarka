@@ -64,7 +64,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 #if defined(USE_FULL_LL_DRIVER)
-/** @defgroup I2C_LL_ES_INIT I2C Exported init structure
+/** @defgroup I2C_LL_ES_INIT I2C Exported Init structure
   * @{
   */
 typedef struct
@@ -127,8 +127,8 @@ typedef struct
   * @{
   */
 #define LL_I2C_SR1_SB                       I2C_SR1_SB              /*!< Start Bit (master mode)                   */
-#define LL_I2C_SR1_ADDR                     I2C_SR1_ADDR            /*!< address sent (master mode) or
-                                                                         address matched flag (slave mode)         */
+#define LL_I2C_SR1_ADDR                     I2C_SR1_ADDR            /*!< Address sent (master mode) or
+                                                                         Address matched flag (slave mode)         */
 #define LL_I2C_SR1_BTF                      I2C_SR1_BTF             /*!< Byte Transfer Finished flag               */
 #define LL_I2C_SR1_ADD10                    I2C_SR1_ADD10           /*!< 10-bit header sent (master mode)          */
 #define LL_I2C_SR1_STOPF                    I2C_SR1_STOPF           /*!< Stop detection flag (slave mode)          */
@@ -174,7 +174,7 @@ typedef struct
   */
 
 #endif
-/** @defgroup I2C_LL_EC_OWNADDRESS1 Own address 1 Length
+/** @defgroup I2C_LL_EC_OWNADDRESS1 Own Address 1 Length
   * @{
   */
 #define LL_I2C_OWNADDRESS1_7BIT             0x00004000U                                /*!< Own address 1 is a 7-bit address.   */
@@ -221,7 +221,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup I2C_LL_EC_DIRECTION read write Direction
+/** @defgroup I2C_LL_EC_DIRECTION Read Write Direction
   * @{
   */
 #define LL_I2C_DIRECTION_WRITE              I2C_SR2_TRA             /*!< Bus is in write transfer */
@@ -239,12 +239,12 @@ typedef struct
   * @{
   */
 
-/** @defgroup I2C_LL_EM_WRITE_READ Common write and read registers Macros
+/** @defgroup I2C_LL_EM_WRITE_READ Common Write and read registers Macros
   * @{
   */
 
 /**
-  * @brief  write a value in I2C register
+  * @brief  Write a value in I2C register
   * @param  __INSTANCE__ I2C Instance
   * @param  __REG__ Register to be written
   * @param  __VALUE__ Value to be written in the register
@@ -253,7 +253,7 @@ typedef struct
 #define LL_I2C_WriteReg(__INSTANCE__, __REG__, __VALUE__) WRITE_REG(__INSTANCE__->__REG__, (__VALUE__))
 
 /**
-  * @brief  read a value in I2C register
+  * @brief  Read a value in I2C register
   * @param  __INSTANCE__ I2C Instance
   * @param  __REG__ Register to be read
   * @retval Register value
@@ -331,14 +331,14 @@ typedef struct
 #define __LL_I2C_10BIT_ADDRESS(__ADDRESS__)                             ((uint8_t)((uint16_t)((__ADDRESS__) & (uint16_t)(0x00FF))))
 
 /**
-  * @brief  Convert a 10-Bits address to a 10-Bits header with write direction.
+  * @brief  Convert a 10-Bits address to a 10-Bits header with Write direction.
   * @param  __ADDRESS__ This parameter must be a value of a 10-Bits slave address.
   * @retval Value between Min_Data=0xF0 and Max_Data=0xF6
   */
 #define __LL_I2C_10BIT_HEADER_WRITE(__ADDRESS__)                        ((uint8_t)((uint16_t)((uint16_t)(((uint16_t)((__ADDRESS__) & (uint16_t)(0x0300))) >> 7) | (uint16_t)(0xF0))))
 
 /**
-  * @brief  Convert a 10-Bits address to a 10-Bits header with read direction.
+  * @brief  Convert a 10-Bits address to a 10-Bits header with Read direction.
   * @param  __ADDRESS__ This parameter must be a value of a 10-Bits slave address.
   * @retval Value between Min_Data=0xF1 and Max_Data=0xF7
   */
@@ -551,7 +551,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsEnabledDMAReq_RX(I2C_TypeDef *I2Cx)
   * @brief  Get the data register address used for DMA transfer.
   * @rmtoll DR           DR            LL_I2C_DMA_GetRegAddr
   * @param  I2Cx I2C Instance.
-  * @retval address of data register
+  * @retval Address of data register
   */
 __STATIC_INLINE uint32_t LL_I2C_DMA_GetRegAddr(I2C_TypeDef *I2Cx)
 {
@@ -595,7 +595,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsEnabledClockStretching(I2C_TypeDef *I2Cx)
 
 /**
   * @brief  Enable General Call.
-  * @note   When enabled the address 0x00 is ACKed.
+  * @note   When enabled the Address 0x00 is ACKed.
   * @rmtoll CR1          ENGC          LL_I2C_EnableGeneralCall
   * @param  I2Cx I2C Instance.
   * @retval None
@@ -607,7 +607,7 @@ __STATIC_INLINE void LL_I2C_EnableGeneralCall(I2C_TypeDef *I2Cx)
 
 /**
   * @brief  Disable General Call.
-  * @note   When disabled the address 0x00 is NACKed.
+  * @note   When disabled the Address 0x00 is NACKed.
   * @rmtoll CR1          ENGC          LL_I2C_DisableGeneralCall
   * @param  I2Cx I2C Instance.
   * @retval None
@@ -912,7 +912,7 @@ __STATIC_INLINE uint32_t LL_I2C_GetMode(I2C_TypeDef *I2Cx)
   *         SMBus feature is supported by the I2Cx Instance.
   * @note   SMBus Device mode:
   *         - SMBus Alert pin is drived low and
-  *           Alert Response address Header acknowledge is enabled.
+  *           Alert Response Address Header acknowledge is enabled.
   *         SMBus Host mode:
   *         - SMBus Alert pin management is supported.
   * @rmtoll CR1          ALERT         LL_I2C_EnableSMBusAlert
@@ -930,7 +930,7 @@ __STATIC_INLINE void LL_I2C_EnableSMBusAlert(I2C_TypeDef *I2Cx)
   *         SMBus feature is supported by the I2Cx Instance.
   * @note   SMBus Device mode:
   *         - SMBus Alert pin is not drived (can be used as a standard GPIO) and
-  *           Alert Response address Header acknowledge is disabled.
+  *           Alert Response Address Header acknowledge is disabled.
   *         SMBus Host mode:
   *         - SMBus Alert pin management is not supported.
   * @rmtoll CR1          ALERT         LL_I2C_DisableSMBusAlert
@@ -1078,7 +1078,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsEnabledIT_RX(I2C_TypeDef *I2Cx)
   * @brief  Enable Events interrupts.
   * @note   Any of these events will generate interrupt :
   *         Start Bit (SB)
-  *         address sent, address matched (ADDR)
+  *         Address sent, Address matched (ADDR)
   *         10-bit header sent (ADD10)
   *         Stop detection  (STOPF)
   *         Byte transfer finished (BTF)
@@ -1099,7 +1099,7 @@ __STATIC_INLINE void LL_I2C_EnableIT_EVT(I2C_TypeDef *I2Cx)
   * @brief  Disable Events interrupts.
   * @note   Any of these events will generate interrupt :
   *         Start Bit (SB)
-  *         address sent, address matched (ADDR)
+  *         Address sent, Address matched (ADDR)
   *         10-bit header sent (ADD10)
   *         Stop detection  (STOPF)
   *         Byte transfer finished (BTF)
@@ -1278,8 +1278,8 @@ __STATIC_INLINE uint32_t LL_I2C_IsActiveFlag_SB(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  Indicate the status of address sent (master mode) or address matched flag (slave mode).
-  * @note   RESET: clearScreen default value.
+  * @brief  Indicate the status of Address sent (master mode) or Address matched flag (slave mode).
+  * @note   RESET: Clear default value.
   *         SET: When the address is fully sent (master mode) or when the received slave address matched with one of the enabled slave address (slave mode).
   * @rmtoll SR1          ADDR          LL_I2C_IsActiveFlag_ADDR
   * @param  I2Cx I2C Instance.
@@ -1318,7 +1318,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsActiveFlag_AF(I2C_TypeDef *I2Cx)
 
 /**
   * @brief  Indicate the status of Stop detection flag (slave mode).
-  * @note   RESET: clearScreen default value.
+  * @note   RESET: Clear default value.
   *         SET: When a Stop condition is detected.
   * @rmtoll SR1          STOPF         LL_I2C_IsActiveFlag_STOP
   * @param  I2Cx I2C Instance.
@@ -1331,7 +1331,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsActiveFlag_STOP(I2C_TypeDef *I2Cx)
 
 /**
   * @brief  Indicate the status of Bus error flag.
-  * @note   RESET: clearScreen default value.
+  * @note   RESET: Clear default value.
   *         SET: When a misplaced Start or Stop condition is detected.
   * @rmtoll SR1          BERR          LL_I2C_IsActiveFlag_BERR
   * @param  I2Cx I2C Instance.
@@ -1344,7 +1344,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsActiveFlag_BERR(I2C_TypeDef *I2Cx)
 
 /**
   * @brief  Indicate the status of Arbitration lost flag.
-  * @note   RESET: clearScreen default value.
+  * @note   RESET: Clear default value.
   *         SET: When arbitration lost.
   * @rmtoll SR1          ARLO          LL_I2C_IsActiveFlag_ARLO
   * @param  I2Cx I2C Instance.
@@ -1357,7 +1357,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsActiveFlag_ARLO(I2C_TypeDef *I2Cx)
 
 /**
   * @brief  Indicate the status of Overrun/Underrun flag.
-  * @note   RESET: clearScreen default value.
+  * @note   RESET: Clear default value.
   *         SET: When an overrun/underrun error occurs (Clock Stretching Disabled).
   * @rmtoll SR1          OVR           LL_I2C_IsActiveFlag_OVR
   * @param  I2Cx I2C Instance.
@@ -1409,7 +1409,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsActiveSMBusFlag_ALERT(I2C_TypeDef *I2Cx)
 
 /**
   * @brief  Indicate the status of Bus Busy flag.
-  * @note   RESET: clearScreen default value.
+  * @note   RESET: Clear default value.
   *         SET: When a Start condition is detected.
   * @rmtoll SR2          BUSY          LL_I2C_IsActiveFlag_BUSY
   * @param  I2Cx I2C Instance.
@@ -1493,7 +1493,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsActiveFlag_MSL(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  clearScreen address Matched flag.
+  * @brief  Clear Address Matched flag.
   * @note   Clearing this flag is done by a read access to the I2Cx_SR1
   *         register followed by a read access to the I2Cx_SR2 register.
   * @rmtoll SR1          ADDR          LL_I2C_ClearFlag_ADDR
@@ -1510,7 +1510,7 @@ __STATIC_INLINE void LL_I2C_ClearFlag_ADDR(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  clearScreen Acknowledge failure flag.
+  * @brief  Clear Acknowledge failure flag.
   * @rmtoll SR1          AF            LL_I2C_ClearFlag_AF
   * @param  I2Cx I2C Instance.
   * @retval None
@@ -1521,7 +1521,7 @@ __STATIC_INLINE void LL_I2C_ClearFlag_AF(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  clearScreen Stop detection flag.
+  * @brief  Clear Stop detection flag.
   * @note   Clearing this flag is done by a read access to the I2Cx_SR1
   *         register followed by a write access to I2Cx_CR1 register.
   * @rmtoll SR1          STOPF         LL_I2C_ClearFlag_STOP\n
@@ -1538,7 +1538,7 @@ __STATIC_INLINE void LL_I2C_ClearFlag_STOP(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  clearScreen Bus error flag.
+  * @brief  Clear Bus error flag.
   * @rmtoll SR1          BERR          LL_I2C_ClearFlag_BERR
   * @param  I2Cx I2C Instance.
   * @retval None
@@ -1549,7 +1549,7 @@ __STATIC_INLINE void LL_I2C_ClearFlag_BERR(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  clearScreen Arbitration lost flag.
+  * @brief  Clear Arbitration lost flag.
   * @rmtoll SR1          ARLO          LL_I2C_ClearFlag_ARLO
   * @param  I2Cx I2C Instance.
   * @retval None
@@ -1560,7 +1560,7 @@ __STATIC_INLINE void LL_I2C_ClearFlag_ARLO(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  clearScreen Overrun/Underrun flag.
+  * @brief  Clear Overrun/Underrun flag.
   * @rmtoll SR1          OVR           LL_I2C_ClearFlag_OVR
   * @param  I2Cx I2C Instance.
   * @retval None
@@ -1571,7 +1571,7 @@ __STATIC_INLINE void LL_I2C_ClearFlag_OVR(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  clearScreen SMBus PEC error flag.
+  * @brief  Clear SMBus PEC error flag.
   * @rmtoll SR1          PECERR        LL_I2C_ClearSMBusFlag_PECERR
   * @param  I2Cx I2C Instance.
   * @retval None
@@ -1582,7 +1582,7 @@ __STATIC_INLINE void LL_I2C_ClearSMBusFlag_PECERR(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  clearScreen SMBus Timeout detection flag.
+  * @brief  Clear SMBus Timeout detection flag.
   * @note   Macro @ref IS_SMBUS_ALL_INSTANCE(I2Cx) can be used to check whether or not
   *         SMBus feature is supported by the I2Cx Instance.
   * @rmtoll SR1          TIMEOUT       LL_I2C_ClearSMBusFlag_TIMEOUT
@@ -1595,7 +1595,7 @@ __STATIC_INLINE void LL_I2C_ClearSMBusFlag_TIMEOUT(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  clearScreen SMBus Alert flag.
+  * @brief  Clear SMBus Alert flag.
   * @note   Macro @ref IS_SMBUS_ALL_INSTANCE(I2Cx) can be used to check whether or not
   *         SMBus feature is supported by the I2Cx Instance.
   * @rmtoll SR1          SMBALERT      LL_I2C_ClearSMBusFlag_ALERT
@@ -1827,7 +1827,7 @@ __STATIC_INLINE uint32_t LL_I2C_GetSMBusPEC(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  read Receive Data register.
+  * @brief  Read Receive Data register.
   * @rmtoll DR           DR            LL_I2C_ReceiveData8
   * @param  I2Cx I2C Instance.
   * @retval Value between Min_Data=0x0 and Max_Data=0xFF
@@ -1838,7 +1838,7 @@ __STATIC_INLINE uint8_t LL_I2C_ReceiveData8(I2C_TypeDef *I2Cx)
 }
 
 /**
-  * @brief  write in Transmit Data Register .
+  * @brief  Write in Transmit Data Register .
   * @rmtoll DR           DR            LL_I2C_TransmitData8
   * @param  I2Cx I2C Instance.
   * @param  Data Value between Min_Data=0x0 and Max_Data=0xFF

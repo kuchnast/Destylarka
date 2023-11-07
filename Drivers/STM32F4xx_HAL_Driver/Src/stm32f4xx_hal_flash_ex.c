@@ -35,14 +35,14 @@
 
       (#) Option Bytes Programming functions: Use HAL_FLASHEx_OBProgram() to :
            (++) Set/Reset the write protection
-           (++) Set the read protection Level
+           (++) Set the Read protection Level
            (++) Set the BOR level
            (++) Program the user Option Bytes
       (#) Advanced Option Bytes Programming functions: Use HAL_FLASHEx_AdvOBProgram() to :
        (++) Extended space (bank 2) erase function
        (++) Full FLASH space (2 Mo) erase (bank 1 and bank 2)
        (++) Dual Boot activation
-       (++) write protection configuration for bank 2
+       (++) Write protection configuration for bank 2
        (++) PCROP protection configuration and control for both banks
 
   @endverbatim
@@ -244,7 +244,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
   /* Enable Error source interrupt */
   __HAL_FLASH_ENABLE_IT(FLASH_IT_ERR);
 
-  /* clearScreen pending flags (if any) */
+  /* Clear pending flags (if any) */
   __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP    | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | \
                          FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
 
@@ -291,23 +291,23 @@ HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit)
   /* Check the parameters */
   assert_param(IS_OPTIONBYTE(pOBInit->OptionType));
 
-  /*write protection configuration*/
+  /*Write protection configuration*/
   if ((pOBInit->OptionType & OPTIONBYTE_WRP) == OPTIONBYTE_WRP)
   {
     assert_param(IS_WRPSTATE(pOBInit->WRPState));
     if (pOBInit->WRPState == OB_WRPSTATE_ENABLE)
     {
-      /*Enable of write protection on the selected Sector*/
+      /*Enable of Write protection on the selected Sector*/
       status = FLASH_OB_EnableWRP(pOBInit->WRPSector, pOBInit->Banks);
     }
     else
     {
-      /*Disable of write protection on the selected Sector*/
+      /*Disable of Write protection on the selected Sector*/
       status = FLASH_OB_DisableWRP(pOBInit->WRPSector, pOBInit->Banks);
     }
   }
 
-  /*read protection configuration*/
+  /*Read protection configuration*/
   if ((pOBInit->OptionType & OPTIONBYTE_RDP) == OPTIONBYTE_RDP)
   {
     status = FLASH_OB_RDP_LevelConfig(pOBInit->RDPLevel);
@@ -383,7 +383,7 @@ HAL_StatusTypeDef HAL_FLASHEx_AdvOBProgram(FLASH_AdvOBProgramInitTypeDef *pAdvOB
     assert_param(IS_PCROPSTATE(pAdvOBInit->PCROPState));
     if ((pAdvOBInit->PCROPState) == OB_PCROP_STATE_ENABLE)
     {
-      /*Enable of write protection on the selected Sector*/
+      /*Enable of Write protection on the selected Sector*/
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
     defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
     defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
@@ -395,7 +395,7 @@ HAL_StatusTypeDef HAL_FLASHEx_AdvOBProgram(FLASH_AdvOBProgramInitTypeDef *pAdvOB
     }
     else
     {
-      /*Disable of write protection on the selected Sector*/
+      /*Disable of Write protection on the selected Sector*/
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
     defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
     defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
@@ -449,9 +449,9 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
   * @brief  Select the Protection Mode
   *
   * @note   After PCROP activated Option Byte modification NOT POSSIBLE! excepted
-  *         Global read Out Protection modification (from level1 to level0)
+  *         Global Read Out Protection modification (from level1 to level0)
   * @note   Once SPRMOD bit is active unprotection of a protected sector is not possible
-  * @note   read a protected sector will set RDERR Flag and write a protected sector will set WRPERR Flag
+  * @note   Read a protected sector will set RDERR Flag and write a protected sector will set WRPERR Flag
   * @note   This function can be used only for STM32F42xxx/STM32F43xxx/STM32F401xx/STM32F411xx/STM32F446xx/
   *         STM32F469xx/STM32F479xx/STM32F412xx/STM32F413xx devices.
   *
@@ -474,9 +474,9 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void)
   * @brief  Deselect the Protection Mode
   *
   * @note   After PCROP activated Option Byte modification NOT POSSIBLE! excepted
-  *         Global read Out Protection modification (from level1 to level0)
+  *         Global Read Out Protection modification (from level1 to level0)
   * @note   Once SPRMOD bit is active unprotection of a protected sector is not possible
-  * @note   read a protected sector will set RDERR Flag and write a protected sector will set WRPERR Flag
+  * @note   Read a protected sector will set RDERR Flag and write a protected sector will set WRPERR Flag
   * @note   This function can be used only for STM32F42xxx/STM32F43xxx/STM32F401xx/STM32F411xx/STM32F446xx/
   *         STM32F469xx/STM32F479xx/STM32F412xx/STM32F413xx devices.
   *
@@ -500,7 +500,7 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void)
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /**
-  * @brief  Returns the FLASH write Protection Option Bytes value for Bank 2
+  * @brief  Returns the FLASH Write Protection Option Bytes value for Bank 2
   * @note   This function can be used only for STM32F42xxx/STM32F43xxx/STM32F469xx/STM32F479xx devices.
   * @retval The FLASH Write Protection  Option Bytes value
   */
@@ -902,7 +902,7 @@ static HAL_StatusTypeDef FLASH_OB_DisablePCROP(uint32_t SectorBank1, uint32_t Se
       *(__IO uint16_t *)OPTCR1_BYTE2_ADDRESS &= (~SectorBank2);
     }
 
-    /*write protection on all sector  of BANK2*/
+    /*Write protection on all sector  of BANK2*/
     if (Banks == FLASH_BANK_BOTH)
     {
       assert_param(IS_OB_PCROP(SectorBank2));
@@ -1150,7 +1150,7 @@ static HAL_StatusTypeDef FLASH_OB_DisablePCROP(uint32_t Sector)
   * @param  Level specifies the read protection level.
   *          This parameter can be one of the following values:
   *            @arg OB_RDP_LEVEL_0: No protection
-  *            @arg OB_RDP_LEVEL_1: read protection of the memory
+  *            @arg OB_RDP_LEVEL_1: Read protection of the memory
   *            @arg OB_RDP_LEVEL_2: Full chip protection
   *
   * @note WARNING: When enabling OB_RDP level 2 it's no more possible to go back to level 1 or 0
@@ -1251,8 +1251,8 @@ static uint8_t FLASH_OB_GetUser(void)
 }
 
 /**
-  * @brief  Return the FLASH write Protection Option Bytes value.
-  * @retval uint16_t FLASH write Protection Option Bytes value
+  * @brief  Return the FLASH Write Protection Option Bytes value.
+  * @retval uint16_t FLASH Write Protection Option Bytes value
   */
 static uint16_t FLASH_OB_GetWRP(void)
 {
@@ -1261,11 +1261,11 @@ static uint16_t FLASH_OB_GetWRP(void)
 }
 
 /**
-  * @brief  Returns the FLASH read Protection level.
+  * @brief  Returns the FLASH Read Protection level.
   * @retval FLASH ReadOut Protection Status:
   *         This parameter can be one of the following values:
   *            @arg OB_RDP_LEVEL_0: No protection
-  *            @arg OB_RDP_LEVEL_1: read protection of the memory
+  *            @arg OB_RDP_LEVEL_1: Read protection of the memory
   *            @arg OB_RDP_LEVEL_2: Full chip protection
   */
 static uint8_t FLASH_OB_GetRDP(void)

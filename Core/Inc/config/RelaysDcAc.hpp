@@ -35,6 +35,8 @@ std::string toString(RelayDCACId id)
     case RelayDCACId::PUSTY_4:
         return "Pusty 4";
     }
+
+    return {};
 }
 
 } // namespace config

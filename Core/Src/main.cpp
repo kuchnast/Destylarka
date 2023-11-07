@@ -107,7 +107,7 @@ int main(void)
     ds_collection.addSensors(config::ds_sensors, 12);
 
     display::Display display{ds_collection};
-    display.init();
+    display.init(&hi2c1);
 
     /* USER CODE END 2 */
 

@@ -3,6 +3,8 @@
 
 #include "GpioPin.hpp"
 
+#include <main.hpp>
+
 #include <string>
 #include <vector>
 
@@ -39,6 +41,9 @@ public:
             if(relay.id == id)
                 return relay.pin;
         }
+
+        Error_Handler();
+        return relays_.begin()->pin;
     }
 
 private:

@@ -167,10 +167,10 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, TIM_HallSen
     {
       htim->HallSensor_MspInitCallback = HAL_TIMEx_HallSensor_MspInit;
     }
-    /* init the low level hardware : GPIO, CLOCK, NVIC */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC */
     htim->HallSensor_MspInitCallback(htim);
 #else
-    /* init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIMEx_HallSensor_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }

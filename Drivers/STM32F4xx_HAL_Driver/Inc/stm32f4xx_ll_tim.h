@@ -172,7 +172,7 @@ static const uint8_t SHIFT_TAB_OISx[] =
 
 /* Exported types ------------------------------------------------------------*/
 #if defined(USE_FULL_LL_DRIVER)
-/** @defgroup TIM_LL_ES_INIT TIM Exported init structure
+/** @defgroup TIM_LL_ES_INIT TIM Exported Init structure
   * @{
   */
 
@@ -869,7 +869,7 @@ typedef struct
   */
 
 
-/** @defgroup TIM_LL_EC_DMABURST_BASEADDR DMA Burst Base address
+/** @defgroup TIM_LL_EC_DMABURST_BASEADDR DMA Burst Base Address
   * @{
   */
 #define LL_TIM_DMABURST_BASEADDR_CR1           0x00000000U                                                      /*!< TIMx_CR1 register is the DMA base address for DMA burst */
@@ -984,11 +984,11 @@ typedef struct
   * @{
   */
 
-/** @defgroup TIM_LL_EM_WRITE_READ Common write and read registers Macros
+/** @defgroup TIM_LL_EM_WRITE_READ Common Write and read registers Macros
   * @{
   */
 /**
-  * @brief  write a value in TIM register.
+  * @brief  Write a value in TIM register.
   * @param  __INSTANCE__ TIM Instance
   * @param  __REG__ Register to be written
   * @param  __VALUE__ Value to be written in the register
@@ -997,7 +997,7 @@ typedef struct
 #define LL_TIM_WriteReg(__INSTANCE__, __REG__, __VALUE__) WRITE_REG((__INSTANCE__)->__REG__, (__VALUE__))
 
 /**
-  * @brief  read a value in TIM register.
+  * @brief  Read a value in TIM register.
   * @param  __INSTANCE__ TIM Instance
   * @param  __REG__ Register to be read
   * @retval Register value
@@ -2017,7 +2017,7 @@ __STATIC_INLINE uint32_t LL_TIM_OC_IsEnabledPreload(TIM_TypeDef *TIMx, uint32_t 
   * @brief  Enable clearing the output channel on an external event.
   * @note This function can only be used in Output compare and PWM modes. It does not work in Forced mode.
   * @note Macro IS_TIM_OCXREF_CLEAR_INSTANCE(TIMx) can be used to check whether
-  *       or not a timer instance can clearScreen the OCxREF signal on an external event.
+  *       or not a timer instance can clear the OCxREF signal on an external event.
   * @rmtoll CCMR1        OC1CE          LL_TIM_OC_EnableClear\n
   *         CCMR1        OC2CE          LL_TIM_OC_EnableClear\n
   *         CCMR2        OC3CE          LL_TIM_OC_EnableClear\n
@@ -2040,7 +2040,7 @@ __STATIC_INLINE void LL_TIM_OC_EnableClear(TIM_TypeDef *TIMx, uint32_t Channel)
 /**
   * @brief  Disable clearing the output channel on an external event.
   * @note Macro IS_TIM_OCXREF_CLEAR_INSTANCE(TIMx) can be used to check whether
-  *       or not a timer instance can clearScreen the OCxREF signal on an external event.
+  *       or not a timer instance can clear the OCxREF signal on an external event.
   * @rmtoll CCMR1        OC1CE          LL_TIM_OC_DisableClear\n
   *         CCMR1        OC2CE          LL_TIM_OC_DisableClear\n
   *         CCMR2        OC3CE          LL_TIM_OC_DisableClear\n
@@ -2065,7 +2065,7 @@ __STATIC_INLINE void LL_TIM_OC_DisableClear(TIM_TypeDef *TIMx, uint32_t Channel)
   * @note This function enables clearing the output channel on an external event.
   * @note This function can only be used in Output compare and PWM modes. It does not work in Forced mode.
   * @note Macro IS_TIM_OCXREF_CLEAR_INSTANCE(TIMx) can be used to check whether
-  *       or not a timer instance can clearScreen the OCxREF signal on an external event.
+  *       or not a timer instance can clear the OCxREF signal on an external event.
   * @rmtoll CCMR1        OC1CE          LL_TIM_OC_IsEnabledClear\n
   *         CCMR1        OC2CE          LL_TIM_OC_IsEnabledClear\n
   *         CCMR2        OC3CE          LL_TIM_OC_IsEnabledClear\n
@@ -3174,7 +3174,7 @@ __STATIC_INLINE void LL_TIM_SetRemap(TIM_TypeDef *TIMx, uint32_t Remap)
   * @{
   */
 /**
-  * @brief  clearScreen the update interrupt flag (UIF).
+  * @brief  Clear the update interrupt flag (UIF).
   * @rmtoll SR           UIF           LL_TIM_ClearFlag_UPDATE
   * @param  TIMx Timer instance
   * @retval None
@@ -3196,7 +3196,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_UPDATE(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the Capture/Compare 1 interrupt flag (CC1F).
+  * @brief  Clear the Capture/Compare 1 interrupt flag (CC1F).
   * @rmtoll SR           CC1IF         LL_TIM_ClearFlag_CC1
   * @param  TIMx Timer instance
   * @retval None
@@ -3218,7 +3218,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_CC1(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the Capture/Compare 2 interrupt flag (CC2F).
+  * @brief  Clear the Capture/Compare 2 interrupt flag (CC2F).
   * @rmtoll SR           CC2IF         LL_TIM_ClearFlag_CC2
   * @param  TIMx Timer instance
   * @retval None
@@ -3240,7 +3240,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_CC2(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the Capture/Compare 3 interrupt flag (CC3F).
+  * @brief  Clear the Capture/Compare 3 interrupt flag (CC3F).
   * @rmtoll SR           CC3IF         LL_TIM_ClearFlag_CC3
   * @param  TIMx Timer instance
   * @retval None
@@ -3262,7 +3262,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_CC3(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the Capture/Compare 4 interrupt flag (CC4F).
+  * @brief  Clear the Capture/Compare 4 interrupt flag (CC4F).
   * @rmtoll SR           CC4IF         LL_TIM_ClearFlag_CC4
   * @param  TIMx Timer instance
   * @retval None
@@ -3284,7 +3284,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_CC4(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the commutation interrupt flag (COMIF).
+  * @brief  Clear the commutation interrupt flag (COMIF).
   * @rmtoll SR           COMIF         LL_TIM_ClearFlag_COM
   * @param  TIMx Timer instance
   * @retval None
@@ -3306,7 +3306,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_COM(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the trigger interrupt flag (TIF).
+  * @brief  Clear the trigger interrupt flag (TIF).
   * @rmtoll SR           TIF           LL_TIM_ClearFlag_TRIG
   * @param  TIMx Timer instance
   * @retval None
@@ -3328,7 +3328,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_TRIG(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the break interrupt flag (BIF).
+  * @brief  Clear the break interrupt flag (BIF).
   * @rmtoll SR           BIF           LL_TIM_ClearFlag_BRK
   * @param  TIMx Timer instance
   * @retval None
@@ -3350,7 +3350,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_BRK(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the Capture/Compare 1 over-capture interrupt flag (CC1OF).
+  * @brief  Clear the Capture/Compare 1 over-capture interrupt flag (CC1OF).
   * @rmtoll SR           CC1OF         LL_TIM_ClearFlag_CC1OVR
   * @param  TIMx Timer instance
   * @retval None
@@ -3373,7 +3373,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_CC1OVR(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the Capture/Compare 2 over-capture interrupt flag (CC2OF).
+  * @brief  Clear the Capture/Compare 2 over-capture interrupt flag (CC2OF).
   * @rmtoll SR           CC2OF         LL_TIM_ClearFlag_CC2OVR
   * @param  TIMx Timer instance
   * @retval None
@@ -3396,7 +3396,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_CC2OVR(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the Capture/Compare 3 over-capture interrupt flag (CC3OF).
+  * @brief  Clear the Capture/Compare 3 over-capture interrupt flag (CC3OF).
   * @rmtoll SR           CC3OF         LL_TIM_ClearFlag_CC3OVR
   * @param  TIMx Timer instance
   * @retval None
@@ -3419,7 +3419,7 @@ __STATIC_INLINE uint32_t LL_TIM_IsActiveFlag_CC3OVR(TIM_TypeDef *TIMx)
 }
 
 /**
-  * @brief  clearScreen the Capture/Compare 4 over-capture interrupt flag (CC4OF).
+  * @brief  Clear the Capture/Compare 4 over-capture interrupt flag (CC4OF).
   * @rmtoll SR           CC4OF         LL_TIM_ClearFlag_CC4OVR
   * @param  TIMx Timer instance
   * @retval None

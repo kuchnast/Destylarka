@@ -30,6 +30,8 @@ std::string toString(RelayACHighId id)
     case RelayACHighId::POMPA_WODY:
         return "Pompa wody";
     }
+
+    return {};
 }
 
 } // namespace config

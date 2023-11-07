@@ -51,6 +51,8 @@ std::string toString(RelayACLowId id)
     case RelayACLowId::WOLNY:
         return "Wolny";
     }
+
+    return {};
 }
 
 } // namespace config

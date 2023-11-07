@@ -96,7 +96,7 @@ typedef struct
 
 /** @defgroup RCC_LL_EC_OSC_VALUES Oscillator Values adaptation
   * @brief    Defines used to adapt values of different oscillators
-  * @note     These values could be modified in the user environment according to
+  * @note     These values could be modified in the user environment according to 
   *           HW set-up.
   * @{
   */
@@ -123,22 +123,22 @@ typedef struct
   * @}
   */
 
-/** @defgroup RCC_LL_EC_CLEAR_FLAG clearScreen Flags Defines
+/** @defgroup RCC_LL_EC_CLEAR_FLAG Clear Flags Defines
   * @brief    Flags defines which can be used with LL_RCC_WriteReg function
   * @{
   */
-#define LL_RCC_CIR_LSIRDYC                RCC_CIR_LSIRDYC     /*!< LSI Ready Interrupt clearScreen */
-#define LL_RCC_CIR_LSERDYC                RCC_CIR_LSERDYC     /*!< LSE Ready Interrupt clearScreen */
-#define LL_RCC_CIR_HSIRDYC                RCC_CIR_HSIRDYC     /*!< HSI Ready Interrupt clearScreen */
-#define LL_RCC_CIR_HSERDYC                RCC_CIR_HSERDYC     /*!< HSE Ready Interrupt clearScreen */
-#define LL_RCC_CIR_PLLRDYC                RCC_CIR_PLLRDYC     /*!< PLL Ready Interrupt clearScreen */
+#define LL_RCC_CIR_LSIRDYC                RCC_CIR_LSIRDYC     /*!< LSI Ready Interrupt Clear */
+#define LL_RCC_CIR_LSERDYC                RCC_CIR_LSERDYC     /*!< LSE Ready Interrupt Clear */
+#define LL_RCC_CIR_HSIRDYC                RCC_CIR_HSIRDYC     /*!< HSI Ready Interrupt Clear */
+#define LL_RCC_CIR_HSERDYC                RCC_CIR_HSERDYC     /*!< HSE Ready Interrupt Clear */
+#define LL_RCC_CIR_PLLRDYC                RCC_CIR_PLLRDYC     /*!< PLL Ready Interrupt Clear */
 #if defined(RCC_PLLI2S_SUPPORT)
-#define LL_RCC_CIR_PLLI2SRDYC             RCC_CIR_PLLI2SRDYC  /*!< PLLI2S Ready Interrupt clearScreen */
+#define LL_RCC_CIR_PLLI2SRDYC             RCC_CIR_PLLI2SRDYC  /*!< PLLI2S Ready Interrupt Clear */
 #endif /* RCC_PLLI2S_SUPPORT */
 #if defined(RCC_PLLSAI_SUPPORT)
-#define LL_RCC_CIR_PLLSAIRDYC             RCC_CIR_PLLSAIRDYC  /*!< PLLSAI Ready Interrupt clearScreen */
+#define LL_RCC_CIR_PLLSAIRDYC             RCC_CIR_PLLSAIRDYC  /*!< PLLSAI Ready Interrupt Clear */
 #endif /* RCC_PLLSAI_SUPPORT */
-#define LL_RCC_CIR_CSSC                   RCC_CIR_CSSC        /*!< Clock Security System Interrupt clearScreen */
+#define LL_RCC_CIR_CSSC                   RCC_CIR_CSSC        /*!< Clock Security System Interrupt Clear */
 /**
   * @}
   */
@@ -1467,12 +1467,12 @@ typedef struct
   * @{
   */
 
-/** @defgroup RCC_LL_EM_WRITE_READ Common write and read registers Macros
+/** @defgroup RCC_LL_EM_WRITE_READ Common Write and read registers Macros
   * @{
   */
 
 /**
-  * @brief  write a value in RCC register
+  * @brief  Write a value in RCC register
   * @param  __REG__ Register to be written
   * @param  __VALUE__ Value to be written in the register
   * @retval None
@@ -1480,7 +1480,7 @@ typedef struct
 #define LL_RCC_WriteReg(__REG__, __VALUE__) WRITE_REG(RCC->__REG__, (__VALUE__))
 
 /**
-  * @brief  read a value in RCC register
+  * @brief  Read a value in RCC register
   * @param  __REG__ Register to be read
   * @retval Register value
   */
@@ -4871,7 +4871,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLL_GetN(void)
 }
 
 /**
-  * @brief  Get Main PLL division factor for PLLP
+  * @brief  Get Main PLL division factor for PLLP 
   * @rmtoll PLLCFGR      PLLP       LL_RCC_PLL_GetP
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_RCC_PLLP_DIV_2
@@ -6534,7 +6534,7 @@ __STATIC_INLINE uint32_t LL_RCC_PLLSAI_GetDIVR(void)
   */
 
 /**
-  * @brief  clearScreen LSI ready interrupt flag
+  * @brief  Clear LSI ready interrupt flag
   * @rmtoll CIR         LSIRDYC       LL_RCC_ClearFlag_LSIRDY
   * @retval None
   */
@@ -6544,7 +6544,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_LSIRDY(void)
 }
 
 /**
-  * @brief  clearScreen LSE ready interrupt flag
+  * @brief  Clear LSE ready interrupt flag
   * @rmtoll CIR         LSERDYC       LL_RCC_ClearFlag_LSERDY
   * @retval None
   */
@@ -6554,7 +6554,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_LSERDY(void)
 }
 
 /**
-  * @brief  clearScreen HSI ready interrupt flag
+  * @brief  Clear HSI ready interrupt flag
   * @rmtoll CIR         HSIRDYC       LL_RCC_ClearFlag_HSIRDY
   * @retval None
   */
@@ -6564,7 +6564,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_HSIRDY(void)
 }
 
 /**
-  * @brief  clearScreen HSE ready interrupt flag
+  * @brief  Clear HSE ready interrupt flag
   * @rmtoll CIR         HSERDYC       LL_RCC_ClearFlag_HSERDY
   * @retval None
   */
@@ -6574,7 +6574,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_HSERDY(void)
 }
 
 /**
-  * @brief  clearScreen PLL ready interrupt flag
+  * @brief  Clear PLL ready interrupt flag
   * @rmtoll CIR         PLLRDYC       LL_RCC_ClearFlag_PLLRDY
   * @retval None
   */
@@ -6585,7 +6585,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_PLLRDY(void)
 
 #if defined(RCC_PLLI2S_SUPPORT)
 /**
-  * @brief  clearScreen PLLI2S ready interrupt flag
+  * @brief  Clear PLLI2S ready interrupt flag
   * @rmtoll CIR         PLLI2SRDYC   LL_RCC_ClearFlag_PLLI2SRDY
   * @retval None
   */
@@ -6598,7 +6598,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_PLLI2SRDY(void)
 
 #if defined(RCC_PLLSAI_SUPPORT)
 /**
-  * @brief  clearScreen PLLSAI ready interrupt flag
+  * @brief  Clear PLLSAI ready interrupt flag
   * @rmtoll CIR         PLLSAIRDYC   LL_RCC_ClearFlag_PLLSAIRDY
   * @retval None
   */
@@ -6610,7 +6610,7 @@ __STATIC_INLINE void LL_RCC_ClearFlag_PLLSAIRDY(void)
 #endif /* RCC_PLLSAI_SUPPORT */
 
 /**
-  * @brief  clearScreen Clock security system interrupt flag
+  * @brief  Clear Clock security system interrupt flag
   * @rmtoll CIR         CSSC          LL_RCC_ClearFlag_HSECSS
   * @retval None
   */
@@ -6776,7 +6776,7 @@ __STATIC_INLINE uint32_t LL_RCC_IsActiveFlag_BORRST(void)
 #endif /* RCC_CSR_BORRSTF */
 
 /**
-  * @brief  Set RMVF bit to clearScreen the reset flags.
+  * @brief  Set RMVF bit to clear the reset flags.
   * @rmtoll CSR          RMVF          LL_RCC_ClearResetFlags
   * @retval None
   */

@@ -5,11 +5,6 @@
 
 #include <sensors/Ds18b20.hpp>
 
-#include "stm32f4xx_hal.h"
-
-#include <string>
-#include <vector>
-
 #define LINES_NUM 4
 #define LINE_SIZE 20
 
@@ -41,7 +36,7 @@ class Display
 public:
     Display(sensors::Ds18b20Collection& ds_collection) : ds_collection_(ds_collection) {}
 
-    void init();
+    void init(I2C_HandleTypeDef *hi2c, uint8_t address = 0x27, uint8_t lines = 4, uint8_t rows = 20);
     static void clearScreen();
     void viewAction(const config::Key& key);
     const DisplayView& getCurrentView();

@@ -88,7 +88,7 @@ namespace communication {
 
             setBusInputDirection();// Release bus - bit high by pullup
             delay(64);
-        } 
+        }
         else// Send '0'
         {
             pin_.reset();// Set the bus low
@@ -316,7 +316,7 @@ namespace communication {
 
     uint8_t OneWire::calculateCrc8(const std::vector<uint8_t>& data)
     {
-        calculateCrc8(data.data(), data.size());
+        return calculateCrc8(data.data(), data.size());
     }
 
 } //  namespace communication

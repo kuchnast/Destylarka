@@ -27,7 +27,7 @@
   *           + TIM Encoder Interface Start Interruption
   *           + TIM Encoder Interface Start DMA
   *           + Commutation Event configuration with Interruption and DMA
-  *           + TIM OCRef clearScreen configuration
+  *           + TIM OCRef clear configuration
   *           + TIM External Clock configuration
   ******************************************************************************
   * @attention
@@ -126,19 +126,19 @@
 
   [..]
   These functions allow to register/unregister following callbacks:
-    (+) Base_MspInitCallback              : TIM Base Msp init Callback.
+    (+) Base_MspInitCallback              : TIM Base Msp Init Callback.
     (+) Base_MspDeInitCallback            : TIM Base Msp DeInit Callback.
-    (+) IC_MspInitCallback                : TIM IC Msp init Callback.
+    (+) IC_MspInitCallback                : TIM IC Msp Init Callback.
     (+) IC_MspDeInitCallback              : TIM IC Msp DeInit Callback.
-    (+) OC_MspInitCallback                : TIM OC Msp init Callback.
+    (+) OC_MspInitCallback                : TIM OC Msp Init Callback.
     (+) OC_MspDeInitCallback              : TIM OC Msp DeInit Callback.
-    (+) PWM_MspInitCallback               : TIM PWM Msp init Callback.
+    (+) PWM_MspInitCallback               : TIM PWM Msp Init Callback.
     (+) PWM_MspDeInitCallback             : TIM PWM Msp DeInit Callback.
-    (+) OnePulse_MspInitCallback          : TIM One Pulse Msp init Callback.
+    (+) OnePulse_MspInitCallback          : TIM One Pulse Msp Init Callback.
     (+) OnePulse_MspDeInitCallback        : TIM One Pulse Msp DeInit Callback.
-    (+) Encoder_MspInitCallback           : TIM Encoder Msp init Callback.
+    (+) Encoder_MspInitCallback           : TIM Encoder Msp Init Callback.
     (+) Encoder_MspDeInitCallback         : TIM Encoder Msp DeInit Callback.
-    (+) HallSensor_MspInitCallback        : TIM Hall Sensor Msp init Callback.
+    (+) HallSensor_MspInitCallback        : TIM Hall Sensor Msp Init Callback.
     (+) HallSensor_MspDeInitCallback      : TIM Hall Sensor Msp DeInit Callback.
     (+) PeriodElapsedCallback             : TIM Period Elapsed Callback.
     (+) PeriodElapsedHalfCpltCallback     : TIM Period Elapsed half complete Callback.
@@ -155,23 +155,23 @@
     (+) BreakCallback                     : TIM Break Callback.
 
   [..]
-By default, after the init and when the state is HAL_TIM_STATE_RESET
+By default, after the Init and when the state is HAL_TIM_STATE_RESET
 all interrupt callbacks are set to the corresponding weak functions:
   examples HAL_TIM_TriggerCallback(), HAL_TIM_ErrorCallback().
 
   [..]
   Exception done for MspInit and MspDeInit functions that are reset to the legacy weak
-  functionalities in the init / DeInit only when these callbacks are null
-  (not registered beforehand). If not, MspInit or MspDeInit are not null, the init / DeInit
+  functionalities in the Init / DeInit only when these callbacks are null
+  (not registered beforehand). If not, MspInit or MspDeInit are not null, the Init / DeInit
     keep and use the user MspInit / MspDeInit callbacks(registered beforehand)
 
   [..]
     Callbacks can be registered / unregistered in HAL_TIM_STATE_READY state only.
     Exception done MspInit / MspDeInit that can be registered / unregistered
     in HAL_TIM_STATE_READY or HAL_TIM_STATE_RESET state,
-    thus registered(user) MspInit / DeInit callbacks can be used during the init / DeInit.
+    thus registered(user) MspInit / DeInit callbacks can be used during the Init / DeInit.
   In that case first register the MspInit/MspDeInit user callbacks
-      using HAL_TIM_RegisterCallback() before calling DeInit or init function.
+      using HAL_TIM_RegisterCallback() before calling DeInit or Init function.
 
   [..]
       When The compilation define USE_HAL_TIM_REGISTER_CALLBACKS is set to 0 or
@@ -290,10 +290,10 @@ HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim)
     {
       htim->Base_MspInitCallback = HAL_TIM_Base_MspInit;
     }
-    /* init the low level hardware : GPIO, CLOCK, NVIC */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC */
     htim->Base_MspInitCallback(htim);
 #else
-    /* init the low level hardware : GPIO, CLOCK, NVIC */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC */
     HAL_TIM_Base_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
@@ -673,10 +673,10 @@ HAL_StatusTypeDef HAL_TIM_OC_Init(TIM_HandleTypeDef *htim)
     {
       htim->OC_MspInitCallback = HAL_TIM_OC_MspInit;
     }
-    /* init the low level hardware : GPIO, CLOCK, NVIC */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC */
     htim->OC_MspInitCallback(htim);
 #else
-    /* init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_OC_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
@@ -684,7 +684,7 @@ HAL_StatusTypeDef HAL_TIM_OC_Init(TIM_HandleTypeDef *htim)
   /* Set the TIM state */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* init the base time for the Output Compare */
+  /* Init the base time for the Output Compare */
   TIM_Base_SetConfig(htim->Instance,  &htim->Init);
 
   /* Initialize the DMA burst operation state */
@@ -1336,10 +1336,10 @@ HAL_StatusTypeDef HAL_TIM_PWM_Init(TIM_HandleTypeDef *htim)
     {
       htim->PWM_MspInitCallback = HAL_TIM_PWM_MspInit;
     }
-    /* init the low level hardware : GPIO, CLOCK, NVIC */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC */
     htim->PWM_MspInitCallback(htim);
 #else
-    /* init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_PWM_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
@@ -1347,7 +1347,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Init(TIM_HandleTypeDef *htim)
   /* Set the TIM state */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* init the base time for the PWM */
+  /* Init the base time for the PWM */
   TIM_Base_SetConfig(htim->Instance, &htim->Init);
 
   /* Initialize the DMA burst operation state */
@@ -1998,10 +1998,10 @@ HAL_StatusTypeDef HAL_TIM_IC_Init(TIM_HandleTypeDef *htim)
     {
       htim->IC_MspInitCallback = HAL_TIM_IC_MspInit;
     }
-    /* init the low level hardware : GPIO, CLOCK, NVIC */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC */
     htim->IC_MspInitCallback(htim);
 #else
-    /* init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_IC_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
@@ -2009,7 +2009,7 @@ HAL_StatusTypeDef HAL_TIM_IC_Init(TIM_HandleTypeDef *htim)
   /* Set the TIM state */
   htim->State = HAL_TIM_STATE_BUSY;
 
-  /* init the base time for the input capture */
+  /* Init the base time for the input capture */
   TIM_Base_SetConfig(htim->Instance, &htim->Init);
 
   /* Initialize the DMA burst operation state */
@@ -2647,10 +2647,10 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Init(TIM_HandleTypeDef *htim, uint32_t OnePul
     {
       htim->OnePulse_MspInitCallback = HAL_TIM_OnePulse_MspInit;
     }
-    /* init the low level hardware : GPIO, CLOCK, NVIC */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC */
     htim->OnePulse_MspInitCallback(htim);
 #else
-    /* init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_OnePulse_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
@@ -3049,10 +3049,10 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim,  TIM_Encoder_Ini
     {
       htim->Encoder_MspInitCallback = HAL_TIM_Encoder_MspInit;
     }
-    /* init the low level hardware : GPIO, CLOCK, NVIC */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC */
     htim->Encoder_MspInitCallback(htim);
 #else
-    /* init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_Encoder_MspInit(htim);
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
   }
@@ -3093,13 +3093,13 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim,  TIM_Encoder_Ini
   tmpccer &= ~(TIM_CCER_CC1NP | TIM_CCER_CC2NP);
   tmpccer |= sConfig->IC1Polarity | (sConfig->IC2Polarity << 4U);
 
-  /* write to TIMx SMCR */
+  /* Write to TIMx SMCR */
   htim->Instance->SMCR = tmpsmcr;
 
-  /* write to TIMx CCMR1 */
+  /* Write to TIMx CCMR1 */
   htim->Instance->CCMR1 = tmpccmr1;
 
-  /* write to TIMx CCER */
+  /* Write to TIMx CCER */
   htim->Instance->CCER = tmpccer;
 
   /* Initialize the DMA burst operation state */
@@ -5147,10 +5147,10 @@ HAL_StatusTypeDef HAL_TIM_GenerateEvent(TIM_HandleTypeDef *htim, uint32_t EventS
 }
 
 /**
-  * @brief  Configures the OCRef clearScreen feature
+  * @brief  Configures the OCRef clear feature
   * @param  htim TIM handle
   * @param  sClearInputConfig pointer to a TIM_ClearInputConfigTypeDef structure that
-  *         contains the OCREF clearScreen feature and parameters for the TIM peripheral.
+  *         contains the OCREF clear feature and parameters for the TIM peripheral.
   * @param  Channel specifies the TIM Channel
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1
@@ -5178,7 +5178,7 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
   {
     case TIM_CLEARINPUTSOURCE_NONE:
     {
-      /* clear the OCREF clearScreen selection bit and the the ETR Bits */
+      /* Clear the OCREF clear selection bit and the the ETR Bits */
       CLEAR_BIT(htim->Instance->SMCR, (TIM_SMCR_ETF | TIM_SMCR_ETPS | TIM_SMCR_ECE | TIM_SMCR_ETP));
       break;
     }
@@ -5190,7 +5190,7 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
       assert_param(IS_TIM_CLEARINPUT_PRESCALER(sClearInputConfig->ClearInputPrescaler));
       assert_param(IS_TIM_CLEARINPUT_FILTER(sClearInputConfig->ClearInputFilter));
 
-      /* When OCRef clearScreen feature is used with ETR source, ETR prescaler must be off */
+      /* When OCRef clear feature is used with ETR source, ETR prescaler must be off */
       if (sClearInputConfig->ClearInputPrescaler != TIM_CLEARINPUTPRESCALER_DIV1)
       {
         htim->State = HAL_TIM_STATE_READY;
@@ -5218,12 +5218,12 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
       {
         if (sClearInputConfig->ClearInputState != (uint32_t)DISABLE)
         {
-          /* Enable the OCREF clearScreen feature for Channel 1 */
+          /* Enable the OCREF clear feature for Channel 1 */
           SET_BIT(htim->Instance->CCMR1, TIM_CCMR1_OC1CE);
         }
         else
         {
-          /* Disable the OCREF clearScreen feature for Channel 1 */
+          /* Disable the OCREF clear feature for Channel 1 */
           CLEAR_BIT(htim->Instance->CCMR1, TIM_CCMR1_OC1CE);
         }
         break;
@@ -5232,12 +5232,12 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
       {
         if (sClearInputConfig->ClearInputState != (uint32_t)DISABLE)
         {
-          /* Enable the OCREF clearScreen feature for Channel 2 */
+          /* Enable the OCREF clear feature for Channel 2 */
           SET_BIT(htim->Instance->CCMR1, TIM_CCMR1_OC2CE);
         }
         else
         {
-          /* Disable the OCREF clearScreen feature for Channel 2 */
+          /* Disable the OCREF clear feature for Channel 2 */
           CLEAR_BIT(htim->Instance->CCMR1, TIM_CCMR1_OC2CE);
         }
         break;
@@ -5246,12 +5246,12 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
       {
         if (sClearInputConfig->ClearInputState != (uint32_t)DISABLE)
         {
-          /* Enable the OCREF clearScreen feature for Channel 3 */
+          /* Enable the OCREF clear feature for Channel 3 */
           SET_BIT(htim->Instance->CCMR2, TIM_CCMR2_OC3CE);
         }
         else
         {
-          /* Disable the OCREF clearScreen feature for Channel 3 */
+          /* Disable the OCREF clear feature for Channel 3 */
           CLEAR_BIT(htim->Instance->CCMR2, TIM_CCMR2_OC3CE);
         }
         break;
@@ -5260,12 +5260,12 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
       {
         if (sClearInputConfig->ClearInputState != (uint32_t)DISABLE)
         {
-          /* Enable the OCREF clearScreen feature for Channel 4 */
+          /* Enable the OCREF clear feature for Channel 4 */
           SET_BIT(htim->Instance->CCMR2, TIM_CCMR2_OC4CE);
         }
         else
         {
-          /* Disable the OCREF clearScreen feature for Channel 4 */
+          /* Disable the OCREF clear feature for Channel 4 */
           CLEAR_BIT(htim->Instance->CCMR2, TIM_CCMR2_OC4CE);
         }
         break;
@@ -5335,7 +5335,7 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
       /* Select the External clock mode1 and the ETRF trigger */
       tmpsmcr = htim->Instance->SMCR;
       tmpsmcr |= (TIM_SLAVEMODE_EXTERNAL1 | TIM_CLOCKSOURCE_ETRMODE1);
-      /* write to TIMx SMCR */
+      /* Write to TIMx SMCR */
       htim->Instance->SMCR = tmpsmcr;
       break;
     }
@@ -5460,7 +5460,7 @@ HAL_StatusTypeDef HAL_TIM_ConfigTI1Input(TIM_HandleTypeDef *htim, uint32_t TI1_S
   /* Set the TI1 selection */
   tmpcr2 |= TI1_Selection;
 
-  /* write to TIMxCR2 */
+  /* Write to TIMxCR2 */
   htim->Instance->CR2 = tmpcr2;
 
   return HAL_OK;
@@ -5548,7 +5548,7 @@ HAL_StatusTypeDef HAL_TIM_SlaveConfigSynchro_IT(TIM_HandleTypeDef *htim,
 }
 
 /**
-  * @brief  read the captured value from Capture Compare unit
+  * @brief  Read the captured value from Capture Compare unit
   * @param  htim TIM handle.
   * @param  Channel TIM Channels to be enabled
   *          This parameter can be one of the following values:
@@ -6108,7 +6108,7 @@ HAL_StatusTypeDef HAL_TIM_UnRegisterCallback(TIM_HandleTypeDef *htim, HAL_TIM_Ca
         break;
 
       case HAL_TIM_PWM_MSPINIT_CB_ID :
-        /* Legacy weak PWM Msp init Callback */
+        /* Legacy weak PWM Msp Init Callback */
         htim->PWM_MspInitCallback               = HAL_TIM_PWM_MspInit;
         break;
 
@@ -6877,16 +6877,16 @@ static void TIM_OC1_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config)
     tmpcr2 |= OC_Config->OCNIdleState;
   }
 
-  /* write to TIMx CR2 */
+  /* Write to TIMx CR2 */
   TIMx->CR2 = tmpcr2;
 
-  /* write to TIMx CCMR1 */
+  /* Write to TIMx CCMR1 */
   TIMx->CCMR1 = tmpccmrx;
 
   /* Set the Capture Compare Register value */
   TIMx->CCR1 = OC_Config->Pulse;
 
-  /* write to TIMx CCER */
+  /* Write to TIMx CCER */
   TIMx->CCER = tmpccer;
 }
 
@@ -6953,16 +6953,16 @@ void TIM_OC2_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config)
     tmpcr2 |= (OC_Config->OCNIdleState << 2U);
   }
 
-  /* write to TIMx CR2 */
+  /* Write to TIMx CR2 */
   TIMx->CR2 = tmpcr2;
 
-  /* write to TIMx CCMR1 */
+  /* Write to TIMx CCMR1 */
   TIMx->CCMR1 = tmpccmrx;
 
   /* Set the Capture Compare Register value */
   TIMx->CCR2 = OC_Config->Pulse;
 
-  /* write to TIMx CCER */
+  /* Write to TIMx CCER */
   TIMx->CCER = tmpccer;
 }
 
@@ -7027,16 +7027,16 @@ static void TIM_OC3_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config)
     tmpcr2 |= (OC_Config->OCNIdleState << 4U);
   }
 
-  /* write to TIMx CR2 */
+  /* Write to TIMx CR2 */
   TIMx->CR2 = tmpcr2;
 
-  /* write to TIMx CCMR2 */
+  /* Write to TIMx CCMR2 */
   TIMx->CCMR2 = tmpccmrx;
 
   /* Set the Capture Compare Register value */
   TIMx->CCR3 = OC_Config->Pulse;
 
-  /* write to TIMx CCER */
+  /* Write to TIMx CCER */
   TIMx->CCER = tmpccer;
 }
 
@@ -7087,16 +7087,16 @@ static void TIM_OC4_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config)
     tmpcr2 |= (OC_Config->OCIdleState << 6U);
   }
 
-  /* write to TIMx CR2 */
+  /* Write to TIMx CR2 */
   TIMx->CR2 = tmpcr2;
 
-  /* write to TIMx CCMR2 */
+  /* Write to TIMx CCMR2 */
   TIMx->CCMR2 = tmpccmrx;
 
   /* Set the Capture Compare Register value */
   TIMx->CCR4 = OC_Config->Pulse;
 
-  /* write to TIMx CCER */
+  /* Write to TIMx CCER */
   TIMx->CCER = tmpccer;
 }
 
@@ -7127,7 +7127,7 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
   /* Set the slave mode */
   tmpsmcr |= sSlaveConfig->SlaveMode;
 
-  /* write to TIMx SMCR */
+  /* Write to TIMx SMCR */
   htim->Instance->SMCR = tmpsmcr;
 
   /* Configure the trigger prescaler, filter, and polarity */
@@ -7168,7 +7168,7 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
       tmpccmr1 &= ~TIM_CCMR1_IC1F;
       tmpccmr1 |= ((sSlaveConfig->TriggerFilter) << 4U);
 
-      /* write to TIMx CCMR1 and CCER registers */
+      /* Write to TIMx CCMR1 and CCER registers */
       htim->Instance->CCMR1 = tmpccmr1;
       htim->Instance->CCER = tmpccer;
       break;
@@ -7270,7 +7270,7 @@ void TIM_TI1_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_
   tmpccer &= ~(TIM_CCER_CC1P | TIM_CCER_CC1NP);
   tmpccer |= (TIM_ICPolarity & (TIM_CCER_CC1P | TIM_CCER_CC1NP));
 
-  /* write to TIMx CCMR1 and CCER registers */
+  /* Write to TIMx CCMR1 and CCER registers */
   TIMx->CCMR1 = tmpccmr1;
   TIMx->CCER = tmpccer;
 }
@@ -7305,7 +7305,7 @@ static void TIM_TI1_ConfigInputStage(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity,
   tmpccer &= ~(TIM_CCER_CC1P | TIM_CCER_CC1NP);
   tmpccer |= TIM_ICPolarity;
 
-  /* write to TIMx CCMR1 and CCER registers */
+  /* Write to TIMx CCMR1 and CCER registers */
   TIMx->CCMR1 = tmpccmr1;
   TIMx->CCER = tmpccer;
 }
@@ -7353,7 +7353,7 @@ static void TIM_TI2_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32
   tmpccer &= ~(TIM_CCER_CC2P | TIM_CCER_CC2NP);
   tmpccer |= ((TIM_ICPolarity << 4U) & (TIM_CCER_CC2P | TIM_CCER_CC2NP));
 
-  /* write to TIMx CCMR1 and CCER registers */
+  /* Write to TIMx CCMR1 and CCER registers */
   TIMx->CCMR1 = tmpccmr1 ;
   TIMx->CCER = tmpccer;
 }
@@ -7388,7 +7388,7 @@ static void TIM_TI2_ConfigInputStage(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity,
   tmpccer &= ~(TIM_CCER_CC2P | TIM_CCER_CC2NP);
   tmpccer |= (TIM_ICPolarity << 4U);
 
-  /* write to TIMx CCMR1 and CCER registers */
+  /* Write to TIMx CCMR1 and CCER registers */
   TIMx->CCMR1 = tmpccmr1 ;
   TIMx->CCER = tmpccer;
 }
@@ -7436,7 +7436,7 @@ static void TIM_TI3_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32
   tmpccer &= ~(TIM_CCER_CC3P | TIM_CCER_CC3NP);
   tmpccer |= ((TIM_ICPolarity << 8U) & (TIM_CCER_CC3P | TIM_CCER_CC3NP));
 
-  /* write to TIMx CCMR2 and CCER registers */
+  /* Write to TIMx CCMR2 and CCER registers */
   TIMx->CCMR2 = tmpccmr2;
   TIMx->CCER = tmpccer;
 }
@@ -7484,7 +7484,7 @@ static void TIM_TI4_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32
   tmpccer &= ~(TIM_CCER_CC4P | TIM_CCER_CC4NP);
   tmpccer |= ((TIM_ICPolarity << 12U) & (TIM_CCER_CC4P | TIM_CCER_CC4NP));
 
-  /* write to TIMx CCMR2 and CCER registers */
+  /* Write to TIMx CCMR2 and CCER registers */
   TIMx->CCMR2 = tmpccmr2;
   TIMx->CCER = tmpccer ;
 }
@@ -7514,7 +7514,7 @@ static void TIM_ITRx_SetConfig(TIM_TypeDef *TIMx, uint32_t InputTriggerSource)
   tmpsmcr &= ~TIM_SMCR_TS;
   /* Set the Input Trigger source and the slave mode*/
   tmpsmcr |= (InputTriggerSource | TIM_SLAVEMODE_EXTERNAL1);
-  /* write to TIMx SMCR */
+  /* Write to TIMx SMCR */
   TIMx->SMCR = tmpsmcr;
 }
 /**
@@ -7547,7 +7547,7 @@ void TIM_ETR_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ExtTRGPrescaler,
   /* Set the Prescaler, the Filter value and the Polarity */
   tmpsmcr |= (uint32_t)(TIM_ExtTRGPrescaler | (TIM_ExtTRGPolarity | (ExtTRGFilter << 8U)));
 
-  /* write to TIMx SMCR */
+  /* Write to TIMx SMCR */
   TIMx->SMCR = tmpsmcr;
 }
 

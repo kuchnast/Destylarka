@@ -3,7 +3,6 @@
 #include <config/RelaysDcAc.hpp>
 #include <display/Display.hpp>
 #include <display/LcdHd44780.hpp>
-#include <display/Stm32Device.hpp>
 #include <sensors/Ds18b20.hpp>
 
 #include <algorithm>
@@ -11,16 +10,16 @@
 namespace display
 {
 
-    void Display::init()
+    void Display::init(I2C_HandleTypeDef *hi2c, uint8_t address, uint8_t lines, uint8_t rows)
     {
-        lcdInit(&lcdConfig);
-        lcdBackLightOn();
+        lcdInit(hi2c, address, lines, rows);
+        lcdBacklightOn();
         welcomeScreen();
     }
 
     void Display::clearScreen()
     {
-        lcdClrScr();
+        lcdDisplayClear();
     }
 
     void Display::viewAction(const config::Key& key)
@@ -63,15 +62,11 @@ namespace display
 
     void Display::imitationPrinting(const std::string& str)
     {
-        lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOn);
-
         for(const auto& c : str)
         {
-            lcdPutc(c);
+            lcdPrintChar(c);
             HAL_Delay(100);
         }
-
-        lcdSetMode(VIEW_MODE_DispOn_BlkOff_CrsOff);
     }
 
     std::string Display::fitStringToLine(const std::string & str1, char prefix)
@@ -100,11 +95,11 @@ namespace display
 
         for (uint8_t i = 0; i < (msgs.size() > LINES_NUM ? LINES_NUM : msgs.size()); ++i)
         {
-            lcdGoto(i + 1, 0);
+            lcdSetCursorPosition(i + 1, 0);
             if(possition + i < msgs.size())
-                lcdPuts(fitStringsToLine(msgs[possition + i], add_msgs[possition + i], (i ? ' ' : '>')).c_str());
+                lcdPrintStr(fitStringsToLine(msgs[possition + i], add_msgs[possition + i], (i ? ' ' : '>')));
             else
-                lcdPuts(fitStringsToLine(msgs[possition + i - msgs.size()], add_msgs[possition + i - msgs.size()], (i ? ' ' : '>')).c_str());
+                lcdPrintStr(fitStringsToLine(msgs[possition + i - msgs.size()], add_msgs[possition + i - msgs.size()], (i ? ' ' : '>')));
         }
     }
 
@@ -115,11 +110,11 @@ namespace display
 
         for (uint8_t i = 0; i < (msgs.size() > LINES_NUM ? LINES_NUM : msgs.size()); ++i)
         {
-            lcdGoto(i + 1, 0);
+            lcdSetCursorPosition(i + 1, 0);
             if(possition + i < msgs.size())
-                lcdPuts(fitStringToLine(msgs[possition + i], (i ? ' ' : '>')).c_str());
+                lcdPrintStr(fitStringToLine(msgs[possition + i], (i ? ' ' : '>')));
             else
-                lcdPuts(fitStringToLine(msgs[possition + i - msgs.size()], (i ? ' ' : '>')).c_str());
+                lcdPrintStr(fitStringToLine(msgs[possition + i - msgs.size()], (i ? ' ' : '>')));
         }
     }
 
@@ -276,7 +271,7 @@ namespace display
         }
 
         for(const auto& el : msgs)
-            states.emplace_back(config::ac_low_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
+            states.emplace_back(config::ac_low_relays.Find(el.first).read() == io::PinState::SET ? msgOff : msgOn);
 
         std::vector<std::string> names;
         names.reserve(msgs.size());
@@ -327,7 +322,7 @@ namespace display
         }
 
         for(auto & el : msgs)
-            states.emplace_back(config::ac_high_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
+            states.emplace_back(config::ac_high_relays.Find(el.first).read() == io::PinState::SET ? msgOff : msgOn);
 
         std::vector<std::string> names;
         names.reserve(msgs.size());
@@ -379,7 +374,7 @@ namespace display
         }
 
         for(auto & el : msgs)
-            states.emplace_back(config::dc_ac_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
+            states.emplace_back(config::dc_ac_relays.Find(el.first).read() == io::PinState::SET ? msgOff : msgOn);
 
         std::vector<std::string> names;
         names.reserve(msgs.size());

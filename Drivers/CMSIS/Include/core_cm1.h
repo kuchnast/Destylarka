@@ -61,7 +61,7 @@
  */
 
 #include "cmsis_version.h"
-
+ 
 /*  CMSIS CM1 definitions */
 #define __CM1_CMSIS_VERSION_MAIN  (__CM_CMSIS_VERSION_MAIN)              /*!< \deprecated [31:16] CMSIS HAL main version */
 #define __CM1_CMSIS_VERSION_SUB   (__CM_CMSIS_VERSION_SUB)               /*!< \deprecated [15:0]  CMSIS HAL sub version */
@@ -315,11 +315,11 @@ typedef struct
 {
   __IOM uint32_t ISER[1U];               /*!< Offset: 0x000 (R/W)  Interrupt Set Enable Register */
         uint32_t RESERVED0[31U];
-  __IOM uint32_t ICER[1U];               /*!< Offset: 0x080 (R/W)  Interrupt clearScreen Enable Register */
+  __IOM uint32_t ICER[1U];               /*!< Offset: 0x080 (R/W)  Interrupt Clear Enable Register */
         uint32_t RSERVED1[31U];
   __IOM uint32_t ISPR[1U];               /*!< Offset: 0x100 (R/W)  Interrupt Set Pending Register */
         uint32_t RESERVED2[31U];
-  __IOM uint32_t ICPR[1U];               /*!< Offset: 0x180 (R/W)  Interrupt clearScreen Pending Register */
+  __IOM uint32_t ICPR[1U];               /*!< Offset: 0x180 (R/W)  Interrupt Clear Pending Register */
         uint32_t RESERVED3[31U];
         uint32_t RESERVED4[64U];
   __IOM uint32_t IP[8U];                 /*!< Offset: 0x300 (R/W)  Interrupt Priority Register */
@@ -557,10 +557,10 @@ typedef struct
  */
 
 /* Memory mapping of Core Hardware */
-#define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base address */
-#define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base address */
-#define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base address */
-#define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base address */
+#define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Base Address */
+#define SysTick_BASE        (SCS_BASE +  0x0010UL)                    /*!< SysTick Base Address */
+#define NVIC_BASE           (SCS_BASE +  0x0100UL)                    /*!< NVIC Base Address */
+#define SCB_BASE            (SCS_BASE +  0x0D00UL)                    /*!< System Control Block Base Address */
 
 #define SCnSCB              ((SCnSCB_Type    *)     SCS_BASE      )   /*!< System control Register not in SCB */
 #define SCB                 ((SCB_Type       *)     SCB_BASE      )   /*!< SCB configuration struct */
@@ -731,7 +731,7 @@ __STATIC_INLINE void __NVIC_SetPendingIRQ(IRQn_Type IRQn)
 
 
 /**
-  \brief   clearScreen Pending Interrupt
+  \brief   Clear Pending Interrupt
   \details Clears the pending bit of a device specific interrupt in the NVIC pending register.
   \param [in]      IRQn  Device specific interrupt number.
   \note    IRQn must not be negative.
@@ -850,9 +850,9 @@ __STATIC_INLINE void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGr
   \details Sets an interrupt vector in SRAM based interrupt vector table.
            The interrupt number can be positive to specify a device specific interrupt,
            or negative to specify a processor exception.
-           address 0 must be mapped to SRAM.
+           Address 0 must be mapped to SRAM.
   \param [in]   IRQn      Interrupt number
-  \param [in]   vector    address of interrupt handler function
+  \param [in]   vector    Address of interrupt handler function
  */
 __STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
 {
@@ -867,7 +867,7 @@ __STATIC_INLINE void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
            The interrupt number can be positive to specify a device specific interrupt,
            or negative to specify a processor exception.
   \param [in]   IRQn      Interrupt number.
-  \return                 address of interrupt handler function
+  \return                 Address of interrupt handler function
  */
 __STATIC_INLINE uint32_t __NVIC_GetVector(IRQn_Type IRQn)
 {

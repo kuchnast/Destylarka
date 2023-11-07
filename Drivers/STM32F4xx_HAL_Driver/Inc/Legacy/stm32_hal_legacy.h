@@ -1400,7 +1400,7 @@ extern "C" {
 #define ETH_MAC_TXFIFONOT_EMPTY                         0x01000000U  /* Tx FIFO not empty */
 #define ETH_MAC_TXFIFO_WRITE_ACTIVE                     0x00400000U  /* Tx FIFO write active */
 #define ETH_MAC_TXFIFO_IDLE                             0x00000000U  /* Tx FIFO read status: Idle */
-#define ETH_MAC_TXFIFO_READ                             0x00100000U  /* Tx FIFO read status: read (transferring data to the MAC transmitter) */
+#define ETH_MAC_TXFIFO_READ                             0x00100000U  /* Tx FIFO read status: Read (transferring data to the MAC transmitter) */
 #define ETH_MAC_TXFIFO_WAITING                          0x00200000U  /* Tx FIFO read status: Waiting for TxStatus from MAC transmitter */
 #define ETH_MAC_TXFIFO_WRITING                          0x00300000U  /* Tx FIFO read status: Writing the received TxStatus or flushing the TxFIFO */
 #define ETH_MAC_TRANSMISSION_PAUSE                      0x00080000U  /* MAC transmitter in pause */
