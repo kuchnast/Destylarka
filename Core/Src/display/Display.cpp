@@ -95,7 +95,7 @@ namespace display
 
         for (uint8_t i = 0; i < (msgs.size() > LINES_NUM ? LINES_NUM : msgs.size()); ++i)
         {
-            lcdSetCursorPosition(i + 1, 0);
+            lcdSetCursorPosition(0, i);
             if(possition + i < msgs.size())
                 lcdPrintStr(fitStringsToLine(msgs[possition + i], add_msgs[possition + i], (i ? ' ' : '>')));
             else
@@ -110,7 +110,7 @@ namespace display
 
         for (uint8_t i = 0; i < (msgs.size() > LINES_NUM ? LINES_NUM : msgs.size()); ++i)
         {
-            lcdSetCursorPosition(i + 1, 0);
+            lcdSetCursorPosition(0, i);
             if(possition + i < msgs.size())
                 lcdPrintStr(fitStringToLine(msgs[possition + i], (i ? ' ' : '>')));
             else

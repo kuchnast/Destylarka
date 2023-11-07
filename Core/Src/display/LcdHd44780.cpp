@@ -2,21 +2,21 @@
 /*
     Here are some cyrillic symbols that you can use in your code
 
-    uint8_t symD[8]   = { 0x07, 0x09, 0x09, 0x09, 0x09, 0x1F, 0x11 }; // Д
-    uint8_t symZH[8]  = { 0x11, 0x15, 0x15, 0x0E, 0x15, 0x15, 0x11 }; // Ж
-    uint8_t symI[8]   = { 0x11, 0x11, 0x13, 0x15, 0x19, 0x11, 0x11 }; // И
-    uint8_t symL[8]   = { 0x0F, 0x09, 0x09, 0x09, 0x09, 0x11, 0x11 }; // Л
-    uint8_t symP[8]   = { 0x1F, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11 }; // П
-    uint8_t symSHi[8] = { 0x10, 0x15, 0x15, 0x15, 0x15, 0x1F, 0x03 }; // Щ
-    uint8_t symJU[8]  = { 0x12, 0x15, 0x15, 0x1D, 0x15, 0x15, 0x12 }; // Ю
-    uint8_t symJA[8]  = { 0x0F, 0x11, 0x11, 0x0F, 0x05, 0x09, 0x11 }; // Я
+uint8_t symD[8]   = { 0x07, 0x09, 0x09, 0x09, 0x09, 0x1F, 0x11 }; // Д
+uint8_t symZH[8]  = { 0x11, 0x15, 0x15, 0x0E, 0x15, 0x15, 0x11 }; // Ж
+uint8_t symI[8]   = { 0x11, 0x11, 0x13, 0x15, 0x19, 0x11, 0x11 }; // И
+uint8_t symL[8]   = { 0x0F, 0x09, 0x09, 0x09, 0x09, 0x11, 0x11 }; // Л
+uint8_t symP[8]   = { 0x1F, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11 }; // П
+uint8_t symSHi[8] = { 0x10, 0x15, 0x15, 0x15, 0x15, 0x1F, 0x03 }; // Щ
+uint8_t symJU[8]  = { 0x12, 0x15, 0x15, 0x1D, 0x15, 0x15, 0x12 }; // Ю
+uint8_t symJA[8]  = { 0x0F, 0x11, 0x11, 0x0F, 0x05, 0x09, 0x11 }; // Я
 
 
- */
+*/
 
 #include "display/LcdHd44780.hpp"
 
-namespace display {
+        namespace display {
 
     uint8_t lcdCommandBuffer[6] = {0x00};
 
@@ -51,7 +51,8 @@ namespace display {
 
         /* First 3 steps of init cycles. They are the same. */
         for (uint8_t i = 0; i < 3; ++i) {
-            if (HAL_I2C_Master_Transmit_DMA(lcdParams.hi2c, lcdParams.address, (uint8_t *) lcdCommandBuffer, 3) != HAL_OK) {
+            if (HAL_I2C_Master_Transmit(lcdParams.hi2c, lcdParams.address, (uint8_t *) lcdCommandBuffer, 3, 100) != HAL_OK)
+            {
                 return false;
             }
 
@@ -73,7 +74,7 @@ namespace display {
         lcdCommandBuffer[1] = lcdCommandBuffer[0];
         lcdCommandBuffer[2] = LCD_BIT_BACKIGHT_ON | (LCD_MODE_4BITS << 4);
 
-        if (HAL_I2C_Master_Transmit_DMA(lcdParams.hi2c, lcdParams.address, (uint8_t *) lcdCommandBuffer, 3) != HAL_OK) {
+        if (HAL_I2C_Master_Transmit(lcdParams.hi2c, lcdParams.address, (uint8_t *) lcdCommandBuffer, 3, 100) != HAL_OK) {
             return false;
         }
 
@@ -233,7 +234,7 @@ namespace display {
     bool lcdBacklight(uint8_t command) {
         lcdParams.backlight = command;
 
-        if (HAL_I2C_Master_Transmit_DMA(lcdParams.hi2c, lcdParams.address, &lcdParams.backlight, 1) != HAL_OK) {
+        if (HAL_I2C_Master_Transmit(lcdParams.hi2c, lcdParams.address, &lcdParams.backlight, 1, 100) != HAL_OK) {
             return false;
         }
 
@@ -351,7 +352,7 @@ namespace display {
         lcdCommandBuffer[5] = rsRwBits | lcdParams.backlight | ((*data << 4) & 0xF0);            // Turning strobe off
 
 
-        if (HAL_I2C_Master_Transmit_DMA(lcdParams.hi2c, lcdParams.address, (uint8_t *) lcdCommandBuffer, 6) != HAL_OK) {
+        if (HAL_I2C_Master_Transmit(lcdParams.hi2c, lcdParams.address, (uint8_t *) lcdCommandBuffer, 6, 100) != HAL_OK) {
             return false;
         }
 
