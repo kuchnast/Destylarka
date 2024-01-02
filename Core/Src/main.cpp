@@ -127,7 +127,8 @@ int main(void)
 
         if(size)
         {
-            logger.info() << "Received string (" << size << "): " << std::string(buf);
+            logger.info() << "Received string (" << std::to_string(size) << "): " << std::string(buf);
+            key = config::toKey(std::string(buf));
         }
 
         switch (display.getCurrentView())
@@ -137,9 +138,12 @@ int main(void)
             case display::DisplayView::AC_LOW_RELAYS:
             case display::DisplayView::AC_HIGH_RELAYS:
             case display::DisplayView::DC_AC_RELAYS:
-                key = keypad.waitForKey(config::keypad_debounce_time_ms);
-                if(key != config::Key::NONE)
+                if(not size or key == config::Key::NONE)
                 {
+                    key = keypad.waitForKey(config::keypad_debounce_time_ms);
+                }
+
+                if (key != config::Key::NONE) {
                     display.viewAction(key);
                 }
                 break;

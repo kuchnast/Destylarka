@@ -4,8 +4,10 @@
 #include <io/GpioPin.hpp>
 #include <main.hpp>
 
+#include <algorithm>
 #include <array>
 #include <string>
+#include <map>
 
 namespace config {
 
@@ -50,55 +52,46 @@ namespace config {
         N9,
     };
 
+    static const std::map<Key, std::string> key_string_map = {
+            {Key::NONE, "NONE"},
+            {Key::F1, "F1"},
+            {Key::F2, "F2"},
+            {Key::HASH, "#"},
+            {Key::STAR, "*"},
+            {Key::ARROW_UP, "ARROW_UP"},
+            {Key::ARROW_DOWN, "ARROW_DOWN"},
+            {Key::ARROW_LEFT, "ARROW_LEFT"},
+            {Key::ARROW_RIGHT, "ARROW_RIGHT"},
+            {Key::ESC, "ESC"},
+            {Key::ENTER, "ENTER"},
+            {Key::N0, "0"},
+            {Key::N1, "1"},
+            {Key::N2, "2"},
+            {Key::N3, "3"},
+            {Key::N4, "4"},
+            {Key::N5, "5"},
+            {Key::N6, "6"},
+            {Key::N7, "7"},
+            {Key::N8, "8"},
+            {Key::N9, "9"}};
+
     static std::string toString(const Key &key)
     {
-        switch(key)
-        {
-            case Key::NONE:
-                return "NONE";
-            case Key::F1:
-                return "F1";
-            case Key::F2:
-                return "F2";
-            case Key::HASH:
-                return "#";
-            case Key::STAR:
-                return "*";
-            case Key::ARROW_UP:
-                return "ARROW_UP";
-            case Key::ARROW_DOWN:
-                return "ARROW_DOWN";
-            case Key::ARROW_LEFT:
-                return "ARROW_LEFT";
-            case Key::ARROW_RIGHT:
-                return "ARROW_RIGHT";
-            case Key::ESC:
-                return "ESC";
-            case Key::ENTER:
-                return "ENTER";
-            case Key::N0:
-                return "0";
-            case Key::N1:
-                return "1";
-            case Key::N2:
-                return "2";
-            case Key::N3:
-                return "3";
-            case Key::N4:
-                return "4";
-            case Key::N5:
-                return "5";
-            case Key::N6:
-                return "6";
-            case Key::N7:
-                return "7";
-            case Key::N8:
-                return "8";
-            case Key::N9:
-                return "9";
-            default:
-                return "UNKNOWN";
-        }
+        auto it = key_string_map.find(key);
+        if (it == key_string_map.end())
+            return "UNKNOWN";
+
+        return it->second;
+    }
+
+    static Key toKey(std::string key_name)
+    {
+        std::transform(key_name.begin(), key_name.end(), key_name.begin(), ::toupper);
+
+        auto result = std::find_if(key_string_map.begin(), key_string_map.end(), [&key_name](
+            const auto& el) {return el.second == key_name;});
+
+        return result == key_string_map.end() ? Key::NONE : result->first;
     }
 
 } //  namespace config

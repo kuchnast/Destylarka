@@ -117,7 +117,7 @@ int _read(int file, char *ptr, int len)
   HAL_StatusTypeDef hstatus;
 
   /* read one byte only, according to _fstat returning character device type */
-  hstatus = HAL_UART_Receive(&huart2, (uint8_t *)ptr, 1, HAL_MAX_DELAY);
+  hstatus = HAL_UART_Receive(&huart2, (uint8_t *)ptr, 1, 100);
   if (hstatus == HAL_OK)
     return 1;
   else
@@ -130,7 +130,7 @@ int _write(int file, char *ptr, int len)
   HAL_StatusTypeDef hstatus;
 
   /* write full string */
-  hstatus = HAL_UART_Transmit(&huart2, (uint8_t *)ptr, len, HAL_MAX_DELAY);
+  hstatus = HAL_UART_Transmit(&huart2, (uint8_t *)ptr, len, 100);
   if (hstatus == HAL_OK)
     return len;
   else
