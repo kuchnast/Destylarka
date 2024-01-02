@@ -10,6 +10,32 @@
 namespace display
 {
 
+    std::string toString(const DisplayView& displayView)
+    {
+        switch(displayView)
+        {
+            case DisplayView::EMPTY:
+                return "EMPTY";
+            case DisplayView::MAIN_MENU:
+                return "MAIN_MENU";
+            case DisplayView::TEMP_SENSORS:
+                return "TEMP_SENSORS";
+            case DisplayView::DC_AC_RELAYS:
+                return "DC_AC_RELAYS";
+            case DisplayView::AC_HIGH_RELAYS:
+                return "AC_HIGH_RELAYS";
+            case DisplayView::AC_LOW_RELAYS:
+                return "AC_LOW_RELAYS";
+            case DisplayView::SET_ALARM:
+                return "SET_ALARM";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
+    Display::Display(sensors::Ds18b20Collection& ds_collection) : ds_collection_(ds_collection), logger_("Display"),
+        current_view_(DisplayView::EMPTY) {}
+
     void Display::init(I2C_HandleTypeDef *hi2c, uint8_t address, uint8_t lines, uint8_t rows)
     {
         lcdInit(hi2c, address, lines, rows);
@@ -24,6 +50,8 @@ namespace display
 
     void Display::viewAction(const config::Key& key)
     {
+        logger_.info() << "View " << toString(current_view_) << " updating with key " << config::toString(key);
+
         switch (current_view_)
         {
             case DisplayView::EMPTY:
@@ -95,11 +123,16 @@ namespace display
 
         for (uint8_t i = 0; i < (msgs.size() > LINES_NUM ? LINES_NUM : msgs.size()); ++i)
         {
+            std::string line;
+
             lcdSetCursorPosition(0, i);
             if(possition + i < msgs.size())
-                lcdPrintStr(fitStringsToLine(msgs[possition + i], add_msgs[possition + i], (i ? ' ' : '>')));
+                line = fitStringsToLine(msgs[possition + i], add_msgs[possition + i], (i ? ' ' : '>'));
             else
-                lcdPrintStr(fitStringsToLine(msgs[possition + i - msgs.size()], add_msgs[possition + i - msgs.size()], (i ? ' ' : '>')));
+                line = fitStringsToLine(msgs[possition + i - msgs.size()], add_msgs[possition + i - msgs.size()], (i ? ' ' : '>'));
+
+            logger_.info() << line;
+            lcdPrintStr(line);
         }
     }
 
@@ -110,11 +143,16 @@ namespace display
 
         for (uint8_t i = 0; i < (msgs.size() > LINES_NUM ? LINES_NUM : msgs.size()); ++i)
         {
+            std::string line;
+
             lcdSetCursorPosition(0, i);
             if(possition + i < msgs.size())
-                lcdPrintStr(fitStringToLine(msgs[possition + i], (i ? ' ' : '>')));
+                line = fitStringToLine(msgs[possition + i], (i ? ' ' : '>'));
             else
-                lcdPrintStr(fitStringToLine(msgs[possition + i - msgs.size()], (i ? ' ' : '>')));
+                line = fitStringToLine(msgs[possition + i - msgs.size()], (i ? ' ' : '>'));
+
+            logger_.info() << line;
+            lcdPrintStr(line);
         }
     }
 
@@ -387,55 +425,54 @@ namespace display
 
     void Display::setAlarmAction(const config::Key& key)
     {
-
-        static DisplayViewPos pos(0, 0);
-
-        static const std::vector<std::pair<config::RelayDCACId, std::string>> msgs =
-                {{config::RelayDCACId::PUSTY_1, "Pusty 1"},
-                 {config::RelayDCACId::PUSTY_2, "Pusty 2"},
-                 {config::RelayDCACId::PUSTY_3, "Pusty 3"},
-                 {config::RelayDCACId::PUSTY_4, "Pusty 4"}};
-
-        constexpr std::string_view msgOn("ON");
-        constexpr std::string_view msgOff("OFF");
-
-        std::vector<std::string> states(msgs.size());
-
-        switch (key)
-        {
-            case config::Key::ARROW_UP:
-                if(pos.y == 0)
-                    pos.y = msgs.size() - 1;
-                else
-                    --pos.y;
-                break;
-            case config::Key::ARROW_DOWN:
-                if(pos.y == (msgs.size() - 1))
-                    pos.y = 0;
-                else
-                    ++pos.y;
-                break;
-            case config::Key::ESC:
-                setCurrentView(DisplayView::MAIN_MENU);
-                viewAction(config::Key::NONE);
-                return;
-            case config::Key::ENTER:
-                config::dc_ac_relays.Find(msgs[pos.y].first).toggle();
-                break;
-            default:
-                break;
-        }
-
-        for(auto & el : msgs)
-            states.emplace_back(config::dc_ac_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
-
-        std::vector<std::string> names;
-        names.reserve(msgs.size());
-        std::transform(msgs.cbegin(), msgs.cend(), std::back_inserter(names),
-                       [](const std::pair<config::RelayDCACId, std::string>& el) { return el.second; });
-
-        clearScreen();
-        printMenu(names, pos.y, states);
+//        static DisplayViewPos pos(0, 0);
+//
+//        static const std::vector<std::pair<config::RelayDCACId, std::string>> msgs =
+//                {{config::RelayDCACId::PUSTY_1, "Pusty 1"},
+//                 {config::RelayDCACId::PUSTY_2, "Pusty 2"},
+//                 {config::RelayDCACId::PUSTY_3, "Pusty 3"},
+//                 {config::RelayDCACId::PUSTY_4, "Pusty 4"}};
+//
+//        constexpr std::string_view msgOn("ON");
+//        constexpr std::string_view msgOff("OFF");
+//
+//        std::vector<std::string> states(msgs.size());
+//
+//        switch (key)
+//        {
+//            case config::Key::ARROW_UP:
+//                if(pos.y == 0)
+//                    pos.y = msgs.size() - 1;
+//                else
+//                    --pos.y;
+//                break;
+//            case config::Key::ARROW_DOWN:
+//                if(pos.y == (msgs.size() - 1))
+//                    pos.y = 0;
+//                else
+//                    ++pos.y;
+//                break;
+//            case config::Key::ESC:
+//                setCurrentView(DisplayView::MAIN_MENU);
+//                viewAction(config::Key::NONE);
+//                return;
+//            case config::Key::ENTER:
+//                config::dc_ac_relays.Find(msgs[pos.y].first).toggle();
+//                break;
+//            default:
+//                break;
+//        }
+//
+//        for(auto & el : msgs)
+//            states.emplace_back(config::dc_ac_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
+//
+//        std::vector<std::string> names;
+//        names.reserve(msgs.size());
+//        std::transform(msgs.cbegin(), msgs.cend(), std::back_inserter(names),
+//                       [](const std::pair<config::RelayDCACId, std::string>& el) { return el.second; });
+//
+//        clearScreen();
+//        printMenu(names, pos.y, states);
     }
 
 }

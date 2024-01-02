@@ -27,6 +27,7 @@
 #include <sensors/Ds18b20.hpp>
 #include <io/FunctionTimer.hpp>
 #include <io/Valve.hpp>
+#include <io/Logger.hpp>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -53,7 +54,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+io::Logger logger("Main");
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -104,17 +105,31 @@ int main(void)
     io::GpioPin oneWirePin(DS18B20_GPIO_Port, DS18B20_Pin);
     communication::OneWire oneWire{oneWirePin, htim1};
     sensors::Ds18b20Collection ds_collection(oneWire, true);
-    ds_collection.addSensors(config::ds_sensors, 12);
+
+    if(ds_collection.addSensors(config::ds_sensors, 12))
+        logger.error() << "Error occurred when adding one or many DS18B20 sensors. Continuing..";
 
     display::Display display{ds_collection};
     display.init(&hi2c1);
+    display.viewAction(config::Key::NONE);
 
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    while (1)
+    char buf[10];
+    uint8_t size;
+    config::Key key;
+
+    while (true)
     {
+        size = scanf("%s", buf);
+
+        if(size)
+        {
+            logger.info() << "Received string (" << size << "): " << std::string(buf);
+        }
+
         switch (display.getCurrentView())
         {
             case display::DisplayView::EMPTY:
@@ -122,18 +137,25 @@ int main(void)
             case display::DisplayView::AC_LOW_RELAYS:
             case display::DisplayView::AC_HIGH_RELAYS:
             case display::DisplayView::DC_AC_RELAYS:
-                display.viewAction(keypad.waitForKey(0));
+                key = keypad.waitForKey(config::keypad_debounce_time_ms);
+                if(key != config::Key::NONE)
+                {
+                    display.viewAction(key);
+                }
                 break;
             case display::DisplayView::TEMP_SENSORS:
                 ds_collection.startRangingAll();
-                ds_collection.readAll();
+                if(ds_collection.readAll())
+                {
+                    logger.error() << "Error occurred when reading one or many DS18B20 sensor temperatures. Continuing..";
+                }
                 display.viewAction(keypad.waitForKey(1000));
                 break;
             default:
                 break;
         }
 
-        io::FunctionTimer::handleFunctionsWithTimeout();
+//        io::FunctionTimer::handleFunctionsWithTimeout();
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */

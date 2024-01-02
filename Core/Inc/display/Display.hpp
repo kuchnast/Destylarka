@@ -1,7 +1,8 @@
 #ifndef DISPLAY_DISPLAY_HPP
 #define DISPLAY_DISPLAY_HPP
 
-#include "io/Keypad.hpp"
+#include <io/Keypad.hpp>
+#include <io/Logger.hpp>
 
 #include <sensors/Ds18b20.hpp>
 
@@ -22,6 +23,8 @@ enum class DisplayView
     SET_ALARM
 };
 
+std::string toString(const DisplayView& displayView);
+
 struct DisplayViewPos
 {
     uint8_t x;
@@ -34,7 +37,7 @@ class Display
 {
 
 public:
-    Display(sensors::Ds18b20Collection& ds_collection) : ds_collection_(ds_collection) {}
+    explicit Display(sensors::Ds18b20Collection& ds_collection);
 
     void init(I2C_HandleTypeDef *hi2c, uint8_t address = 0x27, uint8_t lines = 4, uint8_t rows = 20);
     static void clearScreen();
@@ -46,8 +49,8 @@ private:
     static void imitationPrinting(const std::string& str);
     static std::string fitStringToLine(const std::string & str1, char prefix = ' ');
     static std::string fitStringsToLine(const std::string & str1, const std::string & str2, char prefix = ' ');
-    static void printMenu(const std::vector<std::string> &msgs, uint8_t possition, const std::vector<std::string> & add_msg);
-    static void printMenu(const std::vector<std::string> &msgs, uint8_t possition);
+    void printMenu(const std::vector<std::string> &msgs, uint8_t possition, const std::vector<std::string> & add_msg);
+    void printMenu(const std::vector<std::string> &msgs, uint8_t possition);
 
     void welcomeScreen();
     void mainMenuAction(const config::Key& key);
@@ -59,6 +62,7 @@ private:
 
     DisplayView current_view_;
     sensors::Ds18b20Collection ds_collection_;
+    io::Logger logger_;
 };
 }
 
