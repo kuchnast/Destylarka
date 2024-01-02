@@ -118,17 +118,37 @@ int main(void)
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     char buf[10];
-    uint8_t size;
+    uint8_t pos = 0;
+    HAL_StatusTypeDef status;
     config::Key key;
 
     while (true)
     {
-        size = scanf("%s", buf);
-
-        if(size)
+        do
         {
-            logger.info() << "Received string (" << std::to_string(size) << "): " << std::string(buf);
+            if(pos < 10)
+            {
+                status = HAL_UART_Receive(&huart2, (uint8_t *)(buf + pos), 1, 100);
+                if (status == HAL_OK and buf[pos] == '\n')
+                {
+                    buf[pos] = '\0';
+                    break;
+                }
+                ++pos;
+            }
+            else
+            {
+                buf[9] = '\0';
+                break;
+            }
+        }
+        while(status == HAL_OK);
+
+        if(pos)
+        {
+            logger.info() << "Received string (" << std::to_string(pos) << "): " << std::string(buf);
             key = config::toKey(std::string(buf));
+            pos = 0;
         }
 
         switch (display.getCurrentView())
