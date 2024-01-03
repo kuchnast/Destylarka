@@ -6,6 +6,7 @@
 #include <sensors/Ds18b20.hpp>
 
 #include <algorithm>
+#include <iomanip>
 
 namespace display
 {
@@ -216,7 +217,6 @@ namespace display
                  {config::Ds18b20NameId::CHLODNICA_POWROT, "Chlod.pow"}};
 
         constexpr std::string_view msgError("BLAD");
-        constexpr std::string_view msgNotFound("BRAK");
 
         std::vector<std::string> temperature(msgs.size());
 
@@ -248,10 +248,13 @@ namespace display
             auto temp_maybe = ds_collection_.getTemperatureMaybe(msgs[idx].first);
 
             if(temp_maybe.has_value())
-                temperature[idx] = std::to_string(temp_maybe.value()).substr(0, 6);
+            {
+                std::stringstream stream;
+                stream << std::fixed << std::setprecision(2) << temp_maybe.value();
+                temperature[idx] = stream.str();
+            }
             else
                 temperature[idx] = msgError;
-
         }
 
         std::vector<std::string> names;

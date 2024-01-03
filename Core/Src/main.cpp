@@ -113,6 +113,10 @@ int main(void)
     display.init(&hi2c1);
     display.viewAction(config::Key::NONE);
 
+    io::FunctionTimer::addFunction([](){ printf("Fun 1");}, 2000, "Fun1");
+    io::FunctionTimer::addFunction([](){ printf("Fun 2");}, 5000, "Fun2");
+    io::FunctionTimer::addFunction([](){ printf("Fun 3");}, 10000, "Fun3");
+
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -120,7 +124,7 @@ int main(void)
     char buf[20];
     uint8_t pos;
     HAL_StatusTypeDef status;
-    bool command_from_stdi = false;
+    bool command_from_stdi;
     config::Key key;
 
     while (true)
@@ -153,8 +157,9 @@ int main(void)
 
         if(pos)
         {
-            logger.info() << "Received string (" << std::to_string(pos) << "): " << std::string(buf, pos + 1) << '\n';
-            key = config::toKey(std::string(buf));
+            std::string str(buf, pos + 1);
+            logger.info() << "Received string (" << str.size() << "): " << str << '\n';
+            key = config::toKey(str);
             pos = 0;
             command_from_stdi = true;
         }
@@ -205,7 +210,8 @@ int main(void)
                 break;
         }
 
-//        io::FunctionTimer::handleFunctionsWithTimeout();
+        io::FunctionTimer::handleFunctionsWithTimeout();
+
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
