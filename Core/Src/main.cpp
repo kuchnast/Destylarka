@@ -176,13 +176,31 @@ int main(void)
                 }
                 break;
             case display::DisplayView::TEMP_SENSORS:
+            {
                 ds_collection.startRangingAll();
+
+                uint32_t start_time = HAL_GetTick();
+                bool is_all_done;
+                while(HAL_GetTick() - start_time < config::ds_ranging_timeout_ms)
+                {
+                    is_all_done = ds_collection.allDone();
+                    if(is_all_done)
+                    {
+                        break;
+                    }
+                    HAL_Delay(config::ds_ranging_delay_ms);
+                }
+
+                if(!is_all_done)
+                    logger.warning() << "Ranging timed out - not all sensors are ready.";
+
                 if(ds_collection.readAll())
                 {
                     logger.error() << "Error occurred when reading one or many DS18B20 sensor temperatures. Continuing..";
                 }
                 display.viewAction(keypad.waitForKey(1000));
                 break;
+            }
             default:
                 break;
         }

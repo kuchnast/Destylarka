@@ -7,6 +7,9 @@
 
 namespace config {
 
+    constexpr uint32_t ds_ranging_timeout_ms = 1000;
+    constexpr uint32_t ds_ranging_delay_ms = 100;
+
     enum class Ds18b20NameId {
         ZBIORNIK_POD_PIANKA,
         ZBIORNIK_W_KAPILARZE,
