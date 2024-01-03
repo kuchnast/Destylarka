@@ -113,8 +113,8 @@ int main(void)
     display.init(&hi2c1);
     display.viewAction(config::Key::NONE);
 
-    io::FunctionTimer::addFunction([](){ printf("Fun 1\n");}, 2000, "Fun1");
-    io::FunctionTimer::addFunction([](){ printf("Fun 2\n");}, 7000, "Fun2");
+    io::FunctionTimer::addFunction([](){ printf("Fun 1\n");}, 5000, "Fun1", true);
+    io::FunctionTimer::addFunction([](){ printf("Fun 2\n");}, 10000, "Fun2");
     io::FunctionTimer::addFunction([](){ printf("Fun 3\n");}, 15000, "Fun3");
 
     /* USER CODE END 2 */
@@ -122,7 +122,7 @@ int main(void)
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     char buf[20];
-    uint8_t pos;
+    uint8_t pos = 0;
     HAL_StatusTypeDef status;
     bool command_from_stdi;
     config::Key key;

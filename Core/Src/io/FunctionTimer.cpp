@@ -2,10 +2,12 @@
 
 namespace io {
 
-    FunctionInfo::FunctionInfo(const std::string& name, std::function<void()> func, uint32_t target_time) : name(name),
-        func(func), target_time(target_time)
+    FunctionInfo::FunctionInfo(const std::string& name, std::function<void()> func, uint32_t target_time_ms,
+                               uint32_t time_ms, bool is_repeatable):
+    name(name), func(func), target_time_ms(target_time_ms), time_ms(time_ms), is_repeatable(is_repeatable)
     {
-        Logger("FunctionInfo").info() << "Created new function " << name << " witch target time" << std::to_string(target_time);
+        Logger("FunctionInfo").info() << "Created new " << (is_repeatable ? "repeatable every " + std::to_string(time_ms) : "")
+            << " function " << name << " witch target time" << std::to_string(target_time_ms);
     }
 
     uint32_t FunctionTimer::next_target_time_ = 0;
@@ -13,13 +15,14 @@ namespace io {
     std::map<uint32_t, FunctionInfo> FunctionTimer::functions_{};
     Logger logger("FunctionTimer");
 
-    uint32_t FunctionTimer::addFunction(std::function<void()> func, uint32_t time_ms, const std::string& name)
+    uint32_t FunctionTimer::addFunction(std::function<void()> func, uint32_t time_ms, const std::string& name,
+                                        bool is_repeatable)
     {
 
         uint32_t current_time = HAL_GetTick();
         uint32_t target_time = current_time + time_ms;
         logger.info() << "Added function id: " << std::to_string(last_function_id_);
-        functions_.try_emplace(last_function_id_, name, func, target_time);
+        functions_.try_emplace(last_function_id_, name, func, target_time, time_ms, is_repeatable);
 
         // Sprawdź, czy nowo dodana funkcja ma najwcześniejszy target_time
         if (target_time < next_target_time_ || next_target_time_ == 0)
@@ -42,10 +45,10 @@ namespace io {
         next_target_time_ = 0;
         for (const auto &func_info: functions_)
         {
-            if (func_info.second.target_time > current_time &&
-                (func_info.second.target_time < next_target_time_ || next_target_time_ == 0))
+            if (func_info.second.target_time_ms > current_time &&
+                (func_info.second.target_time_ms < next_target_time_ || next_target_time_ == 0))
             {
-                next_target_time_ = func_info.second.target_time;
+                next_target_time_ = func_info.second.target_time_ms;
             }
         }
         logger.info() << "Next target time updated to " << std::to_string(next_target_time_);
@@ -67,13 +70,22 @@ namespace io {
 
         if (current_time >= next_target_time_)
         {
-
             for (auto it = functions_.begin(); it != functions_.end();) {
-                if (current_time >= it->second.target_time)
+                if (current_time >= it->second.target_time_ms)
                 {
-                    logger.info() << "Function with id" << it->second.name << " timed out. Executing...";
-                    it->second.func(); // Wywołaj funkcję
-                    it = functions_.erase(it);// Usuń funkcję z listy
+                    logger.info() << "Function " << it->second.name << " with id " << std::to_string(it->first)
+                        << " timed out. Executing...";
+                    it->second.func();
+
+                    if(it->second.is_repeatable)
+                    {
+                        logger.info() << "Function is repeatable, starting again timer.";
+                        it->second.target_time_ms = HAL_GetTick() + it->second.time_ms;
+                    }
+                    else
+                    {
+                        it = functions_.erase(it);
+                    }
                 }
                 else {
                     ++it;
@@ -84,10 +96,10 @@ namespace io {
             next_target_time_ = 0;
             for (const auto &func_info: functions_)
             {
-                if (func_info.second.target_time > current_time &&
-                    (func_info.second.target_time < next_target_time_ || next_target_time_ == 0))
+                if (func_info.second.target_time_ms > current_time &&
+                    (func_info.second.target_time_ms < next_target_time_ || next_target_time_ == 0))
                 {
-                    next_target_time_ = func_info.second.target_time;
+                    next_target_time_ = func_info.second.target_time_ms;
                 }
             }
             logger.info() << "Next target time updated to " << std::to_string(next_target_time_);

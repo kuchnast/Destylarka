@@ -14,15 +14,19 @@ struct FunctionInfo
 {
     std::string name;
     std::function<void()> func;
-    uint32_t target_time;
+    uint32_t target_time_ms;
+    uint32_t time_ms;
+    bool is_repeatable;
 
-    FunctionInfo(const std::string& name, std::function<void()> func, uint32_t target_time);
+    FunctionInfo(const std::string& name, std::function<void()> func, uint32_t target_time, uint32_t time_ms,
+        bool is_repeatable = false);
 };
 
 class FunctionTimer
 {
 public:
-    static uint32_t addFunction(std::function<void()> func, uint32_t time_ms, const std::string& name);
+    static uint32_t addFunction(std::function<void()> func, uint32_t time_ms, const std::string& name,
+                                bool is_repeatable = false);
 
     static bool removeFunction(uint32_t function_id);
 
