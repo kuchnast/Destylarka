@@ -3,3 +3,5 @@ Debug/*
 .idea/*
 cmake-build-debug/*
 .settings/*
+*.launch
+

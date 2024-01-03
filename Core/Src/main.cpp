@@ -117,28 +117,35 @@ int main(void)
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    char buf[10];
-    uint8_t pos = 0;
+    char buf[20];
+    uint8_t pos;
     HAL_StatusTypeDef status;
+    bool command_from_stdi = false;
     config::Key key;
 
     while (true)
     {
+    	command_from_stdi = false;
         do
         {
-            if(pos < 10)
+            if(pos < 20)
             {
                 status = HAL_UART_Receive(&huart2, (uint8_t *)(buf + pos), 1, 100);
-                if (status == HAL_OK and buf[pos] == '\n')
+                if (status == HAL_OK)
                 {
-                    buf[pos] = '\0';
-                    break;
+                	if (buf[pos] == '\n')
+                	{
+                		buf[pos] = '\0';
+                		++pos;
+                		break;
+                	}
+                	++pos;
                 }
-                ++pos;
             }
             else
             {
-                buf[9] = '\0';
+                buf[19] = '\0';
+                pos = 19;
                 break;
             }
         }
@@ -146,9 +153,10 @@ int main(void)
 
         if(pos)
         {
-            logger.info() << "Received string (" << std::to_string(pos) << "): " << std::string(buf);
+            logger.info() << "Received string (" << std::to_string(pos) << "): " << std::string(buf, pos + 1) << '\n';
             key = config::toKey(std::string(buf));
             pos = 0;
+            command_from_stdi = true;
         }
 
         switch (display.getCurrentView())
@@ -158,7 +166,7 @@ int main(void)
             case display::DisplayView::AC_LOW_RELAYS:
             case display::DisplayView::AC_HIGH_RELAYS:
             case display::DisplayView::DC_AC_RELAYS:
-                if(not size or key == config::Key::NONE)
+                if(!command_from_stdi or key == config::Key::NONE)
                 {
                     key = keypad.waitForKey(config::keypad_debounce_time_ms);
                 }
