@@ -60,6 +60,9 @@ namespace io {
 
     void FunctionTimer::handleFunctionsWithTimeout()
     {
+        if (!next_target_time_)
+            return;
+
         uint32_t current_time = HAL_GetTick();
 
         if (current_time >= next_target_time_)
