@@ -335,7 +335,8 @@ namespace display
         constexpr std::string_view msgOn("ON");
         constexpr std::string_view msgOff("OFF");
 
-        std::vector<std::string> states(msgs.size());
+        std::vector<std::string> states;
+        states.reserve(msgs.size());
 
         switch (key)
         {
@@ -363,7 +364,7 @@ namespace display
         }
 
         for(auto & el : msgs)
-            states.emplace_back(config::ac_high_relays.Find(el.first).read() == io::PinState::SET ? msgOff : msgOn);
+            states.emplace_back(config::ac_high_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
 
         std::vector<std::string> names;
         names.reserve(msgs.size());

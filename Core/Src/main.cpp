@@ -113,15 +113,16 @@ int main(void)
     display.init(&hi2c1);
     display.viewAction(config::Key::NONE);
 
-    io::FunctionTimer::addFunction([](){ printf("Fun 1\n");}, 5000, "Fun1", true);
-    io::FunctionTimer::addFunction([](){ printf("Fun 2\n");}, 10000, "Fun2");
-    io::FunctionTimer::addFunction([](){ printf("Fun 3\n");}, 15000, "Fun3");
+//    io::FunctionTimer::addFunction([](){io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).toggle();}, 5000, "Fun1", true);
+//    io::FunctionTimer::addFunction([](){ printf("Fun 2\n");}, 10000, "Fun2");
+//    io::FunctionTimer::addFunction([](){ printf("Fun 3\n");}, 15000, "Fun3");
 
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    char buf[20];
+    constexpr uint16_t buf_size = 20;
+    char buf[buf_size];
     uint8_t pos = 0;
     HAL_StatusTypeDef status;
     bool command_from_stdi;
@@ -153,12 +154,12 @@ int main(void)
                 break;
             }
         }
-        while(status == HAL_OK);
+        while(pos);
 
-        if(pos)
+        if(pos and buf[pos - 1] == '\0')
         {
-            std::string str(buf, pos + 1);
-            logger.info() << "Received string (" << str.size() << "): " << str << '\n';
+            std::string str(buf, pos - 1);
+            logger.info() << "Received string (" << str.size() << "): " << str << "\n";
             key = config::toKey(str);
             pos = 0;
             command_from_stdi = true;
@@ -203,7 +204,13 @@ int main(void)
                 {
                     logger.error() << "Error occurred when reading one or many DS18B20 sensor temperatures. Continuing..";
                 }
-                display.viewAction(keypad.waitForKey(1000));
+
+                if(!command_from_stdi or key == config::Key::NONE)
+			   {
+				   key = keypad.waitForKey(1000);
+			   }
+
+                display.viewAction(key);
                 break;
             }
             default:
