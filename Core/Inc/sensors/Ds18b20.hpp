@@ -3,6 +3,7 @@
 
 #include "communication/Onewire.hpp"
 #include <config/SensorsDs18b20.hpp>
+#include <io/Logger.hpp>
 
 #include <optional>
 
@@ -66,6 +67,7 @@ private:
     std::map<Ds18b20NameId, Ds18b20> sensors_;
     OneWire & onewire_;
     bool use_crc_;
+    io::Logger logger_;
 };
 
 }

@@ -2,6 +2,7 @@
 #define COMMUNICATION_ONEWIRE_H
 
 #include <io/GpioPin.hpp>
+#include <io/Logger.hpp>
 
 #include <tim.h>
 
@@ -58,6 +59,7 @@ namespace communication {
         uint8_t last_discrepancy_;           // For searching purpose
         uint8_t last_device_flag_;           // For searching purpose
         OneWireAddress rom_address_;         // 8-byte ROM addres last found device
+        io::Logger logger_;
     };
 }
 

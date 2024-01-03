@@ -15,7 +15,7 @@ namespace communication {
         {OneWireCommand::MATCH_ROM, 0x55},
         {OneWireCommand::SKIP_ROM, 0xCC}};
 
-    OneWire::OneWire(io::GpioPin & pin, TIM_HandleTypeDef &tim) : pin_(pin), tim_(tim)
+    OneWire::OneWire(io::GpioPin & pin, TIM_HandleTypeDef &tim) : pin_(pin), tim_(tim), logger_("OneWire")
     {
         HAL_TIM_Base_Start(&tim_);// Start the delay timer
 
@@ -72,7 +72,13 @@ namespace communication {
                              // if it's high - no device is presence on the bus
         delay(410);
 
-        return state == io::PinState::SET;
+        bool status = state == io::PinState::SET;
+        if(status)
+        {
+            logger_.error() << "Error occurred when resetting bus.";
+        }
+
+        return status;
     }
 
     /**

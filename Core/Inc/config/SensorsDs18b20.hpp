@@ -16,6 +16,23 @@ namespace config {
         CHLODNICA_POWROT,
     };
 
+    const std::map<Ds18b20NameId, std::string> ds18b20_names_map = {
+        {Ds18b20NameId::ZBIORNIK_POD_PIANKA, "ZBIORNIK_POD_PIANKA"},
+        {Ds18b20NameId::ZBIORNIK_W_KAPILARZE, "ZBIORNIK_W_KAPILARZE"},
+        {Ds18b20NameId::KOLUMNA_DOL, "KOLUMNA_DOL"},
+        {Ds18b20NameId::KOLUMNA_GORA, "KOLUMNA_GORA"},
+        {Ds18b20NameId::CHLODNICA_ZASILANIE, "CHLODNICA_ZASILANIE"},
+        {Ds18b20NameId::CHLODNICA_POWROT, "CHLODNICA_POWROT"}};
+
+    static std::string toString(const Ds18b20NameId& dsId)
+    {
+        auto it = ds18b20_names_map.find(dsId);
+        if (it == ds18b20_names_map.end())
+            return "UNKNOWN";
+
+        return it->second;
+    }
+
     struct Ds18b20Sensor {
         Ds18b20NameId name_id;
         std::array<uint8_t, 8> address;

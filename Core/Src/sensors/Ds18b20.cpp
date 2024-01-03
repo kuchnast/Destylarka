@@ -8,7 +8,7 @@ namespace sensors {
     }
 
     Ds18b20Collection::Ds18b20Collection(OneWire &onewire, bool use_crc)
-        : onewire_(onewire), use_crc_(use_crc) {}
+        : onewire_(onewire), use_crc_(use_crc), logger_("Ds18b20Collection") {}
 
     /**
      * Find and add ds18b20 to known sensors
@@ -20,7 +20,6 @@ namespace sensors {
      */
     bool Ds18b20Collection::addSensor(Ds18b20NameId id, const OneWireAddress &address, uint8_t resolution) {
         OneWireAddress device_address;
-        bool is_added;
 
         if (onewire_.findDevice(true)) {
             do {
@@ -28,8 +27,12 @@ namespace sensors {
                 if (device_address == address)
                 {
                     if(sensors_.try_emplace(id, address).second)
-                        return setResolution(id, resolution);
-
+                    {
+                        bool status = setResolution(id, resolution);
+                        if(status)
+                            logger_.error() << "Sensor added but resolution " << std::to_string(resolution) << " cant be set for sensor " << config::toString(id);
+                        return status;
+                    }
                     break;
                 }
             } while (onewire_.findDevice());
@@ -107,7 +110,10 @@ namespace sensors {
         auto sensor = sensors_.find(id);
 
         if(sensor == sensors_.end())
+        {
+            logger_.error() << "Can't read temperature - sensor id " << config::toString(id) << " not found.";
             return true;
+        }
 
         if (use_crc_)
             data.resize(DATA_LEN_WITH_CRC);
@@ -117,7 +123,8 @@ namespace sensors {
         if (!onewire_.readBit())// Check if the bus is released
         {
             sensor->second.is_valid = false;
-            return true;// Busy bus - conversion is not finished
+            logger_.error() << "Can't read temperature for sensor id " << config::toString(id) << " - bus is busy.";
+            return true;
         }
 
         onewire_.resetBus();// Reset the bus
@@ -132,7 +139,8 @@ namespace sensors {
 
             if (crc != data[8]) {
                 sensor->second.is_valid = false;
-                return true;// CRC invalid
+                logger_.error() << "Can't read temperature for sensor id " << config::toString(id) << " - invalid CRC.";
+                return true;
             }
         }
 
@@ -147,6 +155,7 @@ namespace sensors {
             sensor->second.is_valid = true;
         } else {
             sensor->second.is_valid = false;
+            logger_.error() << "Can't convert measurement to temperature for sensor id " << config::toString(id);
             return true;
         }
 
@@ -194,7 +203,7 @@ namespace sensors {
         auto sensor = sensors_.find(id);
 
         if(sensor == sensors_.end())
-            return true;
+            return std::nullopt;
 
         return sensor->second.is_valid ? std::optional<float>(sensor->second.temperature) : std::nullopt;
     }
@@ -238,10 +247,16 @@ namespace sensors {
         auto sensor = sensors_.find(id);
 
         if(sensor == sensors_.end())
+        {
+            logger_.error() << "Can't set resolution - sensor id " << config::toString(id) << " not found.";
             return true;
+        }
 
         if (ds_resolution_step.find(resolution) == ds_resolution_step.end())
-            return true;// resolution not valid
+        {
+            logger_.error() << "Can't set resolution - resolution " << std::to_string(resolution) << " is not valid.";
+            return true;
+        }
 
         onewire_.resetBus();// Reset the bus
         onewire_.selectDevice(sensor->second.address);

@@ -104,7 +104,7 @@ int main(void)
 
     io::GpioPin oneWirePin(DS18B20_GPIO_Port, DS18B20_Pin);
     communication::OneWire oneWire{oneWirePin, htim1};
-    sensors::Ds18b20Collection ds_collection(oneWire, true);
+    sensors::Ds18b20Collection ds_collection(oneWire, false);
 
     if(ds_collection.addSensors(config::ds_sensors, 12))
         logger.error() << "Error occurred when adding one or many DS18B20 sensors. Continuing..";
