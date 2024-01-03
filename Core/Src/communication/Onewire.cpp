@@ -141,12 +141,14 @@ namespace communication {
      */
     uint8_t OneWire::readByte()
     {
-        uint8_t byte = 0;
+    	uint8_t i = 8, byte = 0;
 
-        for(int8_t i = 7; i >= 0; --i, byte >>= 1)
-            byte |= (static_cast<uint8_t>(readBit()) << 7);// LSB first
+		do{
+			byte >>= 1;
+			byte |= (static_cast<uint8_t>(readBit()) << 7); // LSB first
+		} while(--i);
 
-        return byte;
+		return byte;
     }
 
     void OneWire::resetSearch()

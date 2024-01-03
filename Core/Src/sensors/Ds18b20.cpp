@@ -131,8 +131,16 @@ namespace sensors {
         onewire_.selectDevice(sensor->second.address);
         onewire_.writeByte(OneWire::commands[OneWireCommand::R_SCRATCHPAD]);// Skip ROM command
 
-        for (auto &el: data)// read scratchpad
-            el = onewire_.readByte();
+        {
+			auto stream = logger_.debug();
+			stream << "Read " << config::toString(id) << " : ";
+			for (auto &el: data)// read scratchpad
+			{
+				el = onewire_.readByte();
+				stream << std::hex << static_cast<int>(el) << " ";
+			}
+			stream << "\n";
+        }
 
         if (use_crc_) {
             crc = OneWire::calculateCrc8(data);// CRC calculation
@@ -148,6 +156,9 @@ namespace sensors {
 
         measurement = data[0] | (data[1] << 8);  // temperature is 16-bit length
         resolution = ((data[4] & 0x60) >> 5) + 9;// Sensor's resolution from scratchpad's byte 4
+        uint8_t test = getResolution(id);
+        bool st = setResolution(id, 12);
+        uint8_t test2 = getResolution(id);
         auto temperature = convertMeasurementToTemperatureMaybe(measurement, resolution);
 
         if (temperature.has_value()) {

@@ -61,7 +61,7 @@ private:
     void setAlarmAction(const config::Key& key);
 
     DisplayView current_view_;
-    sensors::Ds18b20Collection ds_collection_;
+    sensors::Ds18b20Collection& ds_collection_;
     io::Logger logger_;
 };
 }

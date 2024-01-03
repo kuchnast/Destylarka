@@ -59,10 +59,10 @@ private:
     static constexpr uint8_t DS18B20_CMD_CONVERTTEMP = 0x44;
 
     const std::map<uint8_t, float> ds_resolution_step{
-        {9, 0.0625},
-        {10, 0.125},
-        {11, 0.25},
-        {12, 0.5}};
+        {9, 0.5},
+        {10, 0.25},
+        {11, 0.125},
+        {12, 0.0625}};
 
     std::map<Ds18b20NameId, Ds18b20> sensors_;
     OneWire & onewire_;
