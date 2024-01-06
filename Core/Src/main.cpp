@@ -21,9 +21,11 @@
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
+
+#include <config/RelaysAcLow.hpp>
+#include <config/RelaysAcHigh.hpp>
 #include <io/Keypad.hpp>
 #include <display/Display.hpp>
-#include <main.hpp>
 #include <sensors/Ds18b20.hpp>
 #include <io/FunctionTimer.hpp>
 #include <io/Valve.hpp>
@@ -61,6 +63,30 @@ io::Logger logger("Main");
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
+void UpdateTemperatures(sensors::Ds18b20Collection& ds_collection)
+{
+    ds_collection.startRangingAll();
+
+    uint32_t start_time = HAL_GetTick();
+    bool is_all_done;
+    while(HAL_GetTick() - start_time < config::ds_ranging_timeout_ms)
+    {
+        is_all_done = ds_collection.allDone();
+        if(is_all_done)
+        {
+            break;
+        }
+        HAL_Delay(config::ds_ranging_delay_ms);
+    }
+
+    if(!is_all_done)
+        logger.warning() << "Ranging timed out - not all sensors are ready.";
+
+    if(ds_collection.readAll())
+    {
+        logger.error() << "Error occurred when reading one or many DS18B20 sensor temperatures. Continuing..";
+    }
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -113,9 +139,44 @@ int main(void)
     display.init(&hi2c1);
     display.viewAction(config::Key::NONE);
 
-//    io::FunctionTimer::addFunction([](){io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).toggle();}, 5000, "Fun1", true);
-//    io::FunctionTimer::addFunction([](){ printf("Fun 2\n");}, 10000, "Fun2");
-//    io::FunctionTimer::addFunction([](){ printf("Fun 3\n");}, 15000, "Fun3");
+    io::FunctionTimer::addFunction([]()
+        {
+            config::ac_low_relays.Find(config::RelayACLowId::ZAWOR_LM_SAM_ZAMKNIECIE).toggle();
+            config::ac_low_relays.Find(config::RelayACLowId::ZAWOR_LM_PLUS_PRECYZYJNY_ZAMKNIECIE).toggle();
+            config::ac_low_relays.Find(config::RelayACLowId::ZAWOR_VM_ODBIORU_ZAMKNIECIE).toggle();
+        }, {1, 50000}, "ToggleCloseOfAllValves");
+
+    io::FunctionTimer::addFunction([&ds_collection]()
+    {
+        constexpr float limitTemp = 40.0;
+        constexpr float hysteresis = 2.0;
+
+        auto tempMaybe = ds_collection.getTemperatureMaybe(config::Ds18b20NameId::KOLUMNA_DOL);
+        auto radiator = config::ac_high_relays.Find(config::RelayACHighId::POMPA_WODY);
+        if(tempMaybe)
+        {
+            if(radiator.read() == io::PinState::RESET)
+            {
+                if(tempMaybe.value() > limitTemp)
+                {
+                    io::Logger("RadiatorControl").error() << "Enable radiator";
+                    radiator.set();
+                }
+            }
+            else
+            {
+                if(tempMaybe.value() < limitTemp - hysteresis)
+                {
+                    io::Logger("RadiatorControl").error() << "Disable radiator";
+                    radiator.reset();
+                }
+            }
+        }
+        else
+        {
+            io::Logger("RadiatorControl").error() << "Can't get temperature of Kolumna Dol";
+        }
+    }, {10000}, "RadiatorControl", true);
 
     /* USER CODE END 2 */
 
@@ -127,6 +188,7 @@ int main(void)
     HAL_StatusTypeDef status;
     bool command_from_stdi;
     config::Key key;
+
 
     while (true)
     {
@@ -183,32 +245,12 @@ int main(void)
                 break;
             case display::DisplayView::TEMP_SENSORS:
             {
-                ds_collection.startRangingAll();
-
-                uint32_t start_time = HAL_GetTick();
-                bool is_all_done;
-                while(HAL_GetTick() - start_time < config::ds_ranging_timeout_ms)
-                {
-                    is_all_done = ds_collection.allDone();
-                    if(is_all_done)
-                    {
-                        break;
-                    }
-                    HAL_Delay(config::ds_ranging_delay_ms);
-                }
-
-                if(!is_all_done)
-                    logger.warning() << "Ranging timed out - not all sensors are ready.";
-
-                if(ds_collection.readAll())
-                {
-                    logger.error() << "Error occurred when reading one or many DS18B20 sensor temperatures. Continuing..";
-                }
+                UpdateTemperatures(ds_collection);
 
                 if(!command_from_stdi or key == config::Key::NONE)
-			   {
-				   key = keypad.waitForKey(1000);
-			   }
+                {
+                    key = keypad.waitForKey(1000);
+                }
 
                 display.viewAction(key);
                 break;

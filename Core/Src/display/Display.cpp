@@ -4,6 +4,7 @@
 #include <display/Display.hpp>
 #include <display/LcdHd44780.hpp>
 #include <sensors/Ds18b20.hpp>
+#include <io/FunctionTimer.hpp>
 
 #include <algorithm>
 #include <iomanip>
@@ -114,6 +115,16 @@ namespace display
         {
             auto tmp = str1.substr(0, LINE_SIZE - 2 - str2.size());
             return prefix + tmp + std::string(LINE_SIZE - 1 - tmp.size() - str2.size(), ' ')  + str2;
+        }
+    }
+
+    void Display::printMenu(const std::vector<std::string> &msgs)
+    {
+        for (uint8_t i = 0; i < (msgs.size() > LINES_NUM ? LINES_NUM : msgs.size()); ++i)
+        {
+            lcdSetCursorPosition(0, i);
+            logger_.info() << msgs[i];
+            lcdPrintStr(msgs[i]);
         }
     }
 
@@ -429,54 +440,156 @@ namespace display
 
     void Display::setAlarmAction(const config::Key& key)
     {
-//        static DisplayViewPos pos(0, 0);
-//
-//        static const std::vector<std::pair<config::RelayDCACId, std::string>> msgs =
-//                {{config::RelayDCACId::PUSTY_1, "Pusty 1"},
-//                 {config::RelayDCACId::PUSTY_2, "Pusty 2"},
-//                 {config::RelayDCACId::PUSTY_3, "Pusty 3"},
-//                 {config::RelayDCACId::PUSTY_4, "Pusty 4"}};
-//
-//        constexpr std::string_view msgOn("ON");
-//        constexpr std::string_view msgOff("OFF");
-//
-//        std::vector<std::string> states(msgs.size());
-//
-//        switch (key)
-//        {
-//            case config::Key::ARROW_UP:
-//                if(pos.y == 0)
-//                    pos.y = msgs.size() - 1;
-//                else
-//                    --pos.y;
-//                break;
-//            case config::Key::ARROW_DOWN:
-//                if(pos.y == (msgs.size() - 1))
-//                    pos.y = 0;
-//                else
-//                    ++pos.y;
-//                break;
-//            case config::Key::ESC:
-//                setCurrentView(DisplayView::MAIN_MENU);
-//                viewAction(config::Key::NONE);
-//                return;
-//            case config::Key::ENTER:
-//                config::dc_ac_relays.Find(msgs[pos.y].first).toggle();
-//                break;
-//            default:
-//                break;
-//        }
-//
-//        for(auto & el : msgs)
-//            states.emplace_back(config::dc_ac_relays.Find(el.first).read() == io::PinState::SET ? msgOn : msgOff);
-//
-//        std::vector<std::string> names;
-//        names.reserve(msgs.size());
-//        std::transform(msgs.cbegin(), msgs.cend(), std::back_inserter(names),
-//                       [](const std::pair<config::RelayDCACId, std::string>& el) { return el.second; });
-//
-//        clearScreen();
-//        printMenu(names, pos.y, states);
+        static DisplayViewPos pos(0, 0);
+
+        constexpr char line1[] = "Ustaw temp. alarmu:";
+        constexpr char msgSet[] = "Ustaw";
+        constexpr char msgReset[] = "Reset";
+        constexpr char msgRunning[] = "Zalaczone...";
+
+        static std::string tempSet = "00.00";
+        static std::optional<std::uint32_t> task_id;
+
+        std::vector<std::string> lines(4);
+
+        switch (key)
+        {
+            case config::Key::N0:
+            case config::Key::N1:
+            case config::Key::N2:
+            case config::Key::N3:
+            case config::Key::N4:
+            case config::Key::N5:
+            case config::Key::N6:
+            case config::Key::N7:
+            case config::Key::N8:
+            case config::Key::N9:
+                if(pos.x < 2)
+                    tempSet[pos.x] = config::toString(key)[0];
+                else
+                    tempSet[pos.x + 1] = config::toString(key)[0];
+                break;
+            case config::Key::ARROW_UP:
+                if(pos.y == 0)
+                {
+                    pos.y = 1;
+                    if(pos.x > 1)
+                    {
+                        pos.x = 1;
+                    }
+                }
+                else
+                    --pos.y;
+                break;
+            case config::Key::ARROW_DOWN:
+                if(pos.y == 1)
+                    pos.y = 0;
+                else
+                {
+                    ++pos.y;
+                    if(pos.x > 1)
+                    {
+                        pos.x = 1;
+                    }
+                }
+                break;
+            case config::Key::ARROW_RIGHT:
+                if(pos.y == 0)
+                {
+                    if(pos.x == 3)
+                        pos.x = 0;
+                    else
+                        ++pos.x;
+                }
+                else
+                {
+                    if(pos.x == 1)
+                        pos.x = 0;
+                    else
+                        ++pos.x;
+                }
+                break;
+            case config::Key::ARROW_LEFT:
+                if(pos.y == 0)
+                {
+                    if(pos.x == 0)
+                        pos.x = 3;
+                    else
+                        --pos.x;
+                }
+                else
+                {
+                    if(pos.x == 0)
+                        pos.x = 1;
+                    else
+                        --pos.x;
+                }
+                break;
+            case config::Key::ESC:
+                setCurrentView(DisplayView::MAIN_MENU);
+                viewAction(config::Key::NONE);
+                return;
+            case config::Key::ENTER:
+                if(pos.y == 1)
+                {
+                    switch (pos.x)
+                    {
+                        case 0:
+                            if (task_id.has_value())
+                                break;
+
+                            task_id = io::FunctionTimer::addFunction([this]() {
+                                auto tempMaybe = this->ds_collection_.getTemperatureMaybe(
+                                        config::Ds18b20NameId::KOLUMNA_GORA);
+                                if (tempMaybe) {
+                                    if (tempMaybe.value() > std::atof(tempSet.c_str())) {
+                                        io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).reset();
+                                    } else {
+                                        io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).set();
+                                    }
+                                } else {
+                                    io::Logger("setAlarmAction").error() << "Can't get temperature.";
+                                }
+                            }, {5000}, "setAlarmAction", true);
+                            break;
+                        case 1:
+                            if (!task_id.has_value())
+                                break;
+
+                            io::FunctionTimer::removeFunction(task_id.value());
+                            task_id.reset();
+                            break;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        lines[0] = line1;
+        lines[1] = tempSet;
+
+        if(pos.y == 0)
+        {
+            if(pos.x < 2)
+                lines[1][pos.x] = '_';
+            else
+                lines[1][pos.x + 1] = '_';
+        }
+
+        if(pos.y == 1)
+        {
+            if(pos.x == 0)
+                lines[2] = std::string(">") + msgSet + std::string("  ") + msgReset;
+            else
+                lines[2] = std::string(" ") + msgSet + std::string(" >") + msgReset;
+
+        }
+        if(task_id.has_value())
+            lines[3] = msgRunning;
+
+        clearScreen();
+        printMenu(lines);
     }
 
 }

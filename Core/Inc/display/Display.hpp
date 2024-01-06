@@ -49,6 +49,7 @@ private:
     static void imitationPrinting(const std::string& str);
     static std::string fitStringToLine(const std::string & str1, char prefix = ' ');
     static std::string fitStringsToLine(const std::string & str1, const std::string & str2, char prefix = ' ');
+    void printMenu(const std::vector<std::string> &msgs);
     void printMenu(const std::vector<std::string> &msgs, uint8_t possition, const std::vector<std::string> & add_msg);
     void printMenu(const std::vector<std::string> &msgs, uint8_t possition);
 

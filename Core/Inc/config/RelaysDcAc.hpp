@@ -22,7 +22,7 @@ static io::RelaysCollection<RelayDCACId> dc_ac_relays({
     {RelayDCACId::PUSTY_4, io::GpioPin(O_DC_4_GPIO_Port, O_DC_4_Pin)},
 });
 
-std::string toString(RelayDCACId id)
+static std::string toString(RelayDCACId id)
 {
     switch (id)
     {

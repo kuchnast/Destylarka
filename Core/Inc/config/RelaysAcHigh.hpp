@@ -19,7 +19,7 @@ static io::RelaysCollection<RelayACHighId> ac_high_relays({
     {RelayACHighId::GRZALKA_1, io::GpioPin(O_H_3_GPIO_Port, O_H_3_Pin)}
 });
 
-std::string toString(RelayACHighId id)
+static std::string toString(RelayACHighId id)
 {
     switch (id)
     {

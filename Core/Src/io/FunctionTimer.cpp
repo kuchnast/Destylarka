@@ -15,23 +15,25 @@ namespace io {
     std::map<uint32_t, FunctionInfo> FunctionTimer::functions_{};
     Logger logger("FunctionTimer");
 
-    uint32_t FunctionTimer::addFunction(std::function<void()> func, uint32_t time_ms, const std::string& name,
-                                        bool is_repeatable)
+    uint32_t FunctionTimer::addFunction(std::function<void()> func, const std::vector<uint32_t>& times_ms,
+                                        const std::string& name, bool is_repeatable)
     {
-
         uint32_t current_time = HAL_GetTick();
-        uint32_t target_time = current_time + time_ms;
-        logger.info() << "Added function id: " << std::to_string(last_function_id_);
-        functions_.try_emplace(last_function_id_, name, func, target_time, time_ms, is_repeatable);
-
-        // Sprawdź, czy nowo dodana funkcja ma najwcześniejszy target_time
-        if (target_time < next_target_time_ || next_target_time_ == 0)
+        for(const auto& time_ms: times_ms)
         {
-            next_target_time_ = target_time;
-            logger.info() << "Next target time updated to " << std::to_string(next_target_time_);
+            uint32_t target_time = current_time + time_ms;
+            logger.info() << "Added function id: " << std::to_string(last_function_id_);
+            functions_.try_emplace(last_function_id_++, name, func, target_time, time_ms, is_repeatable);
+
+            // Sprawdź, czy nowo dodana funkcja ma najwcześniejszy target_time
+            if (target_time < next_target_time_ || next_target_time_ == 0)
+            {
+                next_target_time_ = target_time;
+                logger.info() << "Next target time updated to " << std::to_string(next_target_time_);
+            }
         }
 
-        return last_function_id_++;
+        return last_function_id_ - 1;
     }
 
     bool FunctionTimer::removeFunction(uint32_t function_id)

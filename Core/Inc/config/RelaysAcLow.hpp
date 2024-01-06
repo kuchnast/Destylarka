@@ -31,7 +31,7 @@ static io::RelaysCollection<RelayACLowId> ac_low_relays({
 });
 
 
-std::string toString(RelayACLowId id)
+static std::string toString(RelayACLowId id)
 {
     switch (id)
     {

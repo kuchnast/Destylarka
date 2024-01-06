@@ -25,7 +25,7 @@ struct FunctionInfo
 class FunctionTimer
 {
 public:
-    static uint32_t addFunction(std::function<void()> func, uint32_t time_ms, const std::string& name,
+    static uint32_t addFunction(std::function<void()> func, const std::vector<uint32_t>& times_ms, const std::string& name,
                                 bool is_repeatable = false);
 
     static bool removeFunction(uint32_t function_id);
