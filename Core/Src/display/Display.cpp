@@ -557,6 +557,7 @@ namespace display
                                 break;
 
                             io::FunctionTimer::removeFunction(task_id.value());
+                            io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).set();
                             task_id.reset();
                             break;
                     }
@@ -571,20 +572,21 @@ namespace display
 
         if(pos.y == 0)
         {
+            lines[2] = std::string(" ") + msgSet + std::string("  ") + msgReset;
+
             if(pos.x < 2)
                 lines[1][pos.x] = '_';
             else
                 lines[1][pos.x + 1] = '_';
         }
-
-        if(pos.y == 1)
+        else if(pos.y == 1)
         {
             if(pos.x == 0)
                 lines[2] = std::string(">") + msgSet + std::string("  ") + msgReset;
             else
                 lines[2] = std::string(" ") + msgSet + std::string(" >") + msgReset;
-
         }
+
         if(task_id.has_value())
             lines[3] = msgRunning;
 

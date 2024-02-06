@@ -127,6 +127,7 @@ int main(void)
     MX_TIM1_Init();
     /* USER CODE BEGIN 2 */
     io::Keypad keypad{};
+    bool tempUpdated = false;
 
     io::GpioPin oneWirePin(DS18B20_GPIO_Port, DS18B20_Pin);
     communication::OneWire oneWire{oneWirePin, htim1};
@@ -138,6 +139,12 @@ int main(void)
     display::Display display{ds_collection};
     display.init(&hi2c1);
     display.viewAction(config::Key::NONE);
+
+    io::FunctionTimer::addFunction([&ds_collection, &tempUpdated]()
+        {
+    		UpdateTemperatures(ds_collection);
+    		tempUpdated = true;
+        }, {3000}, "UpdateTemperatures", true);
 
     io::FunctionTimer::addFunction([]()
         {
@@ -234,25 +241,18 @@ int main(void)
             case display::DisplayView::AC_LOW_RELAYS:
             case display::DisplayView::AC_HIGH_RELAYS:
             case display::DisplayView::DC_AC_RELAYS:
+            case display::DisplayView::SET_ALARM:
+            case display::DisplayView::TEMP_SENSORS:
+            {
                 if(!command_from_stdi or key == config::Key::NONE)
                 {
                     key = keypad.waitForKey(config::keypad_debounce_time_ms);
                 }
 
-                if (key != config::Key::NONE) {
+                if (key != config::Key::NONE || tempUpdated) {
                     display.viewAction(key);
+                    tempUpdated = false;
                 }
-                break;
-            case display::DisplayView::TEMP_SENSORS:
-            {
-                UpdateTemperatures(ds_collection);
-
-                if(!command_from_stdi or key == config::Key::NONE)
-                {
-                    key = keypad.waitForKey(1000);
-                }
-
-                display.viewAction(key);
                 break;
             }
             default:
