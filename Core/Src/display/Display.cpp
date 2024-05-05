@@ -1,3 +1,4 @@
+#include <config/AlarmWithNotification.hpp>
 #include <config/RelaysAcHigh.hpp>
 #include <config/RelaysAcLow.hpp>
 #include <config/RelaysDcAc.hpp>
@@ -544,10 +545,9 @@ namespace display
                                 auto tempMaybe = this->ds_collection_.getTemperatureMaybe(
                                         config::Ds18b20NameId::KOLUMNA_DOL);
                                 if (tempMaybe) {
-                                    if (tempMaybe.value() > std::atof(tempSet.c_str())) {
-                                        io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).reset();
-                                    } else {
-                                        io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).set();
+                                    if (tempMaybe.value() > std::atof(tempSet.c_str()))
+                                    {
+                                        config::alarm_with_notification.enable("TFSetAlarm", "Temp above limit");
                                     }
                                 } else {
                                     io::Logger("setAlarmAction").error() << "Can't get temperature.";
@@ -559,7 +559,6 @@ namespace display
                                 break;
 
                             io::FunctionTimer::removeFunction(task_id.value());
-                            io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).set();
                             task_id.reset();
                             break;
                     }
@@ -601,6 +600,8 @@ namespace display
         constexpr char line1[] = "Ostatni alarm:";
         constexpr char line4[] = "Reset";
 
+        std::vector<std::string> lines(4);
+
         switch (key)
         {
             case config::Key::ESC:
@@ -608,35 +609,21 @@ namespace display
                 viewAction(config::Key::NONE);
                 return;
             case config::Key::ENTER:
-            {
-            }
+                config::alarm_with_notification.disable();
                 break;
             default:
                 break;
         }
 
         lines[0] = line1;
-        lines[1] = tempSet;
+        lines[3] = line4;
 
-        if(pos.y == 0)
+        if( config::alarm_with_notification.is_enabled())
         {
-            lines[2] = std::string(" ") + msgSet + std::string("  ") + msgReset;
-
-            if(pos.x < 2)
-                lines[1][pos.x] = '_';
-            else
-                lines[1][pos.x + 1] = '_';
+            // #TODO: Add printing of longer messages
+            lines[1] = config::alarm_with_notification.getSource().substr(0, LINE_SIZE);
+            lines[2] = config::alarm_with_notification.getReason().substr(0, LINE_SIZE);
         }
-        else if(pos.y == 1)
-        {
-            if(pos.x == 0)
-                lines[2] = std::string(">") + msgSet + std::string("  ") + msgReset;
-            else
-                lines[2] = std::string(" ") + msgSet + std::string(" >") + msgReset;
-        }
-
-        if(task_id.has_value())
-            lines[3] = msgRunning;
 
         clearScreen();
         printMenu(lines);

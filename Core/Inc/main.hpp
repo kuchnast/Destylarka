@@ -123,6 +123,8 @@ void Error_Handler(void);
 #define O_DC_3_GPIO_Port GPIOB
 #define K_ROW_4_Pin GPIO_PIN_7
 #define K_ROW_4_GPIO_Port GPIOB
+#define NOTIFICATION_LED_Pin GPIO_PIN_10
+#define NOTIFICATION_LED_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

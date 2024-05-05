@@ -22,15 +22,15 @@
 #include "tim.h"
 #include "usart.h"
 
-#include <config/RelaysAcLow.hpp>
+#include <config/AlarmWithNotification.hpp>
 #include <config/RelaysAcHigh.hpp>
-#include <config/Buzzer.hpp>
-#include <io/Keypad.hpp>
+#include <config/RelaysAcLow.hpp>
 #include <display/Display.hpp>
-#include <sensors/Ds18b20.hpp>
 #include <io/FunctionTimer.hpp>
-#include <io/Valve.hpp>
+#include <io/Keypad.hpp>
 #include <io/Logger.hpp>
+#include <io/Valve.hpp>
+#include <sensors/Ds18b20.hpp>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -134,8 +134,6 @@ int main(void)
     communication::OneWire oneWire{oneWirePin, htim1};
     sensors::Ds18b20Collection ds_collection(oneWire, true);
 
-    auto buzzer = io::Buzzer(io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin));
-
     if(ds_collection.addSensors(config::ds_sensors, 12))
         logger.error() << "Error occurred when adding one or many DS18B20 sensors. Continuing..";
 
@@ -207,7 +205,7 @@ int main(void)
 
                         heater_1.reset();
                         heater_2.reset();
-                        io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).reset(); // enable buzzer
+                        config::alarm_with_notification.enable("TFCoolingFailed", "Disable heaters");
                     }
                 }
             }
@@ -338,7 +336,10 @@ int main(void)
                 {
                     if (key == config::Key::F1)
                     {
-                        io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).set(); // disable buzzer
+                        if(config::alarm_with_notification.is_muted())
+                            config::alarm_with_notification.unmute();
+                        else
+                            config::alarm_with_notification.mute();
                         key = config::Key::NONE;
                     }
 
