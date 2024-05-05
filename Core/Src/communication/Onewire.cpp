@@ -2,6 +2,8 @@
 #include "sensors/Ds18b20.hpp"
 #include "tim.h"
 
+#include <bits/stdc++.h>
+
 namespace communication {
 
     std::map<OneWireCommand, uint8_t> OneWire::commands{
@@ -304,22 +306,35 @@ namespace communication {
      * @param len
      * @return
      */
-    uint8_t OneWire::calculateCrc8(const uint8_t *addr, uint8_t len) {
-        uint8_t crc = 0, inbyte, i, mix;
+    uint8_t OneWire::calculateCrc8(const uint8_t *buffer, uint8_t length) {
+    	uint8_t crc8 = 0, valid = 0;
+		uint8_t inByte, byteCount, bitCount, mix;
+		constexpr uint8_t CRC8_POLYNOMIAL = 0x8C;
 
-        while (len--) {
-            inbyte = *addr++;
-            for (i = 8; i; i--) {
-                mix = (crc ^ inbyte) & 0x01;
-                crc >>= 1;
-                if (mix) {
-                    crc ^= 0x8C;
-                }
-                inbyte >>= 1;
-            }
-        }
-
-        return crc;
+		for (byteCount = 0; byteCount < length; byteCount++)
+		{
+			inByte = buffer[byteCount];
+			if (inByte)
+			{
+				valid = 1;
+			}
+			for (bitCount = 0; bitCount < CHAR_BIT; bitCount++)
+			{
+				mix = (crc8 ^ inByte) & 0x01;
+				crc8 >>= 1;
+				if (mix)
+				{
+					crc8 ^= CRC8_POLYNOMIAL;
+				}
+				inByte >>= 1;
+			}
+		}
+		if (!valid)
+		{
+			/* If all bytes are 0, return a different CRC so that the test will fail */
+			return 0xFF;
+		}
+		return crc8;
     }
 
     uint8_t OneWire::calculateCrc8(const std::vector<uint8_t>& data)

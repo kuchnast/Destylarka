@@ -1,4 +1,5 @@
 #include <io/LogStream.hpp>
+#include "usart.h"
 
 namespace io
 {
@@ -7,8 +8,10 @@ namespace io
 
     LogStream::~LogStream()
     {
-        std::string levelStr = LevelToString(level_);
-        printf("%s", (levelStr + " [" + prefix_ + "]: " + ss_.str() + "\n").c_str());
+    	std::stringstream ss;
+    	ss << LevelToString(level_) << " [" << prefix_ << "]: " << ss_.str() << "\n";
+    	std::string buf = ss.str();
+    	HAL_UART_Transmit(&huart2, (uint8_t *)buf.data(), buf.size(), 100);
     }
 
 

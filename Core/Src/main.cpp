@@ -24,6 +24,7 @@
 
 #include <config/RelaysAcLow.hpp>
 #include <config/RelaysAcHigh.hpp>
+#include <config/Buzzer.hpp>
 #include <io/Keypad.hpp>
 #include <display/Display.hpp>
 #include <sensors/Ds18b20.hpp>
@@ -131,7 +132,9 @@ int main(void)
 
     io::GpioPin oneWirePin(DS18B20_GPIO_Port, DS18B20_Pin);
     communication::OneWire oneWire{oneWirePin, htim1};
-    sensors::Ds18b20Collection ds_collection(oneWire, false);
+    sensors::Ds18b20Collection ds_collection(oneWire, true);
+
+    auto buzzer = io::Buzzer(io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin));
 
     if(ds_collection.addSensors(config::ds_sensors, 12))
         logger.error() << "Error occurred when adding one or many DS18B20 sensors. Continuing..";
@@ -184,6 +187,88 @@ int main(void)
             io::Logger("RadiatorControl").error() << "Can't get temperature of Kolumna Dol";
         }
     }, {10000}, "RadiatorControl", true);
+
+    io::FunctionTimer::addFunction([&ds_collection]()
+        {
+            constexpr float limitTemp = 42.0;
+
+            auto tempMaybe = ds_collection.getTemperatureMaybe(config::Ds18b20NameId::CHLODNICA_POWROT);
+
+            if(tempMaybe)
+            {
+                if(tempMaybe.value() > limitTemp)
+                {
+                    auto heater_1 = config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_1);
+                    auto heater_2 = config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_2);
+
+                    if(heater_1.read() != io::PinState::RESET || heater_2.read() != io::PinState::RESET)
+                    {
+                        io::Logger("DisableHeatersWhenCoolingFailed").error() << "Disable heaters";
+
+                        heater_1.reset();
+                        heater_2.reset();
+                        io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).reset(); // enable buzzer
+                    }
+                }
+            }
+            else
+            {
+                io::Logger("DisableHeatersWhenCoolingFailed").error() << "Can't get temperature of Chlodnica Powrot";
+            }
+        }, {10000}, "DisableHeatersWhenCoolingFailed", true);
+
+    io::FunctionTimer::addFunction([&ds_collection]()
+        {
+            constexpr float limitTemp_Kapilara = 99.7;
+            auto tempMaybe_Kapilara = ds_collection.getTemperatureMaybe(config::Ds18b20NameId::ZBIORNIK_W_KAPILARZE);
+
+            if(tempMaybe_Kapilara)
+            {
+                if(tempMaybe_Kapilara.value() > limitTemp_Kapilara)
+                {
+                    auto heater_1 = config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_1);
+                    auto heater_2 = config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_2);
+
+                    if(heater_1.read() != io::PinState::RESET || heater_2.read() != io::PinState::RESET)
+                    {
+                        io::Logger("DisableHeatersWhenDistillationFinished").error() << "Disable heaters";
+
+                        heater_1.reset();
+                        heater_2.reset();
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                io::Logger("DisableHeatersWhenDistillationFinished").error() << "Can't get temperature of Zbiornik w kapilarze";
+            }
+
+            auto tempMaybe_Pianka = ds_collection.getTemperatureMaybe(config::Ds18b20NameId::ZBIORNIK_POD_PIANKA);
+            constexpr float limitTemp_Pianka = 99.5;
+
+            if(tempMaybe_Pianka)
+            {
+                if(tempMaybe_Pianka.value() > limitTemp_Pianka)
+                {
+                    auto heater_1 = config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_1);
+                    auto heater_2 = config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_2);
+
+                    if(heater_1.read() != io::PinState::RESET || heater_2.read() != io::PinState::RESET)
+                    {
+                        io::Logger("DisableHeatersWhenDistillationFinished").error() << "Disable heaters";
+
+                        heater_1.reset();
+                        heater_2.reset();
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                io::Logger("DisableHeatersWhenDistillationFinished").error() << "Can't get temperature of Zbiornik pod pianka";
+            }
+        }, {10000}, "DisableHeatersWhenDistillationFinished", true);
 
     /* USER CODE END 2 */
 
@@ -249,7 +334,14 @@ int main(void)
                     key = keypad.waitForKey(config::keypad_debounce_time_ms);
                 }
 
-                if (key != config::Key::NONE || tempUpdated) {
+                if (key != config::Key::NONE || tempUpdated)
+                {
+                    if (key == config::Key::F1)
+                    {
+                        io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).set(); // disable buzzer
+                        key = config::Key::NONE;
+                    }
+
                     display.viewAction(key);
                     tempUpdated = false;
                 }

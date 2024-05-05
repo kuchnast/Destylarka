@@ -7,6 +7,7 @@
 #include <tim.h>
 
 #include <vector>
+#include <array>
 #include <map>
 
 namespace communication {

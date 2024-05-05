@@ -11,6 +11,15 @@ void GpioPin::init(GPIO_InitTypeDef &gpio_init)
     HAL_GPIO_Init(gpio_, &gpio_init);
 }
 
+void GpioPin::init(uint32_t mode, uint32_t pull, uint32_t speed)
+{
+    GPIO_InitTypeDef gpio_init;
+    gpio_init.Mode = mode;
+    gpio_init.Pull = pull;
+    gpio_init.Speed = speed;
+    init(gpio_init);
+}
+
 void GpioPin::write(PinState state)
 {
     HAL_GPIO_WritePin(gpio_, pin_, state == PinState::SET ? GPIO_PIN_SET : GPIO_PIN_RESET);

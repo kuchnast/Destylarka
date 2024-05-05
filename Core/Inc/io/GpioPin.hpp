@@ -17,6 +17,8 @@ namespace io
 
         void init(GPIO_InitTypeDef &gpio_init);
 
+        void init(uint32_t mode, uint32_t pull, uint32_t speed);
+
         void write(PinState state);
 
         void set();

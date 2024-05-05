@@ -222,8 +222,8 @@ namespace display
         static const std::vector<std::pair<config::Ds18b20NameId, std::string>> msgs =
                 {{config::Ds18b20NameId::ZBIORNIK_POD_PIANKA, "Zb.pianka"},
                  {config::Ds18b20NameId::ZBIORNIK_W_KAPILARZE, "Zb.kapil."},
-                 {config::Ds18b20NameId::KOLUMNA_GORA, "Kol.dol"},
-                 {config::Ds18b20NameId::KOLUMNA_DOL, "Kol.gora"},
+                 {config::Ds18b20NameId::KOLUMNA_DOL, "Kol.dol"},
+                 {config::Ds18b20NameId::KOLUMNA_GORA, "Kol.gora"},
                  {config::Ds18b20NameId::CHLODNICA_ZASILANIE, "Chlod.zas"},
                  {config::Ds18b20NameId::CHLODNICA_POWROT, "Chlod.pow"}};
 
@@ -235,12 +235,14 @@ namespace display
         {
             case config::Key::ARROW_UP:
                 if(pos.y == 0)
-                    pos.y = msgs.size() - 1;
+                    pos.y = 4 - 1;
+                	//    pos.y = msgs.size() - 1;
                 else
                     --pos.y;
                 break;
             case config::Key::ARROW_DOWN:
-                if(pos.y == (msgs.size() - 1))
+                //if(pos.y == (msgs.size() - 1)) TODO: find why fault when y=4
+				if(pos.y == (4 - 1))
                     pos.y = 0;
                 else
                     ++pos.y;
@@ -262,7 +264,7 @@ namespace display
             {
                 std::stringstream stream;
                 stream << std::fixed << std::setprecision(2) << temp_maybe.value();
-                temperature[idx] = stream.str();
+                temperature[idx] = std::string(stream.str());
             }
             else
                 temperature[idx] = msgError;
@@ -540,7 +542,7 @@ namespace display
 
                             task_id = io::FunctionTimer::addFunction([this]() {
                                 auto tempMaybe = this->ds_collection_.getTemperatureMaybe(
-                                        config::Ds18b20NameId::KOLUMNA_GORA);
+                                        config::Ds18b20NameId::KOLUMNA_DOL);
                                 if (tempMaybe) {
                                     if (tempMaybe.value() > std::atof(tempSet.c_str())) {
                                         io::GpioPin(BUZZER_GPIO_Port, BUZZER_Pin).reset();
@@ -594,4 +596,49 @@ namespace display
         printMenu(lines);
     }
 
+    void Display::alarmNotificationAction(const config::Key& key)
+    {
+        constexpr char line1[] = "Ostatni alarm:";
+        constexpr char line4[] = "Reset";
+
+        switch (key)
+        {
+            case config::Key::ESC:
+                setCurrentView(DisplayView::MAIN_MENU);
+                viewAction(config::Key::NONE);
+                return;
+            case config::Key::ENTER:
+            {
+            }
+                break;
+            default:
+                break;
+        }
+
+        lines[0] = line1;
+        lines[1] = tempSet;
+
+        if(pos.y == 0)
+        {
+            lines[2] = std::string(" ") + msgSet + std::string("  ") + msgReset;
+
+            if(pos.x < 2)
+                lines[1][pos.x] = '_';
+            else
+                lines[1][pos.x + 1] = '_';
+        }
+        else if(pos.y == 1)
+        {
+            if(pos.x == 0)
+                lines[2] = std::string(">") + msgSet + std::string("  ") + msgReset;
+            else
+                lines[2] = std::string(" ") + msgSet + std::string(" >") + msgReset;
+        }
+
+        if(task_id.has_value())
+            lines[3] = msgRunning;
+
+        clearScreen();
+        printMenu(lines);
+    }
 }

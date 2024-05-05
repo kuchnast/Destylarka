@@ -105,7 +105,6 @@ namespace sensors {
 
         uint16_t measurement;
         uint8_t resolution;
-        uint8_t crc;
         std::vector<uint8_t> data;
         auto sensor = sensors_.find(id);
 
@@ -135,11 +134,20 @@ namespace sensors {
             el = onewire_.readByte();
 
         if (use_crc_) {
-            crc = OneWire::calculateCrc8(data);// CRC calculation
+            uint8_t dev_crc = data.back();
+            data.pop_back();
+            uint8_t crc = OneWire::calculateCrc8(data);// CRC calculation
+            logger_.debug() << "Calculated CRC: " << io::num_to_hex(crc) << " From device: " << io::num_to_hex(dev_crc);
 
-            if (crc != data[8]) {
+            if (crc != dev_crc) {
                 sensor->second.is_valid = false;
                 logger_.error() << "Can't read temperature for sensor id " << config::toString(id) << " - invalid CRC.";
+
+                auto lg = logger_.debug();
+                lg << "Data: ";
+                for(auto &val: data)
+                    lg << io::num_to_hex(val) << ' ';
+
                 return true;
             }
         }

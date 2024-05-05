@@ -20,7 +20,8 @@ enum class DisplayView
     AC_LOW_RELAYS,
     AC_HIGH_RELAYS,
     DC_AC_RELAYS,
-    SET_ALARM
+    SET_ALARM,
+    ALARM_NOTIFICATION
 };
 
 std::string toString(const DisplayView& displayView);
@@ -60,6 +61,7 @@ private:
     void acHighRelaysAction(const config::Key& key);
     void dcAcRelaysAction(const config::Key& key);
     void setAlarmAction(const config::Key& key);
+    void alarmNotificationAction(const config::Key& key);
 
     DisplayView current_view_;
     sensors::Ds18b20Collection& ds_collection_;

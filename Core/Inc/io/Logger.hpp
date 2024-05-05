@@ -7,9 +7,13 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <iomanip>
 
 namespace io
 {
+
+	std::string num_to_hex(uint8_t num);
+
     class Logger
     {
     public:
