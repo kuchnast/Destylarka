@@ -217,55 +217,69 @@ int main(void)
 
     io::FunctionTimer::addFunction([&ds_collection]()
         {
-            constexpr float limitTemp_Kapilara = 99.7;
+            constexpr float limitTemp_Kapilara = 99.88;
+            constexpr float limitTemp_Pianka = 99.88;
             auto tempMaybe_Kapilara = ds_collection.getTemperatureMaybe(config::Ds18b20NameId::ZBIORNIK_W_KAPILARZE);
-
-            if(tempMaybe_Kapilara)
-            {
-                if(tempMaybe_Kapilara.value() > limitTemp_Kapilara)
-                {
-                    auto heater_1 = config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_1);
-                    auto heater_2 = config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_2);
-
-                    if(heater_1.read() != io::PinState::RESET || heater_2.read() != io::PinState::RESET)
-                    {
-                        io::Logger("DisableHeatersWhenDistillationFinished").error() << "Disable heaters";
-
-                        heater_1.reset();
-                        heater_2.reset();
-                        return;
-                    }
-                }
-            }
-            else
-            {
-                io::Logger("DisableHeatersWhenDistillationFinished").error() << "Can't get temperature of Zbiornik w kapilarze";
-            }
-
             auto tempMaybe_Pianka = ds_collection.getTemperatureMaybe(config::Ds18b20NameId::ZBIORNIK_POD_PIANKA);
-            constexpr float limitTemp_Pianka = 99.5;
+            static uint8_t countdown_kapilara = 0, countdown_pianka = 0;
+            constexpr uint8_t countdown_limit = 6; // about 60 seconds countdown
+            static bool task_added_flag = false;
 
-            if(tempMaybe_Pianka)
+            if(!task_added_flag)
             {
-                if(tempMaybe_Pianka.value() > limitTemp_Pianka)
+                if (tempMaybe_Kapilara)
                 {
-                    auto heater_1 = config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_1);
-                    auto heater_2 = config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_2);
-
-                    if(heater_1.read() != io::PinState::RESET || heater_2.read() != io::PinState::RESET)
+                    if (tempMaybe_Kapilara.value() > limitTemp_Kapilara)
                     {
-                        io::Logger("DisableHeatersWhenDistillationFinished").error() << "Disable heaters";
-
-                        heater_1.reset();
-                        heater_2.reset();
-                        return;
+                        if (countdown_kapilara++ > countdown_limit)
+                        {
+                            io::FunctionTimer::addFunction([]()
+                                {
+                                    config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_1).reset();
+                                    config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_2).reset();
+                                }, {900000}, "DisableHeatersWhenDistillationFinishedLatch", false);
+                            task_added_flag = true;
+                            return;
+                        }
+                    }
+                    else if (countdown_kapilara > 0)
+                    {
+                        countdown_kapilara = 0;
                     }
                 }
+                else
+                {
+                    io::Logger("DisableHeatersWhenDistillationFinished").error() << "Can't get temperature of Zbiornik w kapilarze";
+                }
+
+                if (tempMaybe_Pianka)
+                {
+                    if (tempMaybe_Pianka.value() > limitTemp_Pianka)
+                    {
+                        if (countdown_pianka++ > countdown_limit)
+                        {
+                            io::FunctionTimer::addFunction([]()
+                                {
+                                    config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_1).reset();
+                                    config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_2).reset();
+                                }, {900000}, "DisableHeatersWhenDistillationFinishedLatch", false);
+                            task_added_flag = true;
+                            return;
+                        }
+                    }
+                    else if (countdown_pianka > 0)
+                    {
+                        countdown_pianka = 0;
+                    }
+                }
+                else
+                {
+                    io::Logger("DisableHeatersWhenDistillationFinished").error() << "Can't get temperature of Zbiornik pod pianka";
+                }
             }
-            else
-            {
-                io::Logger("DisableHeatersWhenDistillationFinished").error() << "Can't get temperature of Zbiornik pod pianka";
-            }
+
+
+
         }, {10000}, "DisableHeatersWhenDistillationFinished", true);
 
     /* USER CODE END 2 */

@@ -451,7 +451,7 @@ namespace display
         constexpr char msgRunning[] = "Zalaczone...";
 
         static std::string tempSet = "00.00";
-        static std::optional<std::uint32_t> task_id;
+        static std::optional<std::uint32_t> alarm_task_id, emergency_stop_task_id;
 
         std::vector<std::string> lines(4);
 
@@ -538,16 +538,70 @@ namespace display
                     switch (pos.x)
                     {
                         case 0:
-                            if (task_id.has_value())
+                            if (alarm_task_id.has_value())
                                 break;
 
-                            task_id = io::FunctionTimer::addFunction([this]() {
+                            alarm_task_id = io::FunctionTimer::addFunction([this]() {
                                 auto tempMaybe = this->ds_collection_.getTemperatureMaybe(
                                         config::Ds18b20NameId::KOLUMNA_DOL);
                                 if (tempMaybe) {
                                     if (tempMaybe.value() > std::atof(tempSet.c_str()))
                                     {
                                         config::alarm_with_notification.enable("TFSetAlarm", "Temp above limit");
+
+                                        if(!emergency_stop_task_id)
+                                        {
+                                            emergency_stop_task_id = io::FunctionTimer::addFunction(
+                                                []() {
+                                                    io::Logger("emergencyStopWhenAlarm").warning()
+                                                        << "Begin closing valve VM intake and LM precise";
+                                                    auto zawor_vm_zamkniecie =
+                                                        config::ac_low_relays.Find(config::RelayACLowId::ZAWOR_VM_ODBIORU_ZAMKNIECIE);
+                                                    auto zawor_lm_plus_precyzyjny_zamkniecie = config::ac_low_relays.Find(
+                                                        config::RelayACLowId::ZAWOR_LM_PLUS_PRECYZYJNY_ZAMKNIECIE);
+                                                    zawor_vm_zamkniecie.reset();
+                                                    zawor_lm_plus_precyzyjny_zamkniecie.reset();
+
+                                                    emergency_stop_task_id = io::FunctionTimer::addFunction(
+                                                        []() {
+                                                            auto zawor_vm_zamkniecie = config::ac_low_relays.Find(
+                                                                config::RelayACLowId::ZAWOR_VM_ODBIORU_ZAMKNIECIE);
+                                                            auto zawor_lm_plus_precyzyjny_zamkniecie = config::ac_low_relays.Find(
+                                                                config::RelayACLowId::ZAWOR_LM_PLUS_PRECYZYJNY_ZAMKNIECIE);
+                                                            auto zawor_lm_otwarcie =
+                                                                config::ac_low_relays.Find(config::RelayACLowId::ZAWOR_LM_SAM_OTWARCIE);
+                                                            zawor_vm_zamkniecie.set();
+                                                            zawor_lm_plus_precyzyjny_zamkniecie.set();
+                                                            zawor_lm_otwarcie.reset();
+                                                            io::Logger("emergencyStopWhenAlarm").warning()
+                                                                << "End closing valve VM intake and LM precise, begin opening LM valve";
+
+                                                            emergency_stop_task_id = io::FunctionTimer::addFunction(
+                                                                []() {
+                                                                    auto zawor_lm_otwarcie = config::ac_low_relays.Find(
+                                                                        config::RelayACLowId::ZAWOR_LM_SAM_OTWARCIE);
+                                                                    zawor_lm_otwarcie.set();
+                                                                    io::Logger("emergencyStopWhenAlarm").warning()
+                                                                        << "End opening LM valve";
+
+                                                                    io::FunctionTimer::addFunction([]()
+                                                                        {
+                                                                            config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_1).reset();
+                                                                            config::ac_high_relays.Find(config::RelayACHighId::GRZALKA_2).reset();
+                                                                        }, {1200000}, "DisableHeatersWhenDistillationFinished", false);
+                                                                },
+                                                                {60000},
+                                                                "emergencyStopWhenAlarm",
+                                                                false);
+                                                        },
+                                                        {60000},
+                                                        "emergencyStopWhenAlarm",
+                                                        false);
+                                                },
+                                                {180000},
+                                                "emergencyStopWhenAlarm",
+                                                false);
+                                        }
                                     }
                                 } else {
                                     io::Logger("setAlarmAction").error() << "Can't get temperature.";
@@ -555,11 +609,17 @@ namespace display
                             }, {5000}, "setAlarmAction", true);
                             break;
                         case 1:
-                            if (!task_id.has_value())
-                                break;
-
-                            io::FunctionTimer::removeFunction(task_id.value());
-                            task_id.reset();
+                            if (alarm_task_id.has_value())
+                            {
+                                io::FunctionTimer::removeFunction(alarm_task_id.value());
+                                alarm_task_id.reset();
+                            }
+                            if (emergency_stop_task_id.has_value())
+                            {
+                                io::FunctionTimer::removeFunction(emergency_stop_task_id.value());
+                                emergency_stop_task_id.reset();
+                            }
+                            config::alarm_with_notification.disable();
                             break;
                     }
                 }
@@ -588,7 +648,7 @@ namespace display
                 lines[2] = std::string(" ") + msgSet + std::string(" >") + msgReset;
         }
 
-        if(task_id.has_value())
+        if(alarm_task_id.has_value())
             lines[3] = msgRunning;
 
         clearScreen();
