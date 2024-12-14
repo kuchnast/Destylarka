@@ -1,13 +1,15 @@
 #include <io/FunctionTimer.hpp>
 
-namespace io {
+namespace io
+{
 
-    FunctionInfo::FunctionInfo(const std::string& name, std::function<void()> func, uint32_t target_time_ms,
-                               uint32_t time_ms, bool is_repeatable):
-    name(name), func(func), target_time_ms(target_time_ms), time_ms(time_ms), is_repeatable(is_repeatable)
+    FunctionInfo::FunctionInfo(const std::string &name, std::function<void()> func, uint32_t target_time_ms,
+        uint32_t time_ms, bool is_repeatable)
+        : name(name), func(func), target_time_ms(target_time_ms), time_ms(time_ms), is_repeatable(is_repeatable)
     {
-        Logger("FunctionInfo").info() << "Created new " << (is_repeatable ? "repeatable every " + std::to_string(time_ms) : "")
-            << " function " << name << " witch target time" << std::to_string(target_time_ms);
+        Logger("FunctionInfo").info() << "Created new "
+                                      << (is_repeatable ? "repeatable every " + std::to_string(time_ms) : "")
+                                      << " function " << name << " witch target time" << std::to_string(target_time_ms);
     }
 
     uint32_t FunctionTimer::next_target_time_ = 0;
@@ -15,17 +17,16 @@ namespace io {
     std::map<uint32_t, FunctionInfo> FunctionTimer::functions_{};
     Logger logger("FunctionTimer");
 
-    uint32_t FunctionTimer::addFunction(std::function<void()> func, const std::vector<uint32_t>& times_ms,
-                                        const std::string& name, bool is_repeatable)
+    uint32_t FunctionTimer::addFunction(std::function<void()> func, const std::vector<uint32_t> &times_ms,
+        const std::string &name, bool is_repeatable)
     {
         uint32_t current_time = HAL_GetTick();
-        for(const auto& time_ms: times_ms)
+        for (const auto &time_ms: times_ms)
         {
             uint32_t target_time = current_time + time_ms;
             logger.info() << "Added function id: " << std::to_string(last_function_id_);
             functions_.try_emplace(last_function_id_++, name, func, target_time, time_ms, is_repeatable);
 
-            // Sprawdź, czy nowo dodana funkcja ma najwcześniejszy target_time
             if (target_time < next_target_time_ || next_target_time_ == 0)
             {
                 next_target_time_ = target_time;
@@ -40,9 +41,8 @@ namespace io {
     {
         bool is_removed = functions_.erase(function_id);
         logger.info() << "Removed function with id " << std::to_string(function_id)
-            << (is_removed ? " - successfuly" : " - faild (no id present in map)");
+                      << (is_removed ? " - successfuly" : " - faild (no id present in map)");
 
-        // Aktualizuj najbliższy target_time
         uint32_t current_time = HAL_GetTick();
         next_target_time_ = 0;
         for (const auto &func_info: functions_)
@@ -60,26 +60,40 @@ namespace io {
 
     bool FunctionTimer::hasFunction(uint32_t function_id)
     {
-        return functions_.count(function_id);
+        return functions_.count(function_id) != 0;
+    }
+
+    bool FunctionTimer::modifyFunctionRepeatability(uint32_t function_id, bool state)
+    {
+        auto it = functions_.find(function_id);
+        if (it != functions_.end())
+        {
+            it->second.is_repeatable = state;
+            return true;
+        }
+        return false;
     }
 
     void FunctionTimer::handleFunctionsWithTimeout()
     {
-        if (!next_target_time_)
+        if (next_target_time_ == 0)
+        {
             return;
+        }
 
-        uint32_t current_time = HAL_GetTick();
+        uint32_t const current_time = HAL_GetTick();
 
         if (current_time >= next_target_time_)
         {
-            for (auto it = functions_.begin(); it != functions_.end();) {
+            for (auto it = functions_.begin(); it != functions_.end();)
+            {
                 if (current_time >= it->second.target_time_ms)
                 {
                     logger.info() << "Function " << it->second.name << " with id " << std::to_string(it->first)
-                        << " timed out. Executing...";
+                                  << " timed out. Executing...";
                     it->second.func();
 
-                    if(it->second.is_repeatable)
+                    if (it->second.is_repeatable)
                     {
                         logger.info() << "Function is repeatable, starting again timer.";
                         it->second.target_time_ms = HAL_GetTick() + it->second.time_ms;
@@ -89,12 +103,12 @@ namespace io {
                         it = functions_.erase(it);
                     }
                 }
-                else {
+                else
+                {
                     ++it;
                 }
             }
 
-            // Aktualizuj najbliższy target_time
             next_target_time_ = 0;
             for (const auto &func_info: functions_)
             {
@@ -107,4 +121,4 @@ namespace io {
             logger.info() << "Next target time updated to " << std::to_string(next_target_time_);
         }
     }
-}
+}// namespace io
